@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * config_parser.c: hand-written parser to parse configuration directives.
@@ -561,14 +561,14 @@ void errorlog(char *fmt, ...) {
 
 static int criteria_next_state;
 
-void cfg_criteria_init(I3_CFG, int _state) {
+void cfg_criteria_init(MWM_CFG, int _state) {
     criteria_next_state = _state;
 }
 
-void cfg_criteria_add(I3_CFG, const char *ctype, const char *cvalue) {
+void cfg_criteria_add(MWM_CFG, const char *ctype, const char *cvalue) {
 }
 
-void cfg_criteria_pop_state(I3_CFG) {
+void cfg_criteria_pop_state(MWM_CFG) {
     result->next_state = criteria_next_state;
 }
 
@@ -596,8 +596,8 @@ int main(int argc, char *argv[]) {
  */
 void start_config_error_nagbar(const char *configpath, bool has_errors) {
     char *editaction, *pageraction;
-    sasprintf(&editaction, "i3-sensible-editor \"%s\" && i3-msg reload\n", configpath);
-    sasprintf(&pageraction, "i3-sensible-pager \"%s\"\n", errorfilename);
+    sasprintf(&editaction, "mwm-sensible-editor \"%s\" && mwm-msg reload\n", configpath);
+    sasprintf(&pageraction, "mwm-sensible-pager \"%s\"\n", errorfilename);
     char *argv[] = {
         NULL, /* will be replaced by the executable path */
         "-f",
@@ -605,7 +605,7 @@ void start_config_error_nagbar(const char *configpath, bool has_errors) {
         "-t",
         (has_errors ? "error" : "warning"),
         "-m",
-        (has_errors ? "You have an error in your i3 config file!" : "Your config is outdated. Please fix the warnings to make sure everything works."),
+        (has_errors ? "You have an error in your mwm config file!" : "Your config is outdated. Please fix the warnings to make sure everything works."),
         "-b",
         "edit config",
         editaction,
@@ -699,7 +699,7 @@ void free_variables(struct parser_ctx *ctx) {
 
 /*
  * Parses the given file by first replacing the variables, then calling
- * parse_config and possibly launching i3-nagbar.
+ * parse_config and possibly launching mwm-nagbar.
  *
  */
 parse_file_result_t parse_file(struct parser_ctx *ctx, const char *f, IncludedFile *included_file) {
@@ -806,7 +806,7 @@ parse_file_result_t parse_file(struct parser_ctx *ctx, const char *f, IncludedFi
             /* Ensure that this string is terminated. For example, a user might
              * want a variable to be empty if the resource can't be found and
              * uses
-             *   set_from_resource $foo i3wm.foo
+             *   set_from_resource $foo mwm.foo
              * Without explicitly terminating the string first, sscanf() will
              * leave it uninitialized, causing garbage in the config.*/
             fallback[0] = '\0';
@@ -916,7 +916,7 @@ parse_file_result_t parse_file(struct parser_ctx *ctx, const char *f, IncludedFi
     check_for_duplicate_bindings(context);
 
     if (ctx->use_nagbar && (context->has_errors || context->has_warnings || invalid_sets)) {
-        ELOG("FYI: You are using i3 version %s\n", i3_version);
+        ELOG("You are using mwm version %s\n", mwm_version);
         start_config_error_nagbar(f, context->has_errors || invalid_sets);
     }
 

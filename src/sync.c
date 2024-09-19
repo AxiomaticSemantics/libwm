@@ -17,7 +17,7 @@ void sync_respond(xcb_window_t window, uint32_t rnd) {
 
     ev->response_type = XCB_CLIENT_MESSAGE;
     ev->window = window;
-    ev->type = A_I3_SYNC;
+    ev->type = A_MWM_SYNC;
     ev->format = 32;
     ev->data.data32[0] = window;
     ev->data.data32[1] = rnd;

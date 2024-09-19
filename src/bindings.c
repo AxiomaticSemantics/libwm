@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * bindings.c: Functions for configuring, finding and, running bindings.
@@ -86,16 +86,16 @@ Binding *configure_binding(const char *bindtype, const char *modifiers, const ch
     new_binding->command = sstrdup(command);
     new_binding->event_state_mask = event_state_from_str(modifiers);
     int group_bits_set = 0;
-    if ((new_binding->event_state_mask >> 16) & I3_XKB_GROUP_MASK_1) {
+    if ((new_binding->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_1) {
         group_bits_set++;
     }
-    if ((new_binding->event_state_mask >> 16) & I3_XKB_GROUP_MASK_2) {
+    if ((new_binding->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_2) {
         group_bits_set++;
     }
-    if ((new_binding->event_state_mask >> 16) & I3_XKB_GROUP_MASK_3) {
+    if ((new_binding->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_3) {
         group_bits_set++;
     }
-    if ((new_binding->event_state_mask >> 16) & I3_XKB_GROUP_MASK_4) {
+    if ((new_binding->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_4) {
         group_bits_set++;
     }
     if (group_bits_set > 1) {
@@ -112,18 +112,18 @@ Binding *configure_binding(const char *bindtype, const char *modifiers, const ch
 
 static bool binding_in_current_group(const Binding *bind) {
     /* If no bits are set, the binding should be installed in every group. */
-    if ((bind->event_state_mask >> 16) == I3_XKB_GROUP_MASK_ANY) {
+    if ((bind->event_state_mask >> 16) == MWM_XKB_GROUP_MASK_ANY) {
         return true;
     }
     switch (xkb_current_group) {
         case XCB_XKB_GROUP_1:
-            return ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_1);
+            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_1);
         case XCB_XKB_GROUP_2:
-            return ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_2);
+            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_2);
         case XCB_XKB_GROUP_3:
-            return ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_3);
+            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_3);
         case XCB_XKB_GROUP_4:
-            return ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_4);
+            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_4);
         default:
             ELOG("BUG: xkb_current_group (= %d) outside of [XCB_XKB_GROUP_1..XCB_XKB_GROUP_4]\n", xkb_current_group);
             return false;
@@ -207,7 +207,7 @@ void regrab_all_buttons(xcb_connection_t *conn) {
  * keycode or NULL if no such binding exists.
  *
  */
-static Binding *get_binding(i3_event_state_mask_t state_filtered, bool is_release, uint16_t input_code, input_type_t input_type) {
+static Binding *get_binding(mwm_event_state_mask_t state_filtered, bool is_release, uint16_t input_code, input_type_t input_type) {
     Binding *bind;
     Binding *result = NULL;
 
@@ -325,10 +325,10 @@ Binding *get_binding_from_xcb_event(xcb_generic_event_t *event) {
     const uint16_t event_detail = ((xcb_key_press_event_t *)event)->detail;
 
     /* Remove the CapsLock bit */
-    i3_event_state_mask_t state_filtered = event_state & ~XCB_MOD_MASK_LOCK;
+    mwm_event_state_mask_t state_filtered = event_state & ~XCB_MOD_MASK_LOCK;
     DLOG("(removed capslock, state = 0x%x)\n", state_filtered);
     /* Transform the keyboard_group from bit 13 and bit 14 into an
-     * i3_xkb_group_mask_t, so that get_binding() can just bitwise AND the
+     * mwm_xkb_group_mask_t, so that get_binding() can just bitwise AND the
      * configured bindings against |state_filtered|.
      *
      * These bits are only set because we set the XKB client flags
@@ -338,16 +338,16 @@ Binding *get_binding_from_xcb_event(xcb_generic_event_t *event) {
      * https://www.x.org/releases/X11R7.7/doc/kbproto/xkbproto.html#Computing_A_State_Field_from_an_XKB_State */
     switch ((event_state & 0x6000) >> 13) {
         case XCB_XKB_GROUP_1:
-            state_filtered |= (I3_XKB_GROUP_MASK_1 << 16);
+            state_filtered |= (MWM_XKB_GROUP_MASK_1 << 16);
             break;
         case XCB_XKB_GROUP_2:
-            state_filtered |= (I3_XKB_GROUP_MASK_2 << 16);
+            state_filtered |= (MWM_XKB_GROUP_MASK_2 << 16);
             break;
         case XCB_XKB_GROUP_3:
-            state_filtered |= (I3_XKB_GROUP_MASK_3 << 16);
+            state_filtered |= (MWM_XKB_GROUP_MASK_3 << 16);
             break;
         case XCB_XKB_GROUP_4:
-            state_filtered |= (I3_XKB_GROUP_MASK_4 << 16);
+            state_filtered |= (MWM_XKB_GROUP_MASK_4 << 16);
             break;
     }
     state_filtered &= ~0x6000;
@@ -475,11 +475,11 @@ void translate_keysyms(void) {
         }
 
         xkb_layout_index_t group = XCB_XKB_GROUP_1;
-        if ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_2) {
+        if ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_2) {
             group = XCB_XKB_GROUP_2;
-        } else if ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_3) {
+        } else if ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_3) {
             group = XCB_XKB_GROUP_3;
-        } else if ((bind->event_state_mask >> 16) & I3_XKB_GROUP_MASK_4) {
+        } else if ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_4) {
             group = XCB_XKB_GROUP_4;
         }
 
@@ -487,9 +487,9 @@ void translate_keysyms(void) {
              bind,
              group,
              bind->event_state_mask,
-             (bind->event_state_mask & I3_XKB_GROUP_MASK_2) ? "yes" : "no",
-             (bind->event_state_mask & I3_XKB_GROUP_MASK_3) ? "yes" : "no",
-             (bind->event_state_mask & I3_XKB_GROUP_MASK_4) ? "yes" : "no");
+             (bind->event_state_mask & MWM_XKB_GROUP_MASK_2) ? "yes" : "no",
+             (bind->event_state_mask & MWM_XKB_GROUP_MASK_3) ? "yes" : "no",
+             (bind->event_state_mask & MWM_XKB_GROUP_MASK_4) ? "yes" : "no");
         (void)xkb_state_update_mask(
             dummy_state,
             (bind->event_state_mask & 0x1FFF) /* xkb_mod_mask_t base_mods, */,
@@ -666,7 +666,7 @@ void switch_mode(const char *new_mode) {
         sasprintf(&event_msg, "{\"change\":\"%s\", \"pango_markup\":%s}",
                   mode->name, (mode->pango_markup ? "true" : "false"));
 
-        ipc_send_event("mode", I3_IPC_EVENT_MODE, event_msg);
+        ipc_send_event("mode", MWM_IPC_EVENT_MODE, event_msg);
         FREE(event_msg);
 
         return;
@@ -778,7 +778,7 @@ static bool binding_same_key(Binding *a, Binding *b) {
  * Checks for duplicate key bindings (the same keycode or keysym is configured
  * more than once). If a duplicate binding is found, a message is printed to
  * stderr and the has_errors variable is set to true, which will start
- * i3-nagbar.
+ * mwm-nagbar.
  *
  */
 void check_for_duplicate_bindings(struct context *context) {
@@ -882,7 +882,7 @@ CommandResult *run_binding(Binding *bind, Con *con) {
 
     if (result->parse_error) {
         char *pageraction;
-        sasprintf(&pageraction, "i3-sensible-pager \"%s\"\n", errorfilename);
+        sasprintf(&pageraction, "mwm-sensible-pager \"%s\"\n", errorfilename);
         char *argv[] = {
             NULL, /* will be replaced by the executable path */
             "-f",
@@ -1059,7 +1059,7 @@ int *bindings_get_buttons_to_grab(void) {
 
         long button;
         if (!parse_long(bind->symbol + (sizeof("button") - 1), &button, 10)) {
-            ELOG("Could not parse button number, skipping this binding. Please report this bug in i3.\n");
+            ELOG("Could not parse button number, skipping this binding. Please report this bug in mwm.\n");
             continue;
         }
 

@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * ewmh.c: Get/set certain EWMH properties easily.
@@ -84,8 +84,8 @@ void ewmh_update_focused(xcb_window_t window, bool is_focused);
 void ewmh_setup_hints(void);
 
 /**
- * i3 currently does not support _NET_WORKAREA, because it does not correspond
- * to i3’s concept of workspaces. See also:
+ * mwm currently does not support _NET_WORKAREA, because it does not correspond
+ * to mwm’s concept of workspaces. See also:
  * https://bugs.i3wm.org/539
  * https://bugs.i3wm.org/301
  * https://bugs.i3wm.org/1038

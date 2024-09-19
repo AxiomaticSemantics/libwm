@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * window.c: Updates window attributes (X11 hints/properties).
@@ -12,24 +12,24 @@
 #include <config.h>
 
 /**
- * Frees an i3Window and all its members.
+ * Frees an mwmWindow and all its members.
  *
  */
-void window_free(i3Window *win);
+void window_free(mwmWindow *win);
 
 /**
  * Updates the WM_CLASS (consisting of the class and instance) for the
  * given window.
  *
  */
-void window_update_class(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_class(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the name by using _NET_WM_NAME (encoded in UTF-8) for the given
  * window. Further updates using window_update_name_legacy will be ignored.
  *
  */
-void window_update_name(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_name(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the name by using WM_NAME (encoded in COMPOUND_TEXT). We do not
@@ -38,49 +38,49 @@ void window_update_name(i3Window *win, xcb_get_property_reply_t *prop);
  * window_update_name()).
  *
  */
-void window_update_name_legacy(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_name_legacy(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the CLIENT_LEADER (logical parent window).
  *
  */
-void window_update_leader(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_leader(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the TRANSIENT_FOR (logical parent window).
  *
  */
-void window_update_transient_for(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_transient_for(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the _NET_WM_STRUT_PARTIAL (reserved pixels at the screen edges)
  *
  */
-void window_update_strut_partial(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_strut_partial(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the WM_WINDOW_ROLE
  *
  */
-void window_update_role(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_role(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the _NET_WM_WINDOW_TYPE property.
  *
  */
-void window_update_type(i3Window *window, xcb_get_property_reply_t *reply);
+void window_update_type(mwmWindow *window, xcb_get_property_reply_t *reply);
 
 /**
  * Updates the WM_NORMAL_HINTS
  *
  */
-bool window_update_normal_hints(i3Window *win, xcb_get_property_reply_t *reply, xcb_get_geometry_reply_t *geom);
+bool window_update_normal_hints(mwmWindow *win, xcb_get_property_reply_t *reply, xcb_get_geometry_reply_t *geom);
 
 /**
  * Updates the WM_HINTS (we only care about the input focus handling part).
  *
  */
-void window_update_hints(i3Window *win, xcb_get_property_reply_t *prop, bool *urgency_hint);
+void window_update_hints(mwmWindow *win, xcb_get_property_reply_t *prop, bool *urgency_hint);
 
 /**
  * Updates the MOTIF_WM_HINTS. The container's border style should be set to
@@ -94,16 +94,16 @@ void window_update_hints(i3Window *win, xcb_get_property_reply_t *prop, bool *ur
  * it is still in use by popular widget toolkits such as GTK+ and Java AWT.
  *
  */
-bool window_update_motif_hints(i3Window *win, xcb_get_property_reply_t *prop, border_style_t *motif_border_style);
+bool window_update_motif_hints(mwmWindow *win, xcb_get_property_reply_t *prop, border_style_t *motif_border_style);
 
 /**
  * Updates the WM_CLIENT_MACHINE
  *
  */
-void window_update_machine(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_machine(mwmWindow *win, xcb_get_property_reply_t *prop);
 
 /**
  * Updates the _NET_WM_ICON
  *
  */
-void window_update_icon(i3Window *win, xcb_get_property_reply_t *prop);
+void window_update_icon(mwmWindow *win, xcb_get_property_reply_t *prop);

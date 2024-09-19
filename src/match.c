@@ -1,20 +1,20 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * A "match" is a data structure which acts like a mask or expression to match
  * certain windows or not. For example, when using commands, you can specify a
  * command like this: [title="*Firefox*"] kill. The title member of the match
- * data structure will then be filled and i3 will check each window using
+ * data structure will then be filled and mwm will check each window using
  * match_matches_window() to find the windows affected by this command.
  *
  */
 #include "all.h"
 
 /* From sys/time.h, not sure if it’s available on all systems. */
-#define _i3_timercmp(a, b, CMP) \
+#define _mwm_timercmp(a, b, CMP) \
     (((a).tv_sec == (b).tv_sec) ? ((a).tv_usec CMP(b).tv_usec) : ((a).tv_sec CMP(b).tv_sec))
 
 /*
@@ -87,11 +87,11 @@ void match_copy(Match *dest, Match *src) {
  * Check if a match data structure matches the given window.
  *
  */
-bool match_matches_window(Match *match, i3Window *window) {
+bool match_matches_window(Match *match, mwmWindow *window) {
     LOG("Checking window 0x%08x (class %s)\n", window->id, window->class_class);
 
 #define GET_FIELD_str(field) (field)
-#define GET_FIELD_i3string(field) (i3string_as_utf8(field))
+#define GET_FIELD_mwmstring(field) (mwmstring_as_utf8(field))
 #define CHECK_WINDOW_FIELD(match_field, window_field, type)                                       \
     do {                                                                                          \
         if (match->match_field != NULL) {                                                         \
@@ -122,7 +122,7 @@ bool match_matches_window(Match *match, i3Window *window) {
         }
     }
 
-    CHECK_WINDOW_FIELD(title, name, i3string);
+    CHECK_WINDOW_FIELD(title, name, mwmstring);
     CHECK_WINDOW_FIELD(window_role, role, str);
 
     if (match->window_type != UINT32_MAX) {
@@ -144,7 +144,7 @@ bool match_matches_window(Match *match, i3Window *window) {
         /* if we find a window that is newer than this one, bail */
         TAILQ_FOREACH (con, &all_cons, all_cons) {
             if ((con->window != NULL) &&
-                _i3_timercmp(con->window->urgent, window->urgent, >)) {
+                _mwm_timercmp(con->window->urgent, window->urgent, >)) {
                 return false;
             }
         }
@@ -160,7 +160,7 @@ bool match_matches_window(Match *match, i3Window *window) {
         TAILQ_FOREACH (con, &all_cons, all_cons) {
             if ((con->window != NULL) &&
                 (con->window->urgent.tv_sec != 0) &&
-                _i3_timercmp(con->window->urgent, window->urgent, <)) {
+                _mwm_timercmp(con->window->urgent, window->urgent, <)) {
                 return false;
             }
         }

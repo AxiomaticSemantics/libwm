@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * x.c: Interface to X11, transfers our in-memory state to X11 (see also
@@ -176,13 +176,12 @@ void x_con_init(Con *con) {
                         XCB_ATOM_WM_CLASS,
                         XCB_ATOM_STRING,
                         8,
-                        (strlen("i3-frame") + 1) * 2,
-                        "i3-frame\0i3-frame\0");
+                        20 /* strlen("mwm-frame\0") * 2 */,
+                        "mwm-frame\0mwm-frame\0");
 
     struct con_state *state = scalloc(1, sizeof(struct con_state));
-    state->id = con->frame.id;
-    state->mapped = false;
-    state->initial = true;
+    *state = (struct con_state) { .id=con->frame.id, .initial=true };
+    
     DLOG("Adding window 0x%08x to lists\n", state->id);
     CIRCLEQ_INSERT_HEAD(&state_head, state, state);
     CIRCLEQ_INSERT_HEAD(&old_state_head, state, old_state);
@@ -664,7 +663,7 @@ void x_draw_decoration(Con *con) {
         }
 
         if (had_visible_mark) {
-            i3String *mark = i3string_from_utf8(formatted_mark);
+            mwmString *mark = mwmstring_from_utf8(formatted_mark);
             mark_width = predict_text_width(mark);
 
             int mark_offset_x = (config.title_align == ALIGN_RIGHT)
@@ -675,7 +674,7 @@ void x_draw_decoration(Con *con) {
                            p->color->text, p->color->background,
                            con->deco_rect.x + mark_offset_x,
                            con->deco_rect.y + text_offset_y, mark_width);
-            I3STRING_FREE(mark);
+            MWMSTRING_FREE(mark);
 
             mark_width += title_padding;
         }
@@ -683,15 +682,15 @@ void x_draw_decoration(Con *con) {
         FREE(formatted_mark);
     }
 
-    i3String *title = NULL;
+    mwmString *title = NULL;
     if (win == NULL) {
         if (con->title_format == NULL) {
             char *_title;
             char *tree = con_get_tree_representation(con);
-            sasprintf(&_title, "i3: %s", tree);
+            sasprintf(&_title, "mwm: %s", tree);
             free(tree);
 
-            title = i3string_from_utf8(_title);
+            title = mwmstring_from_utf8(_title);
             FREE(_title);
         } else {
             title = con_parse_title_format(con);
@@ -764,7 +763,7 @@ void x_draw_decoration(Con *con) {
     }
 
     if (win == NULL || con->title_format != NULL) {
-        I3STRING_FREE(title);
+        MWMSTRING_FREE(title);
     }
 
     x_draw_decoration_after_title(con, p, dest_surface);
@@ -1023,7 +1022,7 @@ void x_push_node(Con *con) {
          con, con->layout, is_pixmap_needed ? "yes" : "no", con->rect.height);
 
     /* The root con and output cons will never require a pixmap. In particular for the
-     * __i3 output, this will likely not work anyway because it might be ridiculously
+     * __mwm output, this will likely not work anyway because it might be ridiculously
      * large, causing an XCB_ALLOC error. */
     if (con->type == CT_ROOT || con->type == CT_OUTPUT) {
         is_pixmap_needed = false;
@@ -1279,7 +1278,7 @@ void x_push_changes(Con *con) {
     DLOG("-- PUSHING WINDOW STACK --\n");
     /* We need to keep SubstructureRedirect around, otherwise clients can send
      * ConfigureWindow requests and get them applied directly instead of having
-     * them become ConfigureRequests that i3 handles. */
+     * them become ConfigureRequests that mwm handles. */
     uint32_t values[1] = {XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT};
     CIRCLEQ_FOREACH_REVERSE (state, &state_head, state) {
         if (state->mapped) {
@@ -1298,7 +1297,7 @@ void x_push_changes(Con *con) {
         }
     }
 
-    /* The bottom-to-top window stack of all windows which are managed by i3.
+    /* The bottom-to-top window stack of all windows which are managed by mwm.
      * Used for x_get_window_stack(). */
     static xcb_window_t *client_list_windows = NULL;
     static int client_list_count = 0;
@@ -1491,7 +1490,7 @@ void x_raise_con(Con *con) {
 /*
  * Sets the WM_NAME property (so, no UTF8, but used only for debugging anyways)
  * of the given name. Used for properly tagging the windows for easily spotting
- * i3 windows in xwininfo -root -all.
+ * mwm windows in xwininfo -root -all.
  *
  */
 void x_set_name(Con *con, const char *name) {
@@ -1507,32 +1506,32 @@ void x_set_name(Con *con, const char *name) {
 }
 
 /*
- * Set up the I3_SHMLOG_PATH atom.
+ * Set up the MWM_SHMLOG_PATH atom.
  *
  */
 void update_shmlog_atom(void) {
     if (*shmlogname == '\0') {
-        xcb_delete_property(conn, root, A_I3_SHMLOG_PATH);
+        xcb_delete_property(conn, root, A_MWM_SHMLOG_PATH);
     } else {
         xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root,
-                            A_I3_SHMLOG_PATH, A_UTF8_STRING, 8,
+                            A_MWM_SHMLOG_PATH, A_UTF8_STRING, 8,
                             strlen(shmlogname), shmlogname);
     }
 }
 
 /*
- * Sets up i3 specific atoms (I3_SOCKET_PATH and I3_CONFIG_PATH)
+ * Sets up mwm specific atoms (MWM_SOCKET_PATH and MWM_CONFIG_PATH)
  *
  */
-void x_set_i3_atoms(void) {
+void x_set_mwm_atoms(void) {
     pid_t pid = getpid();
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_SOCKET_PATH, A_UTF8_STRING, 8,
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_MWM_SOCKET_PATH, A_UTF8_STRING, 8,
                         (current_socketpath == NULL ? 0 : strlen(current_socketpath)),
                         current_socketpath);
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_PID, XCB_ATOM_CARDINAL, 32, 1, &pid);
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_CONFIG_PATH, A_UTF8_STRING, 8,
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_MWM_PID, XCB_ATOM_CARDINAL, 32, 1, &pid);
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_MWM_CONFIG_PATH, A_UTF8_STRING, 8,
                         strlen(current_configpath), current_configpath);
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_LOG_STREAM_SOCKET_PATH, A_UTF8_STRING, 8,
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_MWM_LOG_STREAM_SOCKET_PATH, A_UTF8_STRING, 8,
                         strlen(current_log_stream_socket_path), current_log_stream_socket_path);
     update_shmlog_atom();
 }
@@ -1549,7 +1548,7 @@ void x_set_warp_to(Rect *rect) {
 }
 
 /*
- * Applies the given mask to the event mask of every i3 window decoration X11
+ * Applies the given mask to the event mask of every mwm window decoration X11
  * window. This is useful to disable EnterNotify while resizing so that focus
  * is untouched.
  *

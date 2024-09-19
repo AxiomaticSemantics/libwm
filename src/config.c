@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * config.c: Configuration file (calling the parser (src/config_parser.c) with
@@ -108,7 +108,7 @@ static void free_configuration(void) {
         FREE(barconfig->socket_path);
         FREE(barconfig->status_command);
         FREE(barconfig->workspace_command);
-        FREE(barconfig->i3bar_command);
+        FREE(barconfig->mwm_bar_command);
         FREE(barconfig->font);
         FREE(barconfig->colors.background);
         FREE(barconfig->colors.statusline);
@@ -239,8 +239,8 @@ bool load_configuration(const char *override_configpath, config_load_t load_type
     current_configpath = get_config_path(override_configpath, true);
     if (current_configpath == NULL) {
         die("Unable to find the configuration file (looked at "
-            "$XDG_CONFIG_HOME/i3/config, ~/.i3/config, $XDG_CONFIG_DIRS/i3/config "
-            "and " SYSCONFDIR "/i3/config)");
+            "$XDG_CONFIG_HOME/mwm/config, ~/.mwm/config, $XDG_CONFIG_DIRS/mwm/config "
+            "and " SYSCONFDIR "/mwm/config)");
     }
 
     IncludedFile *file;
@@ -285,7 +285,7 @@ bool load_configuration(const char *override_configpath, config_load_t load_type
         set_font(&config.font);
     }
 
-    /* Make bar config blocks without a configured font use the i3-wide font. */
+    /* Make bar config blocks without a configured font use the mwm-wide font. */
     Barconfig *current;
     if (load_type != C_VALIDATE) {
         TAILQ_FOREACH (current, &barconfigs, configs) {

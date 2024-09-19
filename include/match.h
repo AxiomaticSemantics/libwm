@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * A "match" is a data structure which acts like a mask or expression to match
@@ -40,7 +40,7 @@ void match_copy(Match *dest, Match *src);
  * Check if a match data structure matches the given window.
  *
  */
-bool match_matches_window(Match *match, i3Window *window);
+bool match_matches_window(Match *match, mwmWindow *window);
 
 /**
  * Frees the given match. It must not be used afterwards!

@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * log.c: Logging functions.
@@ -39,22 +39,22 @@ char *errorfilename;
 
 /* SHM logging variables */
 
-/* The name for the SHM (/i3-log-%pid). Will end up on /dev/shm on most
+/* The name for the SHM (/mwm-log-%pid). Will end up on /dev/shm on most
  * systems. Global so that we can clean up at exit. */
 char *shmlogname = "";
 /* Size limit for the SHM log, by default 25 MiB. Can be overwritten using the
  * flag --shmlog-size. */
 int shmlog_size = 0;
-/* If enabled, logbuffer will point to a memory mapping of the i3 SHM log. */
+/* If enabled, logbuffer will point to a memory mapping of the mwm SHM log. */
 static char *logbuffer;
 /* A pointer (within logbuffer) where data will be written to next. */
 static char *logwalk;
 /* A pointer to the shmlog header */
-static i3_shmlog_header *header;
+static mwm_shmlog_header *header;
 /* A pointer to the byte where we last wrapped. Necessary to not print the
  * left-overs at the end of the ringbuffer. */
 static char *loglastwrap;
-/* Size (in bytes) of the i3 SHM log. */
+/* Size (in bytes) of the mwm SHM log. */
 static int logbuffer_size;
 /* File descriptor for shm_open. */
 static int logbuffer_shm;
@@ -76,7 +76,7 @@ void log_broadcast_to_clients(const char *message, size_t len);
 /*
  * Writes the offsets for the next write and for the last wrap to the
  * shmlog_header.
- * Necessary to print the i3 SHM log in the correct order.
+ * Necessary to print the mwm SHM log in the correct order.
  *
  */
 static void store_log_markers(void) {
@@ -136,7 +136,7 @@ void init_logging(void) {
 void open_logbuffer(void) {
     /* Reserve 1% of the RAM for the logfile, but at max 25 MiB.
      * For 512 MiB of RAM this will lead to a 5 MiB log buffer.
-     * At the moment (2011-12-10), no testcase leads to an i3 log
+     * At the moment (2011-12-10), no testcase leads to an mwm log
      * of more than ~ 600 KiB. */
     logbuffer_size = shmlog_size;
     if (physical_mem_bytes * 0.01 < (long long)shmlog_size) {
@@ -144,23 +144,23 @@ void open_logbuffer(void) {
     }
 
 #if defined(__FreeBSD__)
-    sasprintf(&shmlogname, "/tmp/i3-log-%d", getpid());
+    sasprintf(&shmlogname, "/tmp/mwm-log-%d", getpid());
 #else
-    sasprintf(&shmlogname, "/i3-log-%d", getpid());
+    sasprintf(&shmlogname, "/mwm-log-%d", getpid());
 #endif
     logbuffer_shm = shm_open(shmlogname, O_RDWR | O_CREAT, S_IREAD | S_IWRITE);
     if (logbuffer_shm == -1) {
-        fprintf(stderr, "Could not shm_open SHM segment for the i3 log: %s\n", strerror(errno));
+        fprintf(stderr, "Could not shm_open SHM segment for the mwm log: %s\n", strerror(errno));
         return;
     }
 
 #if defined(__OpenBSD__) || defined(__APPLE__)
     if (ftruncate(logbuffer_shm, logbuffer_size) == -1) {
-        fprintf(stderr, "Could not ftruncate SHM segment for the i3 log: %s\n", strerror(errno));
+        fprintf(stderr, "Could not ftruncate SHM segment for the mwm log: %s\n", strerror(errno));
 #else
     int ret;
     if ((ret = posix_fallocate(logbuffer_shm, 0, logbuffer_size)) != 0) {
-        fprintf(stderr, "Could not ftruncate SHM segment for the i3 log: %s\n", strerror(ret));
+        fprintf(stderr, "Could not ftruncate SHM segment for the mwm log: %s\n", strerror(ret));
 #endif
         close(logbuffer_shm);
         shm_unlink(shmlogname);
@@ -170,16 +170,16 @@ void open_logbuffer(void) {
     logbuffer = mmap(NULL, logbuffer_size, PROT_READ | PROT_WRITE, MAP_SHARED, logbuffer_shm, 0);
     if (logbuffer == MAP_FAILED) {
         close_logbuffer();
-        fprintf(stderr, "Could not mmap SHM segment for the i3 log: %s\n", strerror(errno));
+        fprintf(stderr, "Could not mmap SHM segment for the mwm log: %s\n", strerror(errno));
         return;
     }
 
     /* Initialize with 0-bytes, just to be sure… */
     memset(logbuffer, '\0', logbuffer_size);
 
-    header = (i3_shmlog_header *)logbuffer;
+    header = (mwm_shmlog_header *)logbuffer;
 
-    logwalk = logbuffer + sizeof(i3_shmlog_header);
+    logwalk = logbuffer + sizeof(mwm_shmlog_header);
     loglastwrap = logbuffer + logbuffer_size;
     store_log_markers();
 }
@@ -197,7 +197,7 @@ void close_logbuffer(void) {
 }
 
 /*
- * Set verbosity of i3. If verbose is set to true, informative messages will
+ * Set verbosity of mwm. If verbose is set to true, informative messages will
  * be printed to stdout. If verbose is set to false, only errors will be
  * printed.
  *
@@ -224,7 +224,7 @@ void set_debug_logging(const bool _debug_logging) {
 
 /*
  * Logs the given message to stdout (if print is true) while prefixing the
- * current time to it. Additionally, the message will be saved in the i3 SHM
+ * current time to it. Additionally, the message will be saved in the mwm SHM
  * log if enabled.
  * This is to be called by *LOG() which includes filename/linenumber/function.
  *
@@ -281,7 +281,7 @@ static void vlog(const bool print, const char *fmt, va_list args) {
          * need to wrap and write to the beginning again. */
         if (len >= (size_t)(logbuffer_size - (logwalk - logbuffer))) {
             loglastwrap = logwalk;
-            logwalk = logbuffer + sizeof(i3_shmlog_header);
+            logwalk = logbuffer + sizeof(mwm_shmlog_header);
             store_log_markers();
             header->wrap_count++;
         }
@@ -358,7 +358,7 @@ void debuglog(char *fmt, ...) {
 }
 
 /*
- * Deletes the unused log files. Useful if i3 exits immediately, eg.
+ * Deletes the unused log files. Useful if mwm exits immediately, eg.
  * because --get-socketpath was called. We don't care for syscall
  * failures. This function is invoked automatically when exiting.
  */
@@ -423,7 +423,7 @@ void log_broadcast_to_clients(const char *message, size_t len) {
     log_client *current = TAILQ_FIRST(&log_clients);
     while (current != TAILQ_END(&log_clients)) {
         /* XXX: In case slow connections turn out to be a problem here
-         * (unlikely as long as i3-dump-log is the only consumer), introduce
+         * (unlikely as long as mwm-dump-log is the only consumer), introduce
          * buffering, similar to the IPC interface. */
         ssize_t n = writeall(current->fd, message, len);
         log_client *previous = current;

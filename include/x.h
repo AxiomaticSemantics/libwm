@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * x.c: Interface to X11, transfers our in-memory state to X11 (see also
@@ -106,7 +106,7 @@ void x_raise_con(Con *con);
 /**
  * Sets the WM_NAME property (so, no UTF8, but used only for debugging anyways)
  * of the given name. Used for properly tagging the windows for easily spotting
- * i3 windows in xwininfo -root -all.
+ * mwm windows in xwininfo -root -all.
  *
  */
 void x_set_name(Con *con, const char *name);
@@ -118,10 +118,10 @@ void x_set_name(Con *con, const char *name);
 void update_shmlog_atom(void);
 
 /**
- * Sets up i3 specific atoms (I3_SOCKET_PATH and I3_CONFIG_PATH)
+ * Sets up mwm specific atoms (MWM_SOCKET_PATH and MWM_CONFIG_PATH)
  *
  */
-void x_set_i3_atoms(void);
+void x_set_mwm_atoms(void);
 
 /**
  * Set warp_to coordinates.  This will trigger on the next call to
@@ -131,7 +131,7 @@ void x_set_i3_atoms(void);
 void x_set_warp_to(Rect *rect);
 
 /**
- * Applies the given mask to the event mask of every i3 window decoration X11
+ * Applies the given mask to the event mask of every mwm window decoration X11
  * window. This is useful to disable EnterNotify while resizing so that focus
  * is untouched.
  *

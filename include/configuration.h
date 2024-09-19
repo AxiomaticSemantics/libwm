@@ -1,11 +1,11 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * include/configuration.h: Contains all structs/variables for the configurable
- * part of i3 as well as functions handling the configuration file (calling
+ * part of mwm as well as functions handling the configuration file (calling
  * the parser (src/config_parse.c) with the correct path, switching key
  * bindings mode).
  *
@@ -13,7 +13,7 @@
 #pragma once
 
 #include "queue.h"
-#include "i3.h"
+#include "mwm.h"
 #include "tiling_drag.h"
 
 typedef struct IncludedFile IncludedFile;
@@ -48,7 +48,7 @@ struct context {
 
 /**
  * Part of the struct Config. It makes sense to group colors for background,
- * border and text as every element in i3 has them (window decorations, bar).
+ * border and text as every element in mwm has them (window decorations, bar).
  *
  */
 struct Colortriple {
@@ -105,7 +105,7 @@ struct Mode {
  */
 struct Config {
     const char *terminal;
-    i3Font font;
+    mwmFont font;
 
     char *ipc_socket_path;
     char *restart_state_path;
@@ -143,8 +143,8 @@ struct Config {
 
     /** By default, a workspace bar is drawn at the bottom of the screen.
      * If you want to have a more fancy bar, it is recommended to replace
-     * the whole bar by dzen2, for example using the i3-wsbar script which
-     * comes with i3. Thus, you can turn it off entirely. */
+     * the whole bar by dzen2, for example using the mwm-wsbar script which
+     * comes with mwm. Thus, you can turn it off entirely. */
     bool disable_workspace_bar;
 
     /** When focus wrapping is enabled (the default), attempting to
@@ -158,23 +158,13 @@ struct Config {
      * following layout: Horizontal workspace with a tabbed con on the
      * left of the screen and a terminal on the right of the
      * screen. You are in the second container in the tabbed container
-     * and focus to the right. By default, i3 will set focus to the
+     * and focus to the right. By default, mwm will set focus to the
      * terminal on the right. If you are in the first container in the
      * tabbed container however, focusing to the left will
-     * wrap. Setting focus_wrapping to FOCUS_WRAPPING_FORCE forces i3
+     * wrap. Setting focus_wrapping to FOCUS_WRAPPING_FORCE forces mwm
      * to always wrap, which will result in you having to use "focus
      * parent" more often. */
     focus_wrapping_t focus_wrapping;
-
-    /** By default, use the RandR API for multi-monitor setups.
-     * Unfortunately, the nVidia binary graphics driver doesn't support
-     * this API. Instead, it only support the less powerful Xinerama API,
-     * which can be enabled by this option.
-     *
-     * Note: this option takes only effect on the initial startup (eg.
-     * reconfiguration is not possible). On startup, the list of screens
-     * is fetched once and never updated. */
-    bool force_xinerama;
 
     /** Don’t use RandR 1.5 for querying outputs. */
     bool disable_randr15;
@@ -283,7 +273,7 @@ struct Config {
 };
 
 /**
- * Holds the status bar configuration (i3bar). One of these structures is
+ * Holds the status bar configuration (mwm-bar). One of these structures is
  * created for each 'bar' block in the config.
  *
  */
@@ -306,7 +296,7 @@ struct Barconfig {
     /* Padding around the tray icons. */
     int tray_padding;
 
-    /** Path to the i3 IPC socket. This option is discouraged since programs
+    /** Path to the mwm IPC socket. This option is discouraged since programs
      * can find out the path by looking for the I3_SOCKET_PATH property on the
      * root window! */
     char *socket_path;
@@ -329,10 +319,10 @@ struct Barconfig {
     enum { P_BOTTOM = 0,
            P_TOP = 1 } position;
 
-    /** Command that should be run to execute i3bar, give a full path if i3bar is not
+    /** Command that should be run to execute mwm-bar, give a full path if mwm-bar is not
      * in your $PATH.
-     * By default just 'i3bar' is executed. */
-    char *i3bar_command;
+     * By default just 'mwm-bar' is executed. */
+    char *mwm_bar_command;
 
     /** Command that should be run to get a statusline, for example 'i3status'.
      * Will be passed to the shell. */
@@ -411,7 +401,7 @@ struct Barconfig {
 
 /**
  * Defines a mouse command to be executed instead of the default behavior when
- * clicking on the non-statusline part of i3bar.
+ * clicking on the non-statusline part of mwm-bar.
  *
  */
 struct Barbinding {

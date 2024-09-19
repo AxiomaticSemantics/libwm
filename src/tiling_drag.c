@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * tiling_drag.c: Reposition tiled windows by dragging.
@@ -18,8 +18,8 @@ static bool is_tiling_drop_target(Con *con) {
     }
     Con *ws = con_get_workspace(con);
     if (con_is_internal(ws)) {
-        /* Skip containers on i3-internal containers like the scratchpad, which are
-           technically visible on their pseudo-output. */
+        /* Skip containers on mwm-internal containers like the scratchpad, which are
+	 * technically visible on their pseudo-output. */
         return false;
     }
     if (!workspace_is_visible(ws)) {
@@ -280,7 +280,7 @@ static xcb_window_t create_drop_indicator(Rect rect) {
 
     xcb_window_t indicator = create_window(conn, rect, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT,
                                            XCB_WINDOW_CLASS_INPUT_OUTPUT, XCURSOR_CURSOR_MOVE, false, mask, values);
-    /* Change the window class to "i3-drag", so that it can be matched in a
+    /* Change the window class to "mwm-drag", so that it can be matched in a
      * compositor configuration. Note that the class needs to be changed before
      * mapping the window. */
     xcb_change_property(conn,
@@ -289,8 +289,8 @@ static xcb_window_t create_drop_indicator(Rect rect) {
                         XCB_ATOM_WM_CLASS,
                         XCB_ATOM_STRING,
                         8,
-                        (strlen("i3-drag") + 1) * 2,
-                        "i3-drag\0i3-drag\0");
+                        (strlen("mwm-drag") + 1) * 2,
+                        "mwm-drag\0mwm-drag\0");
     xcb_map_window(conn, indicator);
     xcb_circulate_window(conn, XCB_CIRCULATE_RAISE_LOWEST, indicator);
 

@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * main.c: Initialization, main loop
@@ -25,21 +25,20 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <xcb/xcb_atom.h>
-#include <xcb/xinerama.h>
 #include <xcb/bigreq.h>
 
-#ifdef I3_ASAN_ENABLED
+#ifdef MWM_ASAN_ENABLED
 #include <sanitizer/lsan_interface.h>
 #endif
 
 #include "sd-daemon.h"
 
-#include "i3-atoms_NET_SUPPORTED.xmacro.h"
-#include "i3-atoms_rest.xmacro.h"
+#include "mwm-atoms_NET_SUPPORTED.xmacro.h"
+#include "mwm-atoms_rest.xmacro.h"
 
-/* The original value of RLIMIT_CORE when i3 was started. We need to restore
+/* The original value of RLIMIT_CORE when mwm was started. We need to restore
  * this before starting any other process, since we set RLIMIT_CORE to
- * RLIM_INFINITY for i3 debugging versions. */
+ * RLIM_INFINITY for mwm debugging versions. */
 struct rlimit original_rlimit_core;
 
 /* The number of file descriptors passed via socket activation. */
@@ -104,12 +103,10 @@ struct ws_assignments_head ws_assignments = TAILQ_HEAD_INITIALIZER(ws_assignment
 bool xkb_supported = true;
 bool shape_supported = true;
 
-bool force_xinerama = false;
-
 /* Define all atoms as global variables */
 #define xmacro(atom) xcb_atom_t A_##atom;
-I3_NET_SUPPORTED_ATOMS_XMACRO
-I3_REST_ATOMS_XMACRO
+MWM_NET_SUPPORTED_ATOMS_XMACRO
+MWM_REST_ATOMS_XMACRO
 #undef xmacro
 
 /*
@@ -118,7 +115,7 @@ I3_REST_ATOMS_XMACRO
  *
  */
 static void xcb_got_event(EV_P_ struct ev_io *w, int revents) {
-    /* empty, because xcb_prepare_cb are used */
+    /* empty, because xcb_prepare_cb is used */
 }
 
 /*
@@ -179,7 +176,7 @@ void main_set_x11_cb(bool enable) {
  * Exit handler which destroys the main_loop. Will trigger cleanup handlers.
  *
  */
-static void i3_exit(void) {
+static void mwm_exit(void) {
     if (*shmlogname != '\0') {
         fprintf(stderr, "Closing SHM log \"%s\"\n", shmlogname);
         fflush(stderr);
@@ -197,13 +194,13 @@ static void i3_exit(void) {
     kill_nagbar(command_error_nagbar_pid, false);
 
 /* We need ev >= 4 for the following code. Since it is not *that* important (it
- * only makes sure that there are no i3-nagbar instances left behind) we still
+ * only makes sure that there are no mwm-nagbar instances left behind) we still
  * support old systems with libev 3. */
 #if EV_VERSION_MAJOR >= 4
     ev_loop_destroy(main_loop);
 #endif
 
-#ifdef I3_ASAN_ENABLED
+#ifdef MWM_ASAN_ENABLED
     __lsan_do_leak_check();
 #endif
 }
@@ -263,23 +260,23 @@ static void setup_term_handlers(void) {
 }
 
 static int parse_restart_fd(void) {
-    const char *restart_fd = getenv("_I3_RESTART_FD");
+    const char *restart_fd = getenv("_MWM_RESTART_FD");
     if (restart_fd == NULL) {
         return -1;
     }
 
     long int fd = -1;
     if (!parse_long(restart_fd, &fd, 10)) {
-        ELOG("Malformed _I3_RESTART_FD \"%s\"\n", restart_fd);
+        ELOG("Malformed _MWM_RESTART_FD \"%s\"\n", restart_fd);
         return -1;
     }
     return fd;
 }
 
 int main(int argc, char *argv[]) {
-    /* Keep a symbol pointing to the I3_VERSION string constant so that we have
+    /* Keep a symbol pointing to the MWM_VERSION string constant so that we have
      * it in gdb backtraces. */
-    static const char *_i3_version __attribute__((used)) = I3_VERSION;
+    static const char *_mwm_version __attribute__((used)) = MWM_VERSION;
     char *override_configpath = NULL;
     bool autostart = true;
     char *layout_path = NULL;
@@ -299,8 +296,6 @@ int main(int argc, char *argv[]) {
         {"help", no_argument, 0, 'h'},
         {"layout", required_argument, 0, 'L'},
         {"restart", required_argument, 0, 0},
-        {"force-xinerama", no_argument, 0, 0},
-        {"force_xinerama", no_argument, 0, 0},
         {"disable-randr15", no_argument, 0, 0},
         {"disable_randr15", no_argument, 0, 0},
         {"disable-signalhandler", no_argument, 0, 0},
@@ -310,7 +305,6 @@ int main(int argc, char *argv[]) {
         {"get_socketpath", no_argument, 0, 0},
         {"fake_outputs", required_argument, 0, 0},
         {"fake-outputs", required_argument, 0, 0},
-        {"force-old-config-parser-v4.4-only", no_argument, 0, 0},
         {"replace", no_argument, 0, 'r'},
         {0, 0, 0, 0}};
     int option_index = 0, opt;
@@ -333,7 +327,7 @@ int main(int argc, char *argv[]) {
     init_logging();
 
     /* On release builds, disable SHM logging by default. */
-    shmlog_size = (is_debug_build() || strstr(argv[0], "i3-with-shmlog") != NULL ? default_shmlog_size : 0);
+    shmlog_size = (is_debug_build() || strstr(argv[0], "mwm-with-shmlog") != NULL ? default_shmlog_size : 0);
 
     start_argv = argv;
 
@@ -357,11 +351,11 @@ int main(int argc, char *argv[]) {
                 only_check_config = true;
                 break;
             case 'v':
-                printf("i3 version %s © 2009 Michael Stapelberg and contributors\n", i3_version);
+                printf("mwm version %s\n", mwm_version);
                 exit(EXIT_SUCCESS);
                 break;
             case 'm':
-                printf("Binary i3 version:  %s © 2009 Michael Stapelberg and contributors\n", i3_version);
+                printf("Binary mwm version:  %s\n", mwm_version);
                 display_running_version();
                 exit(EXIT_SUCCESS);
                 break;
@@ -379,16 +373,7 @@ int main(int argc, char *argv[]) {
                 replace_wm = true;
                 break;
             case 0:
-                if (strcmp(long_options[option_index].name, "force-xinerama") == 0 ||
-                    strcmp(long_options[option_index].name, "force_xinerama") == 0) {
-                    force_xinerama = true;
-                    ELOG("Using Xinerama instead of RandR. This option should be "
-                         "avoided at all cost because it does not refresh the list "
-                         "of screens, so you cannot configure displays at runtime. "
-                         "Please check if your driver really does not support RandR "
-                         "and disable this option as soon as you can.\n");
-                    break;
-                } else if (strcmp(long_options[option_index].name, "disable-randr15") == 0 ||
+                if (strcmp(long_options[option_index].name, "disable-randr15") == 0 ||
                            strcmp(long_options[option_index].name, "disable_randr15") == 0) {
                     disable_randr15 = true;
                     break;
@@ -397,7 +382,7 @@ int main(int argc, char *argv[]) {
                     break;
                 } else if (strcmp(long_options[option_index].name, "get-socketpath") == 0 ||
                            strcmp(long_options[option_index].name, "get_socketpath") == 0) {
-                    char *socket_path = root_atom_contents("I3_SOCKET_PATH", NULL, 0);
+                    char *socket_path = root_atom_contents("MWM_SOCKET_PATH", NULL, 0);
                     if (socket_path) {
                         printf("%s\n", socket_path);
                         /* With -O2 (i.e. the buildtype=debugoptimized meson
@@ -443,17 +428,11 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "\t-v          display version and exit\n");
                 fprintf(stderr, "\t-V          enable verbose mode\n");
                 fprintf(stderr, "\n");
-                fprintf(stderr, "\t--force-xinerama\n"
-                                "\tUse Xinerama instead of RandR.\n"
-                                "\tThis option should only be used if you are stuck with the\n"
-                                "\told nVidia closed source driver (older than 302.17), which does\n"
-                                "\tnot support RandR.\n");
-                fprintf(stderr, "\n");
                 fprintf(stderr, "\t--get-socketpath\n"
-                                "\tRetrieve the i3 IPC socket path from X11, print it, then exit.\n");
+                                "\tRetrieve the mwm IPC socket path from X11, print it, then exit.\n");
                 fprintf(stderr, "\n");
                 fprintf(stderr, "\t--shmlog-size <limit>\n"
-                                "\tLimits the size of the i3 SHM log to <limit> bytes. Setting this\n"
+                                "\tLimits the size of the mwm SHM log to <limit> bytes. Setting this\n"
                                 "\tto 0 disables SHM logging entirely.\n"
                                 "\tThe default is %d bytes.\n",
                         shmlog_size);
@@ -461,13 +440,13 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "\t--replace\n"
                                 "\tReplace an existing window manager.\n");
                 fprintf(stderr, "\n");
-                fprintf(stderr, "If you pass plain text arguments, i3 will interpret them as a command\n"
-                                "to send to a currently running i3 (like i3-msg). This allows you to\n"
+                fprintf(stderr, "If you pass plain text arguments, mwm will interpret them as a command\n"
+                                "to send to a currently running mwm (like mwm-msg). This allows you to\n"
                                 "use nice and logical commands, such as:\n"
                                 "\n"
-                                "\ti3 border none\n"
-                                "\ti3 floating toggle\n"
-                                "\ti3 kill window\n"
+                                "\tmwm border none\n"
+                                "\tmwm floating toggle\n"
+                                "\tmwm kill window\n"
                                 "\n");
                 exit(opt == 'h' ? EXIT_SUCCESS : EXIT_FAILURE);
         }
@@ -477,16 +456,16 @@ int main(int argc, char *argv[]) {
         exit(load_configuration(override_configpath, C_VALIDATE) ? EXIT_SUCCESS : EXIT_FAILURE);
     }
 
-    /* If the user passes more arguments, we act like i3-msg would: Just send
-     * the arguments as an IPC message to i3. This allows for nice semantic
-     * commands such as 'i3 border none'. */
+    /* If the user passes more arguments, we act like mwm-msg would: Just send
+     * the arguments as an IPC message to mwm. This allows for nice semantic
+     * commands such as 'mwm border none'. */
     if (optind < argc) {
         /* We enable verbose mode so that the user knows what’s going on.
          * This should make it easier to find mistakes when the user passes
          * arguments by mistake. */
         set_verbosity(true);
 
-        LOG("Additional arguments passed. Sending them as a command to i3.\n");
+        LOG("Additional arguments passed. Sending them as a command to mwm.\n");
         char *payload = NULL;
         while (optind < argc) {
             if (!payload) {
@@ -500,9 +479,9 @@ int main(int argc, char *argv[]) {
             optind++;
         }
         DLOG("Command is: %s (%zd bytes)\n", payload, strlen(payload));
-        char *socket_path = root_atom_contents("I3_SOCKET_PATH", NULL, 0);
+        char *socket_path = root_atom_contents("MWM_SOCKET_PATH", NULL, 0);
         if (!socket_path) {
-            ELOG("Could not get i3 IPC socket path\n");
+            ELOG("Could not get mwm IPC socket path\n");
             return 1;
         }
 
@@ -517,10 +496,10 @@ int main(int argc, char *argv[]) {
         strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
         FREE(socket_path);
         if (connect(sockfd, (const struct sockaddr *)&addr, sizeof(struct sockaddr_un)) < 0) {
-            err(EXIT_FAILURE, "Could not connect to i3");
+            err(EXIT_FAILURE, "Could not connect to mwm");
         }
 
-        if (ipc_send_message(sockfd, strlen(payload), I3_IPC_MESSAGE_TYPE_RUN_COMMAND,
+        if (ipc_send_message(sockfd, strlen(payload), MWM_IPC_MESSAGE_TYPE_RUN_COMMAND,
                              (uint8_t *)payload) == -1) {
             err(EXIT_FAILURE, "IPC: write()");
         }
@@ -536,8 +515,8 @@ int main(int argc, char *argv[]) {
             }
             return 1;
         }
-        if (reply_type != I3_IPC_REPLY_TYPE_COMMAND) {
-            errx(EXIT_FAILURE, "IPC: received reply of type %d but expected %d (COMMAND)", reply_type, I3_IPC_REPLY_TYPE_COMMAND);
+        if (reply_type != MWM_IPC_REPLY_TYPE_COMMAND) {
+            errx(EXIT_FAILURE, "IPC: received reply of type %d but expected %d (COMMAND)", reply_type, MWM_IPC_REPLY_TYPE_COMMAND);
         }
         printf("%.*s\n", reply_length, reply);
         FREE(reply);
@@ -554,7 +533,7 @@ int main(int argc, char *argv[]) {
 
         /* The following code is helpful, but not required. We thus don’t pay
          * much attention to error handling, non-linux or other edge cases. */
-        LOG("CORE DUMPS: You are running a development version of i3, so coredumps were automatically enabled (ulimit -c unlimited).\n");
+        LOG("CORE DUMPS: You are running a development version of mwm, so coredumps were automatically enabled (ulimit -c unlimited).\n");
         size_t cwd_size = 1024;
         char *cwd = smalloc(cwd_size);
         char *cwd_ret;
@@ -577,7 +556,7 @@ int main(int argc, char *argv[]) {
         free(cwd);
     }
 
-    LOG("i3 %s starting\n", i3_version);
+    LOG("mwm %s starting\n", mwm_version);
 
     conn = xcb_connect(NULL, &conn_screen);
     if (xcb_connection_has_error(conn)) {
@@ -606,11 +585,7 @@ int main(int argc, char *argv[]) {
     xcb_prefetch_extension_data(conn, &xcb_shape_id);
     /* BIG-REQUESTS is used by libxcb internally. */
     xcb_prefetch_extension_data(conn, &xcb_big_requests_id);
-    if (force_xinerama) {
-        xcb_prefetch_extension_data(conn, &xcb_xinerama_id);
-    } else {
-        xcb_prefetch_extension_data(conn, &xcb_randr_id);
-    }
+    xcb_prefetch_extension_data(conn, &xcb_randr_id);
 
     /* Prepare for us to get a current timestamp as recommended by ICCCM */
     xcb_change_window_attributes(conn, root, XCB_CW_EVENT_MASK, (uint32_t[]){XCB_EVENT_MASK_PROPERTY_CHANGE});
@@ -619,8 +594,8 @@ int main(int argc, char *argv[]) {
     /* Place requests for the atoms we need as soon as possible */
 #define xmacro(atom) \
     xcb_intern_atom_cookie_t atom##_cookie = xcb_intern_atom(conn, 0, strlen(#atom), #atom);
-    I3_NET_SUPPORTED_ATOMS_XMACRO
-    I3_REST_ATOMS_XMACRO
+    MWM_NET_SUPPORTED_ATOMS_XMACRO
+    MWM_REST_ATOMS_XMACRO
 #undef xmacro
 
     root_depth = root_screen->root_depth;
@@ -684,15 +659,15 @@ int main(int argc, char *argv[]) {
         A_##name = reply->atom;                                                            \
         free(reply);                                                                       \
     } while (0);
-    I3_NET_SUPPORTED_ATOMS_XMACRO
-    I3_REST_ATOMS_XMACRO
+    MWM_NET_SUPPORTED_ATOMS_XMACRO
+    MWM_REST_ATOMS_XMACRO
 #undef xmacro
 
     load_configuration(override_configpath, C_LOAD);
 
     if (config.ipc_socket_path == NULL) {
         /* Fall back to a file name in /tmp/ based on the PID */
-        if ((config.ipc_socket_path = getenv("I3SOCK")) == NULL) {
+        if ((config.ipc_socket_path = getenv("MWMSOCK")) == NULL) {
             config.ipc_socket_path = get_process_filename("ipc-socket");
         } else {
             config.ipc_socket_path = sstrdup(config.ipc_socket_path);
@@ -702,10 +677,6 @@ int main(int argc, char *argv[]) {
     int ipc_socket = create_socket(config.ipc_socket_path, &current_socketpath);
     if (ipc_socket == -1) {
         die("Could not create the IPC socket: %s", config.ipc_socket_path);
-    }
-
-    if (config.force_xinerama) {
-        force_xinerama = true;
     }
 
     /* Acquire the WM_Sn selection. */
@@ -760,8 +731,8 @@ int main(int argc, char *argv[]) {
                             XCB_ATOM_WM_CLASS,
                             XCB_ATOM_STRING,
                             8,
-                            (strlen("i3-WM_Sn") + 1) * 2,
-                            "i3-WM_Sn\0i3-WM_Sn\0");
+                            (strlen("mwm-WM_Sn") + 1) * 2,
+                            "mwm-WM_Sn\0mwm-WM_Sn\0");
 
         xcb_set_selection_owner(conn, wm_sn_selection_owner, wm_sn, last_timestamp);
 
@@ -810,7 +781,7 @@ int main(int argc, char *argv[]) {
     xcb_generic_error_t *error = xcb_request_check(conn, cookie);
     if (error != NULL) {
         ELOG("Another window manager seems to be running (X error %d)\n", error->error_code);
-#ifdef I3_ASAN_ENABLED
+#ifdef MWM_ASAN_ENABLED
         __lsan_do_leak_check();
 #endif
         return 1;
@@ -952,11 +923,6 @@ int main(int argc, char *argv[]) {
         fake_outputs_init(fake_outputs);
         FREE(fake_outputs);
         config.fake_outputs = NULL;
-    } else if (force_xinerama) {
-        /* Force Xinerama (for drivers which don't support RandR yet, esp. the
-         * nVidia binary graphics driver), when specified either in the config
-         * file or on command-line */
-        xinerama_init();
     } else {
         DLOG("Checking for XRandR...\n");
         randr_init(&randr_base, disable_randr15 || config.disable_randr15);
@@ -965,7 +931,7 @@ int main(int argc, char *argv[]) {
     /* We need to force disabling outputs which have been loaded from the
      * layout file but are no longer active. This can happen if the output has
      * been disabled in the short time between writing the restart layout file
-     * and restarting i3. See #2326. */
+     * and restarting mwm. See #2326. */
     if (layout_path != NULL && randr_base > -1) {
         Con *con;
         TAILQ_FOREACH (con, &(croot->nodes_head), nodes) {
@@ -1023,7 +989,7 @@ int main(int argc, char *argv[]) {
     free(log_stream_socket_path);
     struct ev_io *log_io = NULL;
     if (log_socket == -1) {
-        ELOG("Could not create the log socket, i3-dump-log -f will not work\n");
+        ELOG("Could not create the log socket, mwm-dump-log -f will not work\n");
     } else {
         log_io = scalloc(1, sizeof(struct ev_io));
         ev_io_init(log_io, log_new_client, log_socket, EV_READ);
@@ -1066,12 +1032,12 @@ int main(int argc, char *argv[]) {
             DLOG("serving restart fd %d", restart_fd);
             ipc_client *client = ipc_new_client_on_fd(main_loop, restart_fd);
             ipc_confirm_restart(client);
-            unsetenv("_I3_RESTART_FD");
+            unsetenv("_MWM_RESTART_FD");
         }
     }
 
-    /* Set up i3 specific atoms like I3_SOCKET_PATH and I3_CONFIG_PATH */
-    x_set_i3_atoms();
+    /* Set up mwm specific atoms like MWM_SOCKET_PATH and MWM_CONFIG_PATH */
+    x_set_mwm_atoms();
     ewmh_update_workarea();
 
     /* Set the ewmh desktop properties. */
@@ -1089,13 +1055,13 @@ int main(int argc, char *argv[]) {
     xcb_flush(conn);
 
     /* What follows is a fugly consequence of X11 protocol race conditions like
-     * the following: In an i3 in-place restart, i3 will reparent all windows
+     * the following: In an mwm in-place restart, mwm will reparent all windows
      * to the root window, then exec() itself. In the new process, it calls
      * manage_existing_windows. However, in case any application sent a
      * generated UnmapNotify message to the WM (as GIMP does), this message
-     * will be handled by i3 *after* managing the window, thus i3 thinks the
+     * will be handled by mwm *after* managing the window, thus mwm thinks the
      * window just closed itself. In reality, the message was sent in the time
-     * period where i3 wasn’t running yet.
+     * period where mwm wasn’t running yet.
      *
      * To prevent this, we grab the server (disables processing of any other
      * connections), then discard all pending events (since we didn’t do
@@ -1197,12 +1163,12 @@ int main(int argc, char *argv[]) {
         FREE(exec_always);
     }
 
-    /* Start i3bar processes for all configured bars */
+    /* Start mwm-bar processes for all configured bars */
     Barconfig *barconfig;
     TAILQ_FOREACH (barconfig, &barconfigs, configs) {
         char *command = NULL;
         sasprintf(&command, "%s %s --bar_id=%s --socket=\"%s\"",
-                  barconfig->i3bar_command ? barconfig->i3bar_command : "exec i3bar",
+                  barconfig->mwm_bar_command ? barconfig->mwm_bar_command : "exec mwm-bar",
                   barconfig->verbose ? "-V" : "",
                   barconfig->id, current_socketpath);
         LOG("Starting bar process: %s\n", command);
@@ -1212,17 +1178,16 @@ int main(int argc, char *argv[]) {
 
     /* Make sure to destroy the event loop to invoke the cleanup callbacks
      * when calling exit() */
-    atexit(i3_exit);
+    atexit(mwm_exit);
 
     /* There might be children who died before we initialized the event loop,
-     * e.g., when restarting i3 (see #5756).
+     * e.g., when restarting mwm (see #5756).
      * To not carry zombie children around, raise the signal to invite libev to
      * reap them.
      *
      * Note that there is no race condition between raising the signal below and
      * entering the event loop later: the signal is just to notify libev that
-     * zombies might already be there. Actuall reaping will take place in the
-     * event loop anyway. */
+     * zombies might already be there. Reaping takes place in the event loop. */
     (void)raise(SIGCHLD);
 
     sd_notify(1, "READY=1");

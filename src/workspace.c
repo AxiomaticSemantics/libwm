@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * workspace.c: Modifying workspaces, accessing them, moving containers to
@@ -151,7 +151,7 @@ Con *workspace_get(const char *num) {
     workspace = con_new(NULL, NULL);
 
     char *name;
-    sasprintf(&name, "[i3 con] workspace %s", num);
+    sasprintf(&name, "[mwm con] workspace %s", num);
     x_set_name(workspace, name);
     free(name);
 
@@ -173,9 +173,9 @@ Con *workspace_get(const char *num) {
 
 /*
  * Extracts workspace names from keybindings (e.g. “web” from “bindsym $mod+1
- * workspace web”), so that when an output needs a workspace, i3 can start with
+ * workspace web”), so that when an output needs a workspace, mwm can start with
  * the first configured one. Needs to be called before reorder_bindings() so
- * that the config-file order is used, not the i3-internal order.
+ * that the config-file order is used, not the mwm-internal order.
  *
  */
 void extract_workspace_names_from_bindings(void) {
@@ -228,7 +228,7 @@ void extract_workspace_names_from_bindings(void) {
             continue;
         }
         if (strncasecmp(target_name, "__", strlen("__")) == 0) {
-            LOG("Cannot create workspace \"%s\". Names starting with __ are i3-internal.\n", target);
+            LOG("Cannot create workspace \"%s\". Names starting with __ are mwm-internal.\n", target);
             free(target_name);
             continue;
         }
@@ -296,7 +296,7 @@ Con *create_workspace_on_output(Output *output, Con *content) {
     con_attach(ws, content, false);
 
     char *name;
-    sasprintf(&name, "[i3 con] workspace %s", ws->name);
+    sasprintf(&name, "[mwm con] workspace %s", ws->name);
     x_set_name(ws, name);
     free(name);
 
@@ -436,13 +436,13 @@ static void workspace_defer_update_urgent_hint_cb(EV_P_ ev_timer *w, int revents
  *
  */
 void workspace_show(Con *workspace) {
-    Con *current, *old = NULL;
-
-    /* safe-guard against showing i3-internal workspaces like __i3_scratch */
+    /* safe-guard against showing mwm-internal workspaces like __mwm_scratch */
     if (con_is_internal(workspace)) {
         return;
     }
 
+    Con *current, *old = NULL;
+    
     /* disable fullscreen for the other workspaces and get the workspace we are
      * currently on. */
     TAILQ_FOREACH (current, &(workspace->parent->nodes_head), nodes) {
@@ -472,7 +472,7 @@ void workspace_show(Con *workspace) {
      * the 'workspace back_and_forth' command.
      * NOTE: We have to duplicate the name as the original will be freed when
      * the corresponding workspace is cleaned up.
-     * NOTE: Internal cons such as __i3_scratch (when a scratchpad window is
+     * NOTE: Internal cons such as __mwm_scratch (when a scratchpad window is
      * focused) are skipped, see bug #868. */
     if (current && !con_is_internal(current)) {
         FREE(previous_workspace_name);
@@ -537,7 +537,7 @@ void workspace_show(Con *workspace) {
             const unsigned char *payload;
             ylength length;
             y(get_buf, &payload, &length);
-            ipc_send_event("workspace", I3_IPC_EVENT_WORKSPACE, (const char *)payload);
+            ipc_send_event("workspace", MWM_IPC_EVENT_WORKSPACE, (const char *)payload);
 
             y(free);
 

@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * startup.c: Startup notification code. Ensures a startup notification context
@@ -138,8 +138,8 @@ void start_application(const char *command, bool no_startup_id) {
         /* Create a startup notification context to monitor the progress of this
          * startup. */
         context = sn_launcher_context_new(sndisplay, conn_screen);
-        sn_launcher_context_set_name(context, "i3");
-        sn_launcher_context_set_description(context, "exec command in i3");
+        sn_launcher_context_set_name(context, "mwm");
+        sn_launcher_context_set_description(context, "exec command in mwm");
         /* Chop off everything starting from the first space (if there are any
          * spaces in the command), since we don’t want the parameters. */
         char *first_word = sstrdup(command);
@@ -147,7 +147,7 @@ void start_application(const char *command, bool no_startup_id) {
         if (space) {
             *space = '\0';
         }
-        sn_launcher_context_initiate(context, "i3", first_word, last_timestamp);
+        sn_launcher_context_initiate(context, "mwm", first_word, last_timestamp);
         free(first_word);
 
         /* Trigger a timeout after 60 seconds */
@@ -180,7 +180,7 @@ void start_application(const char *command, bool no_startup_id) {
         setsid();
         setrlimit(RLIMIT_CORE, &original_rlimit_core);
         /* Close all socket activation file descriptors explicitly, we disabled
-         * FD_CLOEXEC to keep them open when restarting i3. */
+         * FD_CLOEXEC to keep them open when restarting mwm. */
         for (int fd = SD_LISTEN_FDS_START;
              fd < (SD_LISTEN_FDS_START + listen_fds);
              fd++) {
@@ -193,7 +193,7 @@ void start_application(const char *command, bool no_startup_id) {
         if (!no_startup_id) {
             sn_launcher_context_setup_child_process(context);
         }
-        setenv("I3SOCK", current_socketpath, 1);
+        setenv("MWMSOCK", current_socketpath, 1);
 
         execl(_PATH_BSHELL, _PATH_BSHELL, "-c", command, NULL);
         /* not reached */
@@ -274,7 +274,7 @@ void startup_sequence_rename_workspace(const char *old_name, const char *new_nam
  * Gets the stored startup sequence for the _NET_STARTUP_ID of a given window.
  *
  */
-struct Startup_Sequence *startup_sequence_get(i3Window *cwindow,
+struct Startup_Sequence *startup_sequence_get(mwmWindow *cwindow,
                                               xcb_get_property_reply_t *startup_id_reply, bool ignore_mapped_leader) {
     /* The _NET_STARTUP_ID is only needed during this function, so we get it
      * here and don’t save it in the 'cwindow'. */
@@ -348,7 +348,7 @@ struct Startup_Sequence *startup_sequence_get(i3Window *cwindow,
  * Returns NULL otherwise.
  *
  */
-char *startup_workspace_for_window(i3Window *cwindow, xcb_get_property_reply_t *startup_id_reply) {
+char *startup_workspace_for_window(mwmWindow *cwindow, xcb_get_property_reply_t *startup_id_reply) {
     struct Startup_Sequence *sequence = startup_sequence_get(cwindow, startup_id_reply, false);
     if (sequence == NULL) {
         return NULL;
@@ -369,7 +369,7 @@ char *startup_workspace_for_window(i3Window *cwindow, xcb_get_property_reply_t *
  * Deletes the startup sequence for a window if it exists.
  *
  */
-void startup_sequence_delete_by_window(i3Window *win) {
+void startup_sequence_delete_by_window(mwmWindow *win) {
     struct Startup_Sequence *sequence;
     xcb_get_property_cookie_t cookie;
     xcb_get_property_reply_t *startup_id_reply;

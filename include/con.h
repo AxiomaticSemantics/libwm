@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * con.c: Functions which deal with containers directly (creating containers,
@@ -18,13 +18,13 @@
  * This function only initializes the data structures.
  *
  */
-Con *con_new_skeleton(Con *parent, i3Window *window);
+Con *con_new_skeleton(Con *parent, mwmWindow *window);
 
 /**
  * A wrapper for con_new_skeleton, to retain the old con_new behaviour
  *
  */
-Con *con_new(Con *parent, i3Window *window);
+Con *con_new(Con *parent, mwmWindow *window);
 
 /**
  * Frees the specified container.
@@ -153,7 +153,7 @@ Con *con_get_fullscreen_con(Con *con, fullscreen_mode_t fullscreen_mode);
 Con *con_get_fullscreen_covering_ws(Con *ws);
 
 /**
- * Returns true if the container is internal, such as __i3_scratch
+ * Returns true if the container is internal, such as __mwm_scratch
  *
  */
 bool con_is_internal(Con *con);
@@ -266,7 +266,7 @@ void con_unmark(Con *con, const char *name);
  * TODO: priority
  *
  */
-Con *con_for_window(Con *con, i3Window *window, Match **store_match);
+Con *con_for_window(Con *con, mwmWindow *window, Match **store_match);
 
 /**
  * Iterate over the container's focus stack and return an array with the
@@ -559,7 +559,7 @@ void con_force_split_parents_redraw(Con *con);
  * Returns the window title considering the current title format.
  *
  */
-i3String *con_parse_title_format(Con *con);
+mwmString *con_parse_title_format(Con *con);
 
 /**
  * Swaps the two containers.

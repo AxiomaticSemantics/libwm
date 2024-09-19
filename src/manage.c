@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * manage.c: Initially managing new windows (or existing ones on restart).
@@ -14,7 +14,7 @@
  * window whose background is ParentRelative under a window with a different depth.
  *
  */
-static xcb_window_t _match_depth(i3Window *win, Con *con) {
+static xcb_window_t _match_depth(mwmWindow *win, Con *con) {
     xcb_window_t old_frame = XCB_NONE;
     if (con->depth != win->depth) {
         old_frame = con->frame.id;
@@ -74,8 +74,8 @@ void manage_existing_windows(xcb_window_t root) {
  * Restores the geometry of each window by reparenting it to the root window
  * at the position of its frame.
  *
- * This is to be called *only* before exiting/restarting i3 because of evil
- * side-effects which are to be expected when continuing to run i3.
+ * This is to be called *only* before exiting/restarting mwm because of evil
+ * side-effects which are to be expected when continuing to run mwm.
  *
  */
 void restore_geometry(void) {
@@ -198,7 +198,7 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
     wm_machine_cookie = GET_PROPERTY(XCB_ATOM_WM_CLIENT_MACHINE, UINT32_MAX);
     wm_icon_cookie = GET_PROPERTY(A__NET_WM_ICON, UINT32_MAX);
 
-    i3Window *cwindow = scalloc(1, sizeof(i3Window));
+    mwmWindow *cwindow = scalloc(1, sizeof(mwmWindow));
     cwindow->id = window;
     cwindow->depth = get_visual_depth(attr->visual);
 
@@ -398,7 +398,7 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
     nc->border_width = geom->border_width;
 
     char *name;
-    sasprintf(&name, "[i3 con] container around %p", cwindow);
+    sasprintf(&name, "[mwm con] container around %p", cwindow);
     x_set_name(nc, name);
     free(name);
 
@@ -481,7 +481,7 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
     }
 
     /* We ignore the hint for an internal workspace because windows in the
-     * scratchpad also have this value, but upon restarting i3 we don't want
+     * scratchpad also have this value, but upon restarting mwm we don't want
      * them to become sticky windows. */
     if (cwindow->wm_desktop == NET_WM_DESKTOP_ALL && (ws == NULL || !con_is_internal(ws))) {
         DLOG("This window has _NET_WM_DESKTOP = 0xFFFFFFFF. Will float it and make it sticky.\n");

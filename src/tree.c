@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * tree.c: Everything that primarily modifies the layout tree data structure.
@@ -15,25 +15,25 @@ struct Con *focused;
 struct all_cons_head all_cons = TAILQ_HEAD_INITIALIZER(all_cons);
 
 /*
- * Create the pseudo-output __i3. Output-independent workspaces such as
- * __i3_scratch will live there.
+ * Create the pseudo-output __mwm. Output-independent workspaces such as
+ * __mwm_scratch will live there.
  *
  */
-static Con *_create___i3(void) {
-    Con *__i3 = con_new(croot, NULL);
-    FREE(__i3->name);
-    __i3->name = sstrdup("__i3");
-    __i3->type = CT_OUTPUT;
-    __i3->layout = L_OUTPUT;
+static Con *_create___mwm(void) {
+    Con *__mwm = con_new(croot, NULL);
+    FREE(__mwm->name);
+    __mwm->name = sstrdup("__mwm");
+    __mwm->type = CT_OUTPUT;
+    __mwm->layout = L_OUTPUT;
     con_fix_percent(croot);
-    x_set_name(__i3, "[i3 con] pseudo-output __i3");
+    x_set_name(__mwm, "[mwm con] pseudo-output __mwm");
     /* For retaining the correct position/size of a scratchpad window, the
-     * dimensions of the real outputs should be multiples of the __i3
+     * dimensions of the real outputs should be multiples of the __mwm
      * pseudo-output. Ensuring that is the job of scratchpad_fix_resolution()
      * which gets called after this function and after detecting all the
      * outputs (or whenever an output changes). */
-    __i3->rect.width = 1280;
-    __i3->rect.height = 1024;
+    __mwm->rect.width = 1280;
+    __mwm->rect.height = 1024;
 
     /* Add a content container. */
     DLOG("adding main content container\n");
@@ -43,20 +43,20 @@ static Con *_create___i3(void) {
     content->name = sstrdup("content");
     content->layout = L_SPLITH;
 
-    x_set_name(content, "[i3 con] content __i3");
-    con_attach(content, __i3, false);
+    x_set_name(content, "[mwm con] content __mwm");
+    con_attach(content, __mwm, false);
 
-    /* Attach the __i3_scratch workspace. */
+    /* Attach the __mwm_scratch workspace. */
     Con *ws = con_new(NULL, NULL);
     ws->type = CT_WORKSPACE;
     ws->num = -1;
-    ws->name = sstrdup("__i3_scratch");
+    ws->name = sstrdup("__mwm_scratch");
     ws->layout = L_SPLITH;
     con_attach(ws, content, false);
-    x_set_name(ws, "[i3 con] workspace __i3_scratch");
+    x_set_name(ws, "[mwm con] workspace __mwm_scratch");
     ws->fullscreen_mode = CF_OUTPUT;
 
-    return __i3;
+    return __mwm;
 }
 
 /*
@@ -103,14 +103,14 @@ bool tree_restore(const char *path, xcb_get_geometry_reply_t *geometry) {
     DLOG("ws = %p\n", ws);
 
     /* For in-place restarting into v4.2, we need to make sure the new
-     * pseudo-output __i3 is present. */
-    if (strcmp(out->name, "__i3") != 0) {
-        DLOG("Adding pseudo-output __i3 during inplace restart\n");
-        Con *__i3 = _create___i3();
+     * pseudo-output __mwm is present. */
+    if (strcmp(out->name, "__mwm") != 0) {
+        DLOG("Adding pseudo-output __mwm during inplace restart\n");
+        Con *__mwm = _create___mwm();
         /* Ensure that it is the first output, other places in the code make
          * that assumption. */
-        TAILQ_REMOVE(&(croot->nodes_head), __i3, nodes);
-        TAILQ_INSERT_HEAD(&(croot->nodes_head), __i3, nodes);
+        TAILQ_REMOVE(&(croot->nodes_head), __mwm, nodes);
+        TAILQ_INSERT_HEAD(&(croot->nodes_head), __mwm, nodes);
     }
 
     restore_open_placeholder_windows(croot);
@@ -139,14 +139,14 @@ void tree_init(xcb_get_geometry_reply_t *geometry) {
         geometry->width,
         geometry->height};
 
-    _create___i3();
+    _create___mwm();
 }
 
 /*
  * Opens an empty container in the current container
  *
  */
-Con *tree_open_con(Con *con, i3Window *window) {
+Con *tree_open_con(Con *con, mwmWindow *window) {
     if (con == NULL) {
         /* every focusable Con has a parent (outputs have parent root) */
         con = focused->parent;
@@ -243,7 +243,7 @@ bool tree_close_internal(Con *con, kill_window_t kill_window, bool dont_kill_par
                                          con->window->id, A_WM_STATE, A_WM_STATE, 32, 2, data);
 
             /* Remove the window from the save set. All windows in the save set
-             * will be mapped when i3 closes its connection (e.g. when
+             * will be mapped when mwm closes its connection (e.g. when
              * restarting). This is not what we want, since some apps keep
              * unmapped windows around and don’t expect them to suddenly be
              * mapped. See https://bugs.i3wm.org/1617 */
@@ -652,7 +652,7 @@ Con *get_tree_next_sibling(Con *con, position_t direction) {
  * [child1] [child2]
  * In this example, the v-split and h-split container are redundant.
  * Such a situation can be created by moving containers in a direction which is
- * not the orientation of their parent container. i3 needs to create a new
+ * not the orientation of their parent container. mwm needs to create a new
  * split container then and if you move containers this way multiple times,
  * redundant chains of split-containers can be the result.
  *

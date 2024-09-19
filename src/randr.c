@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * For more information on RandR, please see the X.org RandR specification at
@@ -374,7 +374,7 @@ void output_init_con(Output *output) {
     output->con = con;
 
     char *name;
-    sasprintf(&name, "[i3 con] output %s", con->name);
+    sasprintf(&name, "[mwm con] output %s", con->name);
     x_set_name(con, name);
     FREE(name);
 
@@ -397,7 +397,7 @@ void output_init_con(Output *output) {
     FREE(topdock->name);
     topdock->name = sstrdup("topdock");
 
-    sasprintf(&name, "[i3 con] top dockarea %s", con->name);
+    sasprintf(&name, "[mwm con] top dockarea %s", con->name);
     x_set_name(topdock, name);
     FREE(name);
     DLOG("attaching\n");
@@ -412,7 +412,7 @@ void output_init_con(Output *output) {
     FREE(content->name);
     content->name = sstrdup("content");
 
-    sasprintf(&name, "[i3 con] content %s", con->name);
+    sasprintf(&name, "[mwm con] content %s", con->name);
     x_set_name(content, name);
     FREE(name);
     con_attach(content, con, false);
@@ -431,7 +431,7 @@ void output_init_con(Output *output) {
     FREE(bottomdock->name);
     bottomdock->name = sstrdup("bottomdock");
 
-    sasprintf(&name, "[i3 con] bottom dockarea %s", con->name);
+    sasprintf(&name, "[mwm con] bottom dockarea %s", con->name);
     x_set_name(bottomdock, name);
     FREE(name);
     DLOG("attaching\n");

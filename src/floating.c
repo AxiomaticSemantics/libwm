@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * floating.c: Floating windows.
@@ -35,7 +35,7 @@ static Rect total_outputs_dimensions(void) {
 }
 
 /*
- * Updates I3_FLOATING_WINDOW by either setting or removing it on the con and
+ * Updates MWM_FLOATING_WINDOW by either setting or removing it on the con and
  * all its children.
  *
  */
@@ -54,9 +54,9 @@ static void floating_set_hint_atom(Con *con, bool floating) {
     if (floating) {
         uint32_t val = 1;
         xcb_change_property(conn, XCB_PROP_MODE_REPLACE, con->window->id,
-                            A_I3_FLOATING_WINDOW, XCB_ATOM_CARDINAL, 32, 1, &val);
+                            A_MWM_FLOATING_WINDOW, XCB_ATOM_CARDINAL, 32, 1, &val);
     } else {
-        xcb_delete_property(conn, con->window->id, A_I3_FLOATING_WINDOW);
+        xcb_delete_property(conn, con->window->id, A_MWM_FLOATING_WINDOW);
     }
 
     xcb_flush(conn);
@@ -97,7 +97,7 @@ void floating_check_size(Con *floating_con, bool prefer_height) {
          border_rect.width,
          border_rect.height);
 
-    i3Window *window = focused_con->window;
+    mwmWindow *window = focused_con->window;
     if (window != NULL) {
         /* ICCCM says: If a base size is not provided, the minimum size is to be used in its place
          * and vice versa. */
@@ -322,7 +322,7 @@ bool floating_enable(Con *con, bool automatic) {
     }
 
     char *name;
-    sasprintf(&name, "[i3 con] floatingcon around %p", con);
+    sasprintf(&name, "[mwm con] floatingcon around %p", con);
     x_set_name(nc, name);
     free(name);
 

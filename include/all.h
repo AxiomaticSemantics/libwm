@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * This header file includes all relevant files of i3 and the most often used
@@ -32,7 +32,7 @@
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb_keysyms.h>
 
-#include "libi3.h"
+#include "libmwm.h"
 #include "data.h"
 #include "util.h"
 #include "ipc.h"
@@ -41,7 +41,7 @@
 #include "xcb.h"
 #include "manage.h"
 #include "workspace.h"
-#include "i3.h"
+#include "mwm.h"
 #include "x.h"
 #include "click.h"
 #include "key_press.h"
@@ -51,7 +51,6 @@
 #include "configuration.h"
 #include "handlers.h"
 #include "randr.h"
-#include "xinerama.h"
 #include "con.h"
 #include "load_layout.h"
 #include "render.h"

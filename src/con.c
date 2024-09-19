@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * con.c: Functions which deal with containers directly (creating containers,
@@ -35,7 +35,7 @@ void con_force_split_parents_redraw(Con *con) {
  * This function only initializes the data structures.
  *
  */
-Con *con_new_skeleton(Con *parent, i3Window *window) {
+Con *con_new_skeleton(Con *parent, mwmWindow *window) {
     Con *new = scalloc(1, sizeof(Con));
     new->on_remove_child = con_on_remove_child;
     TAILQ_INSERT_TAIL(&all_cons, new, all_cons);
@@ -67,7 +67,7 @@ Con *con_new_skeleton(Con *parent, i3Window *window) {
 /* A wrapper for con_new_skeleton, to retain the old con_new behaviour
  *
  */
-Con *con_new(Con *parent, i3Window *window) {
+Con *con_new(Con *parent, mwmWindow *window) {
     Con *new = con_new_skeleton(parent, window);
     x_con_init(new);
     return new;
@@ -656,7 +656,7 @@ Con *con_get_fullscreen_covering_ws(Con *ws) {
 }
 
 /*
- * Returns true if the container is internal, such as __i3_scratch
+ * Returns true if the container is internal, such as __mwm_scratch
  *
  */
 bool con_is_internal(Con *con) {
@@ -973,7 +973,7 @@ void con_unmark(Con *con, const char *name) {
  * TODO: priority
  *
  */
-Con *con_for_window(Con *con, i3Window *window, Match **store_match) {
+Con *con_for_window(Con *con, mwmWindow *window, Match **store_match) {
     Con *child;
     Match *match;
 
@@ -1432,7 +1432,7 @@ static bool _con_move_to_con(Con *con, Con *target, bool behind_focused, bool fi
     /* 6: focus the con on the target workspace, but only within that
      * workspace, that is, don’t move focus away if the target workspace is
      * invisible.
-     * We don’t focus the con for i3 pseudo workspaces like __i3_scratch and
+     * We don’t focus the con for mwm pseudo workspaces like __mwm_scratch and
      * we don’t focus when there is a fullscreen con on that workspace. We
      * also don't do it if the caller requested to ignore focus. */
     if (!ignore_focus && !con_is_internal(target_ws) && !fullscreen) {
@@ -1502,7 +1502,7 @@ static bool _con_move_to_con(Con *con, Con *target, bool behind_focused, bool fi
 
 bool con_move_to_target(Con *con, Con *target) {
     /* For target containers in the scratchpad, we just send the window to the scratchpad. */
-    if (con_get_workspace(target) == workspace_get("__i3_scratch")) {
+    if (con_get_workspace(target) == workspace_get("__mwm_scratch")) {
         DLOG("target container is in the scratchpad, moving container to scratchpad.\n");
         scratchpad_move(con);
         return true;
@@ -2231,7 +2231,7 @@ static void con_on_remove_child(Con *con) {
             const unsigned char *payload;
             ylength length;
             y(get_buf, &payload, &length);
-            ipc_send_event("workspace", I3_IPC_EVENT_WORKSPACE, (const char *)payload);
+            ipc_send_event("workspace", MWM_IPC_EVENT_WORKSPACE, (const char *)payload);
 
             y(free);
         }
@@ -2535,10 +2535,10 @@ char *con_get_tree_representation(Con *con) {
  * Returns the container's title considering the current title format.
  *
  */
-i3String *con_parse_title_format(Con *con) {
+mwmString *con_parse_title_format(Con *con) {
     assert(con->title_format != NULL);
 
-    i3Window *win = con->window;
+    mwmWindow *win = con->window;
 
     /* We need to ensure that we only escape the window title if pango
      * is used by the current font. */
@@ -2550,11 +2550,11 @@ i3String *con_parse_title_format(Con *con) {
     char *machine;
     if (win == NULL) {
         title = pango_escape_markup(con_get_tree_representation(con));
-        class = sstrdup("i3-frame");
-        instance = sstrdup("i3-frame");
+        class = sstrdup("mwm-frame");
+        instance = sstrdup("mwm-frame");
         machine = sstrdup("");
     } else {
-        title = pango_escape_markup(sstrdup((win->name == NULL) ? "" : i3string_as_utf8(win->name)));
+        title = pango_escape_markup(sstrdup((win->name == NULL) ? "" : mwmstring_as_utf8(win->name)));
         class = pango_escape_markup(sstrdup((win->class_class == NULL) ? "" : win->class_class));
         instance = pango_escape_markup(sstrdup((win->class_instance == NULL) ? "" : win->class_instance));
         machine = pango_escape_markup(sstrdup((win->machine == NULL) ? "" : win->machine));
@@ -2569,8 +2569,8 @@ i3String *con_parse_title_format(Con *con) {
     const size_t num = sizeof(placeholders) / sizeof(placeholder_t);
 
     char *formatted_str = format_placeholders(con->title_format, &placeholders[0], num);
-    i3String *formatted = i3string_from_utf8(formatted_str);
-    i3string_set_markup(formatted, pango_markup);
+    mwmString *formatted = mwmstring_from_utf8(formatted_str);
+    mwmstring_set_markup(formatted, pango_markup);
 
     free(formatted_str);
     free(title);
@@ -2687,7 +2687,7 @@ bool con_swap(Con *first, Con *second) {
 
     /* We don't actually need this since percentages-wise we haven't changed
      * anything, but we'll better be safe than sorry and just make sure as we'd
-     * otherwise crash i3. */
+     * otherwise crash mwm. */
     con_fix_percent(first->parent);
     con_fix_percent(second->parent);
 

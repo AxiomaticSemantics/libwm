@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * restore_layout.c: Everything for restored containers that is not pure state
@@ -11,7 +11,7 @@
  */
 #include "all.h"
 
-#ifdef I3_ASAN_ENABLED
+#ifdef MWM_ASAN_ENABLED
 #include <sanitizer/lsan_interface.h>
 #endif
 
@@ -111,7 +111,7 @@ void restore_connect(void) {
         if (restore_conn != NULL) {
             xcb_disconnect(restore_conn);
         }
-#ifdef I3_ASAN_ENABLED
+#ifdef MWM_ASAN_ENABLED
         __lsan_do_leak_check();
 #endif
         errx(EXIT_FAILURE, "Cannot open display");
@@ -133,7 +133,7 @@ static void update_placeholder_contents(placeholder_state *state) {
 
     draw_util_clear_surface(&(state->surface), background);
 
-    // TODO: make i3font functions per-connection, at least these two for now…?
+    // TODO: make mwmfont functions per-connection, at least these two for now…?
     xcb_aux_sync(restore_conn);
 
     Match *swallows;
@@ -162,23 +162,23 @@ static void update_placeholder_contents(placeholder_state *state) {
         sasprintf(&serialized, "%s]", serialized);
         DLOG("con %p (placeholder 0x%08x) line %d: %s\n", state->con, state->window, n, serialized);
 
-        i3String *str = i3string_from_utf8(serialized);
+        mwmString *str = mwmstring_from_utf8(serialized);
         draw_util_text(str, &(state->surface), foreground, background,
                        TEXT_PADDING,
                        (n * (config.font.height + TEXT_PADDING)) + TEXT_PADDING,
                        state->rect.width - 2 * TEXT_PADDING);
-        i3string_free(str);
+        mwmstring_free(str);
         n++;
         free(serialized);
     }
 
     // TODO: render the watch symbol in a bigger font
-    i3String *line = i3string_from_utf8("⌚");
+    mwmString *line = mwmstring_from_utf8("⌚");
     int text_width = predict_text_width(line);
     int x = (state->rect.width / 2) - (text_width / 2);
     int y = (state->rect.height / 2) - (config.font.height / 2);
     draw_util_text(line, &(state->surface), foreground, background, x, y, text_width);
-    i3string_free(line);
+    mwmstring_free(line);
     xcb_aux_sync(restore_conn);
 }
 
@@ -200,7 +200,7 @@ static void open_placeholder_window(Con *con) {
                 config.client.placeholder.background.colorpixel,
                 XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY,
             });
-        /* Make i3 not focus this window. */
+        /* Make mwm not focus this window. */
         xcb_icccm_wm_hints_t hints;
         xcb_icccm_wm_hints_set_none(&hints);
         xcb_icccm_wm_hints_set_input(&hints, 0);

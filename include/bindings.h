@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * bindings.h: Functions for configuring, finding, and running bindings.
@@ -81,7 +81,7 @@ void reorder_bindings(void);
  * Checks for duplicate key bindings (the same keycode or keysym is configured
  * more than once). If a duplicate binding is found, a message is printed to
  * stderr and the has_errors variable is set to true, which will start
- * i3-nagbar.
+ * mwm-nagbar.
  *
  */
 void check_for_duplicate_bindings(struct context *context);

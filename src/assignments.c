@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * assignments.c: Assignments for specific windows (for_window).
@@ -14,7 +14,7 @@
  * ones (unless they have already been run for this specific window).
  *
  */
-void run_assignments(i3Window *window) {
+void run_assignments(mwmWindow *window) {
     DLOG("Checking if any assignments match this window\n");
 
     bool needs_tree_render = false;
@@ -71,7 +71,7 @@ void run_assignments(i3Window *window) {
  * Returns the first matching assignment for the given window.
  *
  */
-Assignment *assignment_for(i3Window *window, int type) {
+Assignment *assignment_for(mwmWindow *window, int type) {
     Assignment *assignment;
 
     TAILQ_FOREACH (assignment, &assignments, assignments) {

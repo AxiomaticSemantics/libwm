@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  */
@@ -31,11 +31,11 @@ static void sighandler_handle_expose(void);
 static void sighandler_draw_dialog(dialog_t *dialog);
 static void sighandler_handle_key_press(xcb_key_press_event_t *event);
 
-static i3String *message_intro;
-static i3String *message_intro2;
-static i3String *message_option_backtrace;
-static i3String *message_option_restart;
-static i3String *message_option_forget;
+static mwmString *message_intro;
+static mwmString *message_intro2;
+static mwmString *message_option_backtrace;
+static mwmString *message_option_restart;
+static mwmString *message_option_forget;
 static int dialog_width;
 static int dialog_height;
 
@@ -43,7 +43,7 @@ static int border_width = 2;
 static int margin = 4;
 
 /*
- * Attach gdb to pid_parent and dump a backtrace to i3-backtrace.$pid in the
+ * Attach gdb to pid_parent and dump a backtrace to mwm-backtrace.$pid in the
  * tmpdir
  */
 static int sighandler_backtrace(void) {
@@ -56,11 +56,11 @@ static int sighandler_backtrace(void) {
 
     char *filename = NULL;
     int suffix = 0;
-    /* Find a unique filename for the backtrace (since the PID of i3 stays the
+    /* Find a unique filename for the backtrace (since the PID of mwm stays the
      * same), so that we don’t overwrite earlier backtraces. */
     do {
         FREE(filename);
-        sasprintf(&filename, "%s/i3-backtrace.%d.%d.txt", tmpdir, pid_parent, suffix);
+        sasprintf(&filename, "%s/mwm-backtrace.%d.%d.txt", tmpdir, pid_parent, suffix);
         suffix++;
     } while (path_exists(filename));
 
@@ -82,7 +82,7 @@ static int sighandler_backtrace(void) {
             return -1;
         }
 
-        /* close standard streams in case i3 is started from a terminal; gdb
+        /* close standard streams in case mwm is started from a terminal; gdb
          * needs to run without controlling terminal for it to work properly in
          * this situation */
         close(STDIN_FILENO);
@@ -135,11 +135,11 @@ static void sighandler_setup(void) {
     margin = logical_px(margin);
 
     int num_lines = 5;
-    message_intro = i3string_from_utf8("i3 has just crashed. Please report a bug for this.");
-    message_intro2 = i3string_from_utf8("To debug this problem, you can either attach gdb or choose from the following options:");
-    message_option_backtrace = i3string_from_utf8("- 'b' to save a backtrace (requires gdb)");
-    message_option_restart = i3string_from_utf8("- 'r' to restart i3 in-place");
-    message_option_forget = i3string_from_utf8("- 'f' to forget the previous layout and restart i3");
+    message_intro = mwmstring_from_utf8("mwm has just crashed. Please report a bug for this.");
+    message_intro2 = mwmstring_from_utf8("To debug this problem, you can either attach gdb or choose from the following options:");
+    message_option_backtrace = mwmstring_from_utf8("- 'b' to save a backtrace (requires gdb)");
+    message_option_restart = mwmstring_from_utf8("- 'r' to restart mwm in-place");
+    message_option_forget = mwmstring_from_utf8("- 'f' to forget the previous layout and restart mwm");
 
     int width_longest_message = predict_text_width(message_intro2);
 
@@ -286,15 +286,15 @@ static void sighandler_handle_key_press(xcb_key_press_event_t *event) {
         sighandler_handle_expose();
     } else if (sym == 'r') {
         sighandler_destroy_dialogs();
-        i3_restart(false);
+        mwm_restart(false);
     } else if (sym == 'f') {
         sighandler_destroy_dialogs();
-        i3_restart(true);
+        mwm_restart(true);
     }
 }
 
 static void handle_signal(int sig, siginfo_t *info, void *data) {
-    DLOG("i3 crashed. SIG: %d\n", sig);
+    DLOG("mwm crashed. SIG: %d\n", sig);
 
     struct sigaction action;
     action.sa_handler = SIG_DFL;

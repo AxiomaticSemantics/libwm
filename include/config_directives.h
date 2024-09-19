@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * config_directives.h: all config storing functions (see config_parser.c)
@@ -17,16 +17,16 @@
  * A utility function to convert a string containing the group and modifiers to
  * the corresponding bit mask.
  */
-i3_event_state_mask_t event_state_from_str(const char *str);
+mwm_event_state_mask_t event_state_from_str(const char *str);
 
 /** The beginning of the prototype for every cfg_ function. */
-#define I3_CFG Match *current_match, struct ConfigResultIR *result
+#define MWM_CFG Match *current_match, struct ConfigResultIR *result
 
 /* Defines a configuration function, that is, anything that can be called by
  * using 'call cfg_foo()' in parser-specs/.*.spec. Useful so that we don’t need
  * to repeat the definition all the time. */
 #define CFGFUN(name, ...) \
-    void cfg_##name(I3_CFG, ##__VA_ARGS__)
+    void cfg_##name(MWM_CFG, ##__VA_ARGS__)
 
 /* The following functions are called by the config parser, see
  * parser-specs/config.spec. They get the parsed parameters and store them in
@@ -55,7 +55,6 @@ CFGFUN(focus_follows_mouse, const char *value);
 CFGFUN(mouse_warping, const char *value);
 CFGFUN(focus_wrapping, const char *value);
 CFGFUN(force_focus_wrapping, const char *value);
-CFGFUN(force_xinerama, const char *value);
 CFGFUN(disable_randr15, const char *value);
 CFGFUN(fake_outputs, const char *outputs);
 CFGFUN(force_display_urgency_hint, const long duration_ms);
@@ -99,7 +98,7 @@ CFGFUN(bar_wheel_up_cmd, const char *command);
 CFGFUN(bar_wheel_down_cmd, const char *command);
 CFGFUN(bar_bindsym, const char *button, const char *release, const char *command);
 CFGFUN(bar_position, const char *position);
-CFGFUN(bar_i3bar_command, const char *i3bar_command);
+CFGFUN(bar_mwm_bar_command, const char *mwm_bar_command);
 CFGFUN(bar_color, const char *colorclass, const char *border, const char *background, const char *text);
 CFGFUN(bar_socket_path, const char *socket_path);
 CFGFUN(bar_tray_output, const char *output);

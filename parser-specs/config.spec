@@ -1,6 +1,6 @@
 # vim:ts=2:sw=2:expandtab
 #
-# i3 - an improved tiling window manager
+# mwm - an improved tiling window manager
 # © 2009 Michael Stapelberg and contributors (see also: LICENSE)
 #
 # parser-specs/config.spec: Specification file for generate-command-parser.pl
@@ -43,7 +43,6 @@ state INITIAL:
   'mouse_warping'                          -> MOUSE_WARPING
   'focus_wrapping'                         -> FOCUS_WRAPPING
   'force_focus_wrapping'                   -> FORCE_FOCUS_WRAPPING
-  'force_xinerama', 'force-xinerama'       -> FORCE_XINERAMA
   'disable_randr15', 'disable-randr15'     -> DISABLE_RANDR15
   'workspace_auto_back_and_forth'          -> WORKSPACE_BACK_AND_FORTH
   'fake_outputs', 'fake-outputs'           -> FAKE_OUTPUTS
@@ -293,11 +292,6 @@ state FORCE_FOCUS_WRAPPING:
   value = word
       -> call cfg_force_focus_wrapping($value)
 
-# force_xinerama
-state FORCE_XINERAMA:
-  value = word
-      -> call cfg_force_xinerama($value)
-
 # disable_randr15
 state DISABLE_RANDR15:
   value = word
@@ -523,7 +517,7 @@ state MODE_BINDCOMMAND:
       -> call cfg_mode_binding($bindtype, $modifiers, $key, $release, $border, $whole_window, $exclude_titlebar, $command); MODE
 
 ################################################################################
-# Bar configuration (i3bar)
+# Bar configuration (mwm-bar)
 ################################################################################
 
 state BARBRACE:
@@ -537,7 +531,7 @@ state BAR:
   error ->
   '#' -> BAR_IGNORE_LINE
   'set' -> BAR_IGNORE_LINE
-  'i3bar_command'          -> BAR_BAR_COMMAND
+  'mwm_bar_command'        -> BAR_BAR_COMMAND
   'status_command'         -> BAR_STATUS_COMMAND
   'workspace_command'      -> BAR_WORKSPACE_COMMAND
   'socket_path'            -> BAR_SOCKET_PATH
@@ -573,7 +567,7 @@ state BAR_IGNORE_LINE:
 
 state BAR_BAR_COMMAND:
   command = string
-      -> call cfg_bar_i3bar_command($command); BAR
+      -> call cfg_bar_mwm_bar_command($command); BAR
 
 state BAR_STATUS_COMMAND:
   command = string

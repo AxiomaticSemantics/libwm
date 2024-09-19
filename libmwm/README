@@ -1,0 +1,16 @@
+Introduction
+============
+
+libmwm is an *INTERNAL* library which contains functions that mwm and related
+tools (mwm-msg, mwm-input, mwm-nagbar, mwm-config-wizard, mwm-bar) use.
+
+It is not intended to be used by other programs.
+
+Structure
+=========
+
+Every function gets its own .c file, which in turn gets compiled into an .o
+object file. Afterwards, all .o files are archived into one static library
+(libmwm.a). This library will be linked into all mwm binaries. The linker is able
+to eliminate unused .o files when linking, so only the functions which you
+actually use will be included in the corresponding binary.

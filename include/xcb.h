@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * xcb.c: Helper functions for easier usage of XCB
@@ -49,12 +49,12 @@
                          XCB_EVENT_MASK_FOCUS_CHANGE |                                                \
                          XCB_EVENT_MASK_ENTER_WINDOW)
 
-#include "i3-atoms_rest.xmacro.h"
-#include "i3-atoms_NET_SUPPORTED.xmacro.h"
+#include "mwm-atoms_rest.xmacro.h"
+#include "mwm-atoms_NET_SUPPORTED.xmacro.h"
 
 #define xmacro(atom) extern xcb_atom_t A_##atom;
-I3_NET_SUPPORTED_ATOMS_XMACRO
-I3_REST_ATOMS_XMACRO
+MWM_NET_SUPPORTED_ATOMS_XMACRO
+MWM_REST_ATOMS_XMACRO
 #undef xmacro
 
 extern unsigned int xcb_numlock_mask;

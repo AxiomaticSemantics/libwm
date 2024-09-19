@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * ipc.c: UNIX domain socket IPC (initialization, client handling, protocol).
@@ -19,7 +19,7 @@
 #include "tree.h"
 #include "configuration.h"
 
-#include "i3/ipc.h"
+#include "mwm/ipc.h"
 
 extern char *current_socketpath;
 
@@ -31,7 +31,7 @@ typedef struct ipc_client {
     char **events;
 
     /* For clients which subscribe to the tick event: whether the first tick
-     * event has been sent by i3. */
+     * event has been sent by mwm. */
     bool first_tick_sent;
 
     struct ev_io *read_callback;

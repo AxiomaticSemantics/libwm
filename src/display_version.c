@@ -1,11 +1,11 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
- * display_version.c: displays the running i3 version, runs as part of
- *                    i3 --moreversion.
+ * display_version.c: displays the running mwm version, runs as part of
+ *                    mwm --moreversion.
  *
  */
 #include "all.h"
@@ -67,39 +67,39 @@ static void print_config_path(const char *path, const char *role) {
 }
 
 /*
- * Connects to i3 to find out the currently running version. Useful since it
+ * Connects to mwm to find out the currently running version. Useful since it
  * might be different from the version compiled into this binary (maybe the
- * user didn’t correctly install i3 or forgot to restart it).
+ * user didn’t correctly install mwm or forgot to restart it).
  *
  * The output looks like this:
- * Running i3 version: 4.2-202-gb8e782c (2012-08-12, branch "next") (pid 14804)
+ * Running mwm version: 4.2-202-gb8e782c (2012-08-12, branch "next") (pid 14804)
  *
- * The i3 binary you just called: /home/michael/i3/i3
- * The i3 binary you are running: /home/michael/i3/i3
+ * The mwm binary you just called: /home/michael/mwm/mwm
+ * The mwm binary you are running: /home/michael/mwm/mwm
  *
  */
 void display_running_version(void) {
     if (getenv("DISPLAY") == NULL) {
         fprintf(stderr, "\nYour DISPLAY environment variable is not set.\n");
-        fprintf(stderr, "Are you running i3 via SSH or on a virtual console?\n");
-        fprintf(stderr, "Try DISPLAY=:0 i3 --moreversion\n");
+        fprintf(stderr, "Are you running mwm via SSH or on a virtual console?\n");
+        fprintf(stderr, "Try DISPLAY=:0 mwm --moreversion\n");
         exit(EXIT_FAILURE);
     }
 
-    char *pid_from_atom = root_atom_contents("I3_PID", conn, conn_screen);
+    char *pid_from_atom = root_atom_contents("MWM_PID", conn, conn_screen);
     if (pid_from_atom == NULL) {
-        /* If I3_PID is not set, the running version is older than 4.2-200. */
+        /* If MWM_PID is not set, the running version is older than 4.2-200. */
         printf("\nRunning version: < 4.2-200\n");
         exit(EXIT_SUCCESS);
     }
 
     /* Inform the user of what we are doing. While a single IPC request is
-     * really fast normally, in case i3 hangs, this will not terminate. */
-    printf("(Getting version from running i3, press ctrl-c to abort…)");
+     * really fast normally, in case mwm hangs, this will not terminate. */
+    printf("(Getting version from running mwm, press ctrl-c to abort…)");
     fflush(stdout);
 
     int sockfd = ipc_connect(NULL);
-    if (ipc_send_message(sockfd, 0, I3_IPC_MESSAGE_TYPE_GET_VERSION,
+    if (ipc_send_message(sockfd, 0, MWM_IPC_MESSAGE_TYPE_GET_VERSION,
                          (uint8_t *)"") == -1) {
         err(EXIT_FAILURE, "IPC: write()");
     }
@@ -115,8 +115,8 @@ void display_running_version(void) {
         exit(EXIT_FAILURE);
     }
 
-    if (reply_type != I3_IPC_MESSAGE_TYPE_GET_VERSION) {
-        errx(EXIT_FAILURE, "Got reply type %d, but expected %d (GET_VERSION)", reply_type, I3_IPC_MESSAGE_TYPE_GET_VERSION);
+    if (reply_type != MWM_IPC_MESSAGE_TYPE_GET_VERSION) {
+        errx(EXIT_FAILURE, "Got reply type %d, but expected %d (GET_VERSION)", reply_type, MWM_IPC_MESSAGE_TYPE_GET_VERSION);
     }
 
     yajl_handle handle = yajl_alloc(&version_callbacks, NULL, NULL);
@@ -127,10 +127,10 @@ void display_running_version(void) {
     }
 
     printf("\r\x1b[K");
-    printf("Running i3 version: %s (pid %s)\n", human_readable_version, pid_from_atom);
+    printf("Running mwm version: %s (pid %s)\n", human_readable_version, pid_from_atom);
 
     if (loaded_config_file_name) {
-        printf("Loaded i3 config:\n");
+        printf("Loaded mwm config:\n");
         print_config_path(loaded_config_file_name, "main");
         IncludedFile *file;
         TAILQ_FOREACH (file, &included_files, files) {
@@ -158,7 +158,7 @@ void display_running_version(void) {
     destpath[linksize] = '\0';
 
     printf("\n");
-    printf("The i3 binary you just called: %s\n", destpath);
+    printf("The mwm binary you just called: %s\n", destpath);
 
     free(exepath);
     sasprintf(&exepath, "/proc/%s/exe", pid_from_atom);
@@ -195,7 +195,7 @@ void display_running_version(void) {
     }
     close(fd);
 
-    printf("The i3 binary you are running: %s\n", destpath);
+    printf("The mwm binary you are running: %s\n", destpath);
 
     free(exepath);
     free(destpath);

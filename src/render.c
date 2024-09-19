@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * render.c: Renders (determines position/sizes) the layout tree, updating the
@@ -151,7 +151,7 @@ void render_con(Con *con) {
     params.sizes = precalculate_sizes(con, &params);
 
     if (con->layout == L_OUTPUT) {
-        /* Skip i3-internal outputs */
+        /* Skip mwm-internal outputs */
         if (con_is_internal(con)) {
             goto free_params;
         }

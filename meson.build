@@ -4,11 +4,11 @@
 # the meson book: https://meson-manual.com/
 
 project(
-  'i3',
+  'mwm',
   'c',
   version: '4.23',
   default_options: [
-    'c_std=c11',
+    'c_std=c2x',
     'warning_level=1',  # enable all warnings (-Wall)
     # TODO(https://github.com/i3/i3/issues/4087): switch to
     # 'buildtype=debugoptimized',
@@ -43,7 +43,7 @@ if version_array.length() > 2
 else
   cdata.set('PATCH_VERSION', 0)
 endif
-cdata.set_quoted('I3_VERSION', '@VCS_TAG@')
+cdata.set_quoted('MWM_VERSION', '@VCS_TAG@')
 cdata.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
 
 if get_option('b_sanitize').split(',').contains('address')
@@ -73,7 +73,7 @@ config_h = declare_dependency(
 
 docdir = get_option('docdir')
 if docdir == ''
-  docdir = join_paths(get_option('datadir'), 'doc', 'i3')
+  docdir = join_paths(get_option('datadir'), 'doc', 'mwm')
 endif
 
 if get_option('docs')
@@ -85,8 +85,8 @@ if get_option('docs')
     'docs/multi-monitor',
     'docs/wsbar',
     'docs/testsuite',
-    'docs/i3bar-protocol',
-    'docs/i3bar-workspace-protocol',
+    'docs/mwm-bar-protocol',
+    'docs/mwm-bar-workspace-protocol',
     'docs/layout-saving',
   ]
   foreach m : doc_toc_inputs
@@ -135,8 +135,8 @@ else
 	'docs/multi-monitor.html',
 	'docs/wsbar.html',
 	'docs/testsuite.html',
-	'docs/i3bar-protocol.html',
-	'docs/i3bar-workspace-protocol.html',
+	'docs/mwm-bar-protocol.html',
+	'docs/mwm-bar-workspace-protocol.html',
 	'docs/layout-saving.html',
 	'docs/debugging.html',
       ],
@@ -156,8 +156,8 @@ install_data(
     'docs/wsbar.png',
     'docs/keyboard-layer1.png',
     'docs/keyboard-layer2.png',
-    'docs/i3-sync-working.png',
-    'docs/i3-sync.png',
+    'docs/mwm-sync-working.png',
+    'docs/mwm-sync.png',
     'docs/tree-layout1.png',
     'docs/tree-layout2.png',
     'docs/tree-shot1.png',
@@ -198,17 +198,16 @@ if get_option('mans')
   pod2man = find_program('pod2man')
 
   man_inputs = [
-    'man/i3.man',
-    'man/i3bar.man',
-    'man/i3-msg.man',
-    'man/i3-input.man',
-    'man/i3-nagbar.man',
-    'man/i3-config-wizard.man',
-    'man/i3-migrate-config-to-v4.man',
-    'man/i3-sensible-editor.man',
-    'man/i3-sensible-pager.man',
-    'man/i3-sensible-terminal.man',
-    'man/i3-dump-log.man',
+    'man/mwm.man',
+    'man/mwm-bar.man',
+    'man/mwm-msg.man',
+    'man/mwm-input.man',
+    'man/mwm-nagbar.man',
+    'man/mwm-config-wizard.man',
+    'man/mwm-sensible-editor.man',
+    'man/mwm-sensible-pager.man',
+    'man/mwm-sensible-terminal.man',
+    'man/mwm-dump-log.man',
   ]
 
   foreach m : man_inputs
@@ -248,8 +247,8 @@ if get_option('mans')
   endforeach
 
   pod2man_inputs = [
-    'i3-dmenu-desktop',
-    'i3-save-tree',
+    'mwm-dmenu-desktop',
+    'mwm-save-tree',
   ]
   foreach m : pod2man_inputs
     custom_target(
@@ -271,22 +270,21 @@ if get_option('mans')
   endforeach
 
 else
-  if run_command('[', '-f', 'man/i3.1', ']', check: false).returncode() == 0
+  if run_command('[', '-f', 'man/mwm.1', ']', check: false).returncode() == 0
     install_data(
       [
-	'man/i3.1',
-	'man/i3bar.1',
-	'man/i3-msg.1',
-	'man/i3-input.1',
-	'man/i3-nagbar.1',
-	'man/i3-config-wizard.1',
-	'man/i3-migrate-config-to-v4.1',
-	'man/i3-sensible-editor.1',
-	'man/i3-sensible-pager.1',
-	'man/i3-sensible-terminal.1',
-	'man/i3-dump-log.1',
-	'man/i3-dmenu-desktop.1',
-	'man/i3-save-tree.1',
+	'man/mwm.1',
+	'man/mwm-bar.1',
+	'man/mwm-msg.1',
+	'man/mwm-input.1',
+	'man/mwm-nagbar.1',
+	'man/mwm-config-wizard.1',
+	'man/mwm-sensible-editor.1',
+	'man/mwm-sensible-pager.1',
+	'man/mwm-sensible-terminal.1',
+	'man/mwm-dump-log.1',
+	'man/mwm-dmenu-desktop.1',
+	'man/mwm-save-tree.1',
       ],
       install_dir: man1,
     )
@@ -308,7 +306,6 @@ iconv_dep = cc.find_library('iconv', required: false)
 libsn_dep = dependency('libstartup-notification-1.0', method: 'pkg-config')
 xcb_dep = dependency('xcb', method: 'pkg-config')
 xcb_xkb_dep = dependency('xcb-xkb', method: 'pkg-config')
-xcb_xinerama_dep = dependency('xcb-xinerama', method: 'pkg-config')
 xcb_randr_dep = dependency('xcb-randr', method: 'pkg-config')
 xcb_shape_dep = dependency('xcb-shape', method: 'pkg-config')
 xcb_util_dep = dependency('xcb-util', method: 'pkg-config')
@@ -329,47 +326,47 @@ ev_dep = cc.find_library('ev')
 
 inc = include_directories('include')
 
-libi3srcs = [
-  'libi3/boolstr.c',
-  'libi3/create_socket.c',
-  'libi3/dpi.c',
-  'libi3/draw_util.c',
-  'libi3/fake_configure_notify.c',
-  'libi3/font.c',
-  'libi3/format_placeholders.c',
-  'libi3/get_colorpixel.c',
-  'libi3/get_config_path.c',
-  'libi3/get_exe_path.c',
-  'libi3/get_mod_mask.c',
-  'libi3/get_process_filename.c',
-  'libi3/get_visualtype.c',
-  'libi3/g_utf8_make_valid.c',
-  'libi3/ipc_connect.c',
-  'libi3/ipc_recv_message.c',
-  'libi3/ipc_send_message.c',
-  'libi3/is_debug_build.c',
-  'libi3/path_exists.c',
-  'libi3/resolve_tilde.c',
-  'libi3/root_atom_contents.c',
-  'libi3/safewrappers.c',
-  'libi3/string.c',
-  'libi3/ucs2_conversion.c',
-  'libi3/nonblock.c',
-  'libi3/screenshot_wallpaper.c',
-  'libi3/is_background_set.c',
+libmwmsrcs = [
+  'libmwm/boolstr.c',
+  'libmwm/create_socket.c',
+  'libmwm/dpi.c',
+  'libmwm/draw_util.c',
+  'libmwm/fake_configure_notify.c',
+  'libmwm/font.c',
+  'libmwm/format_placeholders.c',
+  'libmwm/get_colorpixel.c',
+  'libmwm/get_config_path.c',
+  'libmwm/get_exe_path.c',
+  'libmwm/get_mod_mask.c',
+  'libmwm/get_process_filename.c',
+  'libmwm/get_visualtype.c',
+  'libmwm/g_utf8_make_valid.c',
+  'libmwm/ipc_connect.c',
+  'libmwm/ipc_recv_message.c',
+  'libmwm/ipc_send_message.c',
+  'libmwm/is_debug_build.c',
+  'libmwm/path_exists.c',
+  'libmwm/resolve_tilde.c',
+  'libmwm/root_atom_contents.c',
+  'libmwm/safewrappers.c',
+  'libmwm/string.c',
+  'libmwm/ucs2_conversion.c',
+  'libmwm/nonblock.c',
+  'libmwm/screenshot_wallpaper.c',
+  'libmwm/is_background_set.c',
 ]
 
 if not cdata.get('HAVE_STRNDUP')
-  libi3srcs += 'libi3/strndup.c'
+  libmwmsrcs += 'libmwm/strndup.c'
 endif
 
 if not cdata.get('HAVE_MKDIRP')
-  libi3srcs += 'libi3/mkdirp.c'
+  libmwmsrcs += 'libmwm/mkdirp.c'
 endif
 
-libi3 = static_library(
-  'i3',
-  libi3srcs,
+libmwm = static_library(
+  'mwm',
+  libmwmsrcs,
   include_directories: inc,
   dependencies: [
     pangocairo_dep,
@@ -377,7 +374,7 @@ libi3 = static_library(
   ],
 )
 
-i3srcs = [
+mwmsrcs = [
   'src/assignments.c',
   'src/bindings.c',
   'src/click.c',
@@ -422,7 +419,6 @@ i3srcs = [
   'src/x.c',
   'src/xcb.c',
   'src/xcursor.c',
-  'src/xinerama.c',
 ]
 
 # Verify the perl interpreter is present for running parser_gen,
@@ -441,7 +437,7 @@ command_parser = custom_target(
   command: [perl, parser_gen, '--input=@INPUT@', '--prefix=command'],
 )
 
-i3srcs += command_parser
+mwmsrcs += command_parser
 
 config_parser = custom_target(
   'config_parser',
@@ -454,7 +450,7 @@ config_parser = custom_target(
   command: [parser_gen, '--input=@INPUT@', '--prefix=config'],
 )
 
-i3srcs += config_parser
+mwmsrcs += config_parser
 
 # src/log.c uses threading primitives for synchronization
 thread_dep = dependency('threads')
@@ -467,7 +463,6 @@ common_deps = [
   libsn_dep,
   xcb_dep,
   xcb_xkb_dep,
-  xcb_xinerama_dep,
   xcb_randr_dep,
   xcb_shape_dep,
   xcb_util_dep,
@@ -488,105 +483,104 @@ common_deps = [
 ]
 
 executable(
-  'i3',
-  i3srcs,
+  'mwm',
+  mwmsrcs,
   install: true,
   include_directories: inc,
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 # This is the only currently working way of installing a symbolic link:
 meson.add_install_script(
-  'meson/meson-install-i3-with-shmlog',
+  'meson/meson-install-mwm-with-shmlog',
   get_option('bindir'),
 )
 
 executable(
-  'i3bar',
+  'mwm-bar',
   [
-    'i3bar/src/child.c',
-    'i3bar/src/config.c',
-    'i3bar/src/ipc.c',
-    'i3bar/src/main.c',
-    'i3bar/src/mode.c',
-    'i3bar/src/outputs.c',
-    'i3bar/src/parse_json_header.c',
-    'i3bar/src/workspaces.c',
-    'i3bar/src/xcb.c',
+    'mwm-bar/src/child.c',
+    'mwm-bar/src/config.c',
+    'mwm-bar/src/ipc.c',
+    'mwm-bar/src/main.c',
+    'mwm-bar/src/mode.c',
+    'mwm-bar/src/outputs.c',
+    'mwm-bar/src/parse_json_header.c',
+    'mwm-bar/src/workspaces.c',
+    'mwm-bar/src/xcb.c',
   ],
   install: true,
-  include_directories: include_directories('include', 'i3bar/include'),
+  include_directories: include_directories('include', 'mwm-bar/include'),
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
-  'i3-config-wizard',
+  'mwm-config-wizard',
   [
-    'i3-config-wizard/i3-config-wizard-atoms.xmacro.h',
-    'i3-config-wizard/main.c',
-    'i3-config-wizard/xcb.h',
+    'mwm-config-wizard/mwm-config-wizard-atoms.xmacro.h',
+    'mwm-config-wizard/main.c',
+    'mwm-config-wizard/xcb.h',
     config_parser,
   ],
   install: true,
-  include_directories: include_directories('include', 'i3-config-wizard'),
+  include_directories: include_directories('include', 'mwm-config-wizard'),
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
-  'i3-dump-log',
-  'i3-dump-log/main.c',
+  'mwm-dump-log',
+  'mwm-dump-log/main.c',
   install: true,
   include_directories: inc,
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
-  'i3-input',
+  'mwm-input',
   [
-    'i3-input/i3-input.h',
-    'i3-input/keysym2ucs.h',
-    'i3-input/keysym2ucs.c',
-    'i3-input/main.c',
+    'mwm-input/mwm-input.h',
+    'mwm-input/keysym2ucs.h',
+    'mwm-input/keysym2ucs.c',
+    'mwm-input/main.c',
   ],
   install: true,
   include_directories: inc,
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
-  'i3-msg',
-  'i3-msg/main.c',
+  'mwm-msg',
+  'mwm-msg/main.c',
   install: true,
   include_directories: inc,
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
-  'i3-nagbar',
+  'mwm-nagbar',
   [
-    'i3-nagbar/i3-nagbar-atoms.xmacro.h',
-    'i3-nagbar/main.c',
+    'mwm-nagbar/mwm-nagbar-atoms.xmacro.h',
+    'mwm-nagbar/main.c',
   ],
   install: true,
-  include_directories: include_directories('include', 'i3-nagbar'),
+  include_directories: include_directories('include', 'mwm-nagbar'),
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 install_data(
   [
-    'i3-dmenu-desktop',
-    'i3-migrate-config-to-v4',
-    'i3-save-tree',
-    'i3-sensible-editor',
-    'i3-sensible-pager',
-    'i3-sensible-terminal',
+    'mwm-dmenu-desktop',
+    'mwm-save-tree',
+    'mwm-sensible-editor',
+    'mwm-sensible-pager',
+    'mwm-sensible-terminal',
   ],
   install_dir: 'bin',
 )
@@ -594,7 +588,7 @@ install_data(
 install_subdir(
   'etc',
   strip_directory: true,
-  install_dir: join_paths(get_option('sysconfdir'), 'i3'),
+  install_dir: join_paths(get_option('sysconfdir'), 'mwm'),
 )
 
 install_subdir(
@@ -604,11 +598,11 @@ install_subdir(
 )
 
 install_headers(
-  'include/i3/ipc.h',
-  subdir: 'i3',
+  'include/mwm/ipc.h',
+  subdir: 'mwm',
 )
 
-# We cannot use configure_file for complete-run.pl.in and i3test.pm.in
+# We cannot use configure_file for complete-run.pl.in and mwmtest.pm.in
 # because configure_file strips the backslash in e.g. \@display,
 # resulting in @display, breaking our Perl code:
 # https://github.com/mesonbuild/meson/issues/7165
@@ -633,10 +627,10 @@ complete_run = custom_target(
   # This is required for older meson versions (< 0.46.0).
   build_by_default: true,
 )
-i3test_pm = custom_target(
-  'i3test-pm',
-  input: ['testcases/lib/i3test.pm.in'],
-  output: ['i3test.pm'],
+mwmtest_pm = custom_target(
+  'mwmtest-pm',
+  input: ['testcases/lib/mwmtest.pm.in'],
+  output: ['mwmtest.pm'],
   command: replace_dirs,
   # build this target when running e.g. ninja or ninja test.
   # This is required for older meson versions (< 0.46.0).
@@ -644,14 +638,14 @@ i3test_pm = custom_target(
 )
 
 if get_option('docs')
-  i3_pod2html = find_program('docs/i3-pod2html')
+  mwm_pod2html = find_program('docs/mwm-pod2html')
 
   custom_target(
-    'lib-i3test.html',
-    input: i3test_pm,
-    output: 'lib-i3test.html',
+    'lib-mwmtest.html',
+    input: mwmtest_pm,
+    output: 'lib-mwmtest.html',
     command: [
-      i3_pod2html,
+      mwm_pod2html,
       '@INPUT@',
       '@OUTPUT@',
     ],
@@ -660,11 +654,11 @@ if get_option('docs')
   )
 
   custom_target(
-    'lib-i3test-test.html',
-    input: 'testcases/lib/i3test/Test.pm',
-    output: 'lib-i3test-test.html',
+    'lib-mwmtest-test.html',
+    input: 'testcases/lib/mwmtest/Test.pm',
+    output: 'lib-mwmtest-test.html',
     command: [
-      i3_pod2html,
+      mwm_pod2html,
       '@INPUT@',
       '@OUTPUT@',
     ],
@@ -678,7 +672,7 @@ executable(
   'testcases/inject_randr1.5.c',
   include_directories: inc,
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
@@ -690,7 +684,7 @@ executable(
   include_directories: inc,
   c_args: '-DTEST_PARSER',
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
 executable(
@@ -702,18 +696,18 @@ executable(
   include_directories: inc,
   c_args: '-DTEST_PARSER',
   dependencies: common_deps,
-  link_with: libi3,
+  link_with: libmwm,
 )
 
-anyevent_i3 = custom_target(
-  'anyevent-i3',
-  # Should be AnyEvent-I3/blib/lib/AnyEvent/I3.pm,
+anyevent_mwm = custom_target(
+  'anyevent-mwm',
+  # Should be AnyEvent-MWM/blib/lib/AnyEvent/MWM.pm,
   # but see https://github.com/mesonbuild/meson/issues/2320
-  output: 'AnyEvent-I3.stamp',
+  output: 'AnyEvent-MWM.stamp',
   command: [
     'sh',
     '-c',
-    'cp -r @0@/AnyEvent-I3 . && cd AnyEvent-I3 && perl Makefile.PL && make && touch ../AnyEvent-I3.stamp'.format(meson.current_source_dir()),
+    'cp -r @0@/AnyEvent-MWM . && cd AnyEvent-MWM && perl Makefile.PL && make && touch ../AnyEvent-MWM.stamp'.format(meson.current_source_dir()),
   ],
 )
 
@@ -723,8 +717,8 @@ if meson.version().version_compare('>=0.46.0')
     perl,
     args: [complete_run],
     depends: [
-      anyevent_i3,
-      i3test_pm,
+      anyevent_mwm,
+      mwmtest_pm,
     ],
     timeout: 120,  # Default of 30 seconds can cause timeouts on slower machines
   )

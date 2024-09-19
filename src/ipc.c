@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * ipc.c: UNIX domain socket IPC (initialization, client handling, protocol).
@@ -96,11 +96,11 @@ static void ipc_push_pending(ipc_client *client) {
  *
  */
 static void ipc_send_client_message(ipc_client *client, size_t size, const uint32_t message_type, const uint8_t *payload) {
-    const i3_ipc_header_t header = {
-        .magic = {'i', '3', '-', 'i', 'p', 'c'},
+    const mwm_ipc_header_t header = {
+        .magic = {'m', 'w', 'm', '-', 'i', 'p', 'c'},
         .size = size,
         .type = message_type};
-    const size_t header_size = sizeof(i3_ipc_header_t);
+    const size_t header_size = sizeof(mwm_ipc_header_t);
     const size_t message_size = header_size + size;
 
     const bool push_now = (client->buffer_size == 0);
@@ -177,7 +177,7 @@ static void ipc_send_shutdown_event(shutdown_reason_t reason) {
     ylength length;
 
     y(get_buf, &payload, &length);
-    ipc_send_event("shutdown", I3_IPC_EVENT_SHUTDOWN, (const char *)payload);
+    ipc_send_event("shutdown", MWM_IPC_EVENT_SHUTDOWN, (const char *)payload);
 
     y(free);
 }
@@ -226,7 +226,7 @@ IPC_HANDLER(run_command) {
     ylength length;
     yajl_gen_get_buf(gen, &reply, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_COMMAND,
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_COMMAND,
                             (const uint8_t *)reply);
 
     yajl_gen_free(gen);
@@ -252,7 +252,7 @@ static void dump_gaps(yajl_gen gen, const char *name, gaps_t gaps) {
     ystr("inner");
     y(integer, gaps.inner);
 
-    // TODO: the i3ipc Python modules recognize gaps, but only inner/outer
+    // TODO: the mwmipc Python modules recognize gaps, but only inner/outer
     // This is currently here to preserve compatibility with that
     ystr("outer");
     y(integer, gaps.top);
@@ -312,16 +312,16 @@ static void dump_event_state_mask(yajl_gen gen, Binding *bind) {
                 case XCB_KEY_BUT_MASK_BUTTON_5:
                     ystr("Button5");
                     break;
-                case (I3_XKB_GROUP_MASK_1 << 16):
+                case (MWM_XKB_GROUP_MASK_1 << 16):
                     ystr("Group1");
                     break;
-                case (I3_XKB_GROUP_MASK_2 << 16):
+                case (MWM_XKB_GROUP_MASK_2 << 16):
                     ystr("Group2");
                     break;
-                case (I3_XKB_GROUP_MASK_3 << 16):
+                case (MWM_XKB_GROUP_MASK_3 << 16):
                     ystr("Group3");
                     break;
-                case (I3_XKB_GROUP_MASK_4 << 16):
+                case (MWM_XKB_GROUP_MASK_4 << 16):
                     ystr("Group4");
                     break;
             }
@@ -521,7 +521,7 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     ystr("name");
     if (con->window && con->window->name) {
-        ystr(i3string_as_utf8(con->window->name));
+        ystr(mwmstring_as_utf8(con->window->name));
     } else if (con->name != NULL) {
         ystr(con->name);
     } else {
@@ -583,8 +583,8 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     if (con->window && !inplace_restart) {
         /* Window properties are useless to preserve when restarting because
-         * they will be queried again anyway. However, for i3-save-tree(1),
-         * they are very useful and save i3-save-tree dealing with X11. */
+         * they will be queried again anyway. However, for mwm-save-tree(1),
+         * they are very useful and save mwm-save-tree dealing with X11. */
         ystr("window_properties");
         y(map_open);
 
@@ -603,7 +603,7 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
         if (con->window->name != NULL) {
             ystr("title");
-            ystr(i3string_as_utf8(con->window->name));
+            ystr(mwmstring_as_utf8(con->window->name));
         }
 
         ystr("transient_for");
@@ -919,7 +919,7 @@ IPC_HANDLER(tree) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_TREE, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_TREE, payload);
     y(free);
 }
 
@@ -987,7 +987,7 @@ IPC_HANDLER(get_workspaces) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_WORKSPACES, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_WORKSPACES, payload);
     y(free);
 }
 
@@ -1042,7 +1042,7 @@ IPC_HANDLER(get_outputs) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_OUTPUTS, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_OUTPUTS, payload);
     y(free);
 }
 
@@ -1069,12 +1069,12 @@ IPC_HANDLER(get_marks) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_MARKS, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_MARKS, payload);
     y(free);
 }
 
 /*
- * Returns the version of i3
+ * Returns the version of mwm
  *
  */
 IPC_HANDLER(get_version) {
@@ -1091,7 +1091,7 @@ IPC_HANDLER(get_version) {
     y(integer, PATCH_VERSION);
 
     ystr("human_readable");
-    ystr(i3_version);
+    ystr(mwm_version);
 
     ystr("loaded_config_file_name");
     ystr(current_configpath);
@@ -1113,7 +1113,7 @@ IPC_HANDLER(get_version) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_VERSION, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_VERSION, payload);
     y(free);
 }
 
@@ -1138,7 +1138,7 @@ IPC_HANDLER(get_bar_config) {
         ylength length;
         y(get_buf, &payload, &length);
 
-        ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_BAR_CONFIG, payload);
+        ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_BAR_CONFIG, payload);
         y(free);
         return;
     }
@@ -1176,7 +1176,7 @@ IPC_HANDLER(get_bar_config) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_BAR_CONFIG, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_BAR_CONFIG, payload);
     y(free);
 }
 
@@ -1198,7 +1198,7 @@ IPC_HANDLER(get_binding_modes) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_BINDING_MODES, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_BINDING_MODES, payload);
     y(free);
 }
 
@@ -1253,13 +1253,13 @@ IPC_HANDLER(subscribe) {
         yajl_free_error(p, err);
 
         const char *reply = "{\"success\":false}";
-        ipc_send_client_message(client, strlen(reply), I3_IPC_REPLY_TYPE_SUBSCRIBE, (const uint8_t *)reply);
+        ipc_send_client_message(client, strlen(reply), MWM_IPC_REPLY_TYPE_SUBSCRIBE, (const uint8_t *)reply);
         yajl_free(p);
         return;
     }
     yajl_free(p);
     const char *reply = "{\"success\":true}";
-    ipc_send_client_message(client, strlen(reply), I3_IPC_REPLY_TYPE_SUBSCRIBE, (const uint8_t *)reply);
+    ipc_send_client_message(client, strlen(reply), MWM_IPC_REPLY_TYPE_SUBSCRIBE, (const uint8_t *)reply);
 
     if (client->first_tick_sent) {
         return;
@@ -1278,11 +1278,11 @@ IPC_HANDLER(subscribe) {
 
     client->first_tick_sent = true;
     const char *payload = "{\"first\":true,\"payload\":\"\"}";
-    ipc_send_client_message(client, strlen(payload), I3_IPC_EVENT_TICK, (const uint8_t *)payload);
+    ipc_send_client_message(client, strlen(payload), MWM_IPC_EVENT_TICK, (const uint8_t *)payload);
 }
 
 /*
- * Returns the raw last loaded i3 configuration file contents.
+ * Returns the raw last loaded mwm configuration file contents.
  */
 IPC_HANDLER(get_config) {
     yajl_gen gen = ygenalloc();
@@ -1313,7 +1313,7 @@ IPC_HANDLER(get_config) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_CONFIG, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_CONFIG, payload);
     y(free);
 }
 
@@ -1338,11 +1338,11 @@ IPC_HANDLER(send_tick) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_event("tick", I3_IPC_EVENT_TICK, (const char *)payload);
+    ipc_send_event("tick", MWM_IPC_EVENT_TICK, (const char *)payload);
     y(free);
 
     const char *reply = "{\"success\":true}";
-    ipc_send_client_message(client, strlen(reply), I3_IPC_REPLY_TYPE_TICK, (const uint8_t *)reply);
+    ipc_send_client_message(client, strlen(reply), MWM_IPC_REPLY_TYPE_TICK, (const uint8_t *)reply);
     DLOG("Sent tick event\n");
 }
 
@@ -1393,7 +1393,7 @@ IPC_HANDLER(sync) {
         yajl_free_error(p, err);
 
         const char *reply = "{\"success\":false}";
-        ipc_send_client_message(client, strlen(reply), I3_IPC_REPLY_TYPE_SYNC, (const uint8_t *)reply);
+        ipc_send_client_message(client, strlen(reply), MWM_IPC_REPLY_TYPE_SYNC, (const uint8_t *)reply);
         yajl_free(p);
         return;
     }
@@ -1402,7 +1402,7 @@ IPC_HANDLER(sync) {
     DLOG("received IPC sync request (rnd = %d, window = 0x%08x)\n", state.rnd, state.window);
     sync_respond(state.window, state.rnd);
     const char *reply = "{\"success\":true}";
-    ipc_send_client_message(client, strlen(reply), I3_IPC_REPLY_TYPE_SYNC, (const uint8_t *)reply);
+    ipc_send_client_message(client, strlen(reply), MWM_IPC_REPLY_TYPE_SYNC, (const uint8_t *)reply);
 }
 
 IPC_HANDLER(get_binding_state) {
@@ -1419,12 +1419,12 @@ IPC_HANDLER(get_binding_state) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_client_message(client, length, I3_IPC_REPLY_TYPE_GET_BINDING_STATE, payload);
+    ipc_send_client_message(client, length, MWM_IPC_REPLY_TYPE_GET_BINDING_STATE, payload);
     y(free);
 }
 
 /* The index of each callback function corresponds to the numeric
- * value of the message type (see include/i3/ipc.h) */
+ * value of the message type (see include/mwm/ipc.h) */
 handler_t handlers[13] = {
     handle_run_command,
     handle_get_workspaces,
@@ -1638,7 +1638,7 @@ void ipc_send_workspace_event(const char *change, Con *current, Con *old) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_event("workspace", I3_IPC_EVENT_WORKSPACE, (const char *)payload);
+    ipc_send_event("workspace", MWM_IPC_EVENT_WORKSPACE, (const char *)payload);
 
     y(free);
 }
@@ -1668,7 +1668,7 @@ void ipc_send_window_event(const char *property, Con *con) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_event("window", I3_IPC_EVENT_WINDOW, (const char *)payload);
+    ipc_send_event("window", MWM_IPC_EVENT_WINDOW, (const char *)payload);
     y(free);
     setlocale(LC_NUMERIC, "");
 }
@@ -1687,7 +1687,7 @@ void ipc_send_barconfig_update_event(Barconfig *barconfig) {
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_event("barconfig_update", I3_IPC_EVENT_BARCONFIG_UPDATE, (const char *)payload);
+    ipc_send_event("barconfig_update", MWM_IPC_EVENT_BARCONFIG_UPDATE, (const char *)payload);
     y(free);
     setlocale(LC_NUMERIC, "");
 }
@@ -1723,7 +1723,7 @@ void ipc_send_binding_event(const char *event_type, Binding *bind, const char *m
     ylength length;
     y(get_buf, &payload, &length);
 
-    ipc_send_event("binding", I3_IPC_EVENT_BINDING, (const char *)payload);
+    ipc_send_event("binding", MWM_IPC_EVENT_BINDING, (const char *)payload);
 
     y(free);
     setlocale(LC_NUMERIC, "");
@@ -1736,7 +1736,7 @@ void ipc_confirm_restart(ipc_client *client) {
     DLOG("ipc_confirm_restart(fd %d)\n", client->fd);
     static const char *reply = "[{\"success\":true}]";
     ipc_send_client_message(
-        client, strlen(reply), I3_IPC_REPLY_TYPE_COMMAND,
+        client, strlen(reply), MWM_IPC_REPLY_TYPE_COMMAND,
         (const uint8_t *)reply);
     ipc_push_pending(client);
 }

@@ -1,11 +1,11 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
- * util.c: Utility functions, which can be useful everywhere within i3 (see
- *         also libi3).
+ * util.c: Utility functions, which can be useful everywhere within mwm (see
+ *         also libmwm).
  *
  */
 #include "all.h"
@@ -132,9 +132,9 @@ bool update_if_necessary(uint32_t *destination, const uint32_t new_value) {
 }
 
 /*
- * exec()s an i3 utility, for example the config file migration script or
- * i3-nagbar. This function first searches $PATH for the given utility named,
- * then falls back to the dirname() of the i3 executable path and then falls
+ * exec()s an mwm utility, for example the config file migration script or
+ * mwm-nagbar. This function first searches $PATH for the given utility named,
+ * then falls back to the dirname() of the mwm executable path and then falls
  * back to the dirname() of the target of /proc/self/exe (on linux).
  *
  * This function should be called after fork()ing.
@@ -146,14 +146,14 @@ bool update_if_necessary(uint32_t *destination, const uint32_t new_value) {
  * return code 2.
  *
  */
-void exec_i3_utility(char *name, char *argv[]) {
+void exec_mwm_utility(char *name, char *argv[]) {
     /* start the utility, search PATH first */
     char *binary = name;
     argv[0] = binary;
     execvp(binary, argv);
 
     /* if the utility is not in path, maybe the user installed to a strange
-     * location and runs the i3 binary with an absolute path. We use
+     * location and runs the mwm binary with an absolute path. We use
      * argv[0]’s dirname */
     char *pathbuf = sstrdup(start_argv[0]);
     char *dir = dirname(pathbuf);
@@ -276,11 +276,11 @@ static char *store_restart_layout(void) {
 }
 
 /*
- * Restart i3 in-place
+ * Restart mwm in-place
  * appends -a to argument list to disable autostart
  *
  */
-void i3_restart(bool forget_layout) {
+void mwm_restart(bool forget_layout) {
     char *restart_filename = forget_layout ? NULL : store_restart_layout();
 
     kill_nagbar(config_error_nagbar_pid, true);
@@ -335,11 +335,11 @@ static void nagbar_exited(EV_P_ ev_child *watcher, int revents) {
 
     int exitcode = WEXITSTATUS(watcher->rstatus);
     if (!WIFEXITED(watcher->rstatus)) {
-        ELOG("i3-nagbar (%d) did not exit normally. This is not an error if the config was reloaded while a nagbar was active.\n", watcher->pid);
+        ELOG("mwm-nagbar (%d) did not exit normally. This is not an error if the config was reloaded while a nagbar was active.\n", watcher->pid);
     } else if (exitcode != 0) {
-        ELOG("i3-nagbar (%d) process exited with status %d\n", watcher->pid, exitcode);
+        ELOG("mwm-nagbar (%d) process exited with status %d\n", watcher->pid, exitcode);
     } else {
-        DLOG("i3-nagbar (%d) process exited with status %d\n", watcher->pid, exitcode);
+        DLOG("mwm-nagbar (%d) process exited with status %d\n", watcher->pid, exitcode);
     }
 
     pid_t *nagbar_pid = watcher->data;
@@ -350,8 +350,8 @@ static void nagbar_exited(EV_P_ ev_child *watcher, int revents) {
 }
 
 /*
- * Starts an i3-nagbar instance with the given parameters. Takes care of
- * handling SIGCHLD and killing i3-nagbar when i3 exits.
+ * Starts an mwm-nagbar instance with the given parameters. Takes care of
+ * handling SIGCHLD and killing mwm-nagbar when mwm exits.
  *
  * The resulting PID will be stored in *nagbar_pid and can be used with
  * kill_nagbar() to kill the bar later on.
@@ -359,7 +359,7 @@ static void nagbar_exited(EV_P_ ev_child *watcher, int revents) {
  */
 void start_nagbar(pid_t *nagbar_pid, char *argv[]) {
     if (*nagbar_pid != -1) {
-        DLOG("i3-nagbar already running (PID %d), not starting again.\n", *nagbar_pid);
+        DLOG("mwm-nagbar already running (PID %d), not starting again.\n", *nagbar_pid);
         return;
     }
 
@@ -371,10 +371,10 @@ void start_nagbar(pid_t *nagbar_pid, char *argv[]) {
 
     /* child */
     if (*nagbar_pid == 0) {
-        exec_i3_utility("i3-nagbar", argv);
+        exec_mwm_utility("mwm-nagbar", argv);
     }
 
-    DLOG("Starting i3-nagbar with PID %d\n", *nagbar_pid);
+    DLOG("Starting mwm-nagbar with PID %d\n", *nagbar_pid);
 
     /* parent */
     /* install a child watcher */
@@ -385,9 +385,9 @@ void start_nagbar(pid_t *nagbar_pid, char *argv[]) {
 }
 
 /*
- * Kills the i3-nagbar process, if nagbar_pid != -1.
+ * Kills the mwm-nagbar process, if nagbar_pid != -1.
  *
- * If wait_for_it is set (restarting i3), this function will waitpid(),
+ * If wait_for_it is set (restarting mwm), this function will waitpid(),
  * otherwise, ev is assumed to handle it (reloading).
  *
  */

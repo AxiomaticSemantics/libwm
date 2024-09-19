@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * window.c: Updates window attributes (X11 hints/properties).
@@ -12,15 +12,15 @@
 #include <math.h>
 
 /*
- * Frees an i3Window and all its members.
+ * Frees an mwmWindow and all its members.
  *
  */
-void window_free(i3Window *win) {
+void window_free(mwmWindow *win) {
     FREE(win->class_class);
     FREE(win->class_instance);
     FREE(win->role);
     FREE(win->machine);
-    i3string_free(win->name);
+    mwmstring_free(win->name);
     cairo_surface_destroy(win->icon);
     FREE(win->ran_assignments);
     FREE(win);
@@ -31,7 +31,7 @@ void window_free(i3Window *win) {
  * given window.
  *
  */
-void window_update_class(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_class(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("WM_CLASS not set.\n");
         FREE(prop);
@@ -65,29 +65,29 @@ void window_update_class(i3Window *win, xcb_get_property_reply_t *prop) {
  * window. Further updates using window_update_name_legacy will be ignored.
  *
  */
-void window_update_name(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_name(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("_NET_WM_NAME not specified, not changing\n");
         FREE(prop);
         return;
     }
 
-    i3string_free(win->name);
+    mwmstring_free(win->name);
 
     /* Truncate the name at the first zero byte. See #3515. */
     const int len = xcb_get_property_value_length(prop);
     char *name = sstrndup(xcb_get_property_value(prop), len);
-    win->name = i3string_from_utf8(name);
+    win->name = mwmstring_from_utf8(name);
     free(name);
 
     Con *con = con_by_window_id(win->id);
     if (con != NULL && con->title_format != NULL) {
-        i3String *name = con_parse_title_format(con);
-        ewmh_update_visible_name(win->id, i3string_as_utf8(name));
-        I3STRING_FREE(name);
+        mwmString *name = con_parse_title_format(con);
+        ewmh_update_visible_name(win->id, mwmstring_as_utf8(name));
+        MWMSTRING_FREE(name);
     }
     win->name_x_changed = true;
-    LOG("_NET_WM_NAME changed to \"%s\"\n", i3string_as_utf8(win->name));
+    LOG("_NET_WM_NAME changed to \"%s\"\n", mwmstring_as_utf8(win->name));
 
     win->uses_net_wm_name = true;
 
@@ -101,7 +101,7 @@ void window_update_name(i3Window *win, xcb_get_property_reply_t *prop) {
  * window_update_name()).
  *
  */
-void window_update_name_legacy(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_name_legacy(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("WM_NAME not set (_NET_WM_NAME is what you want anyways).\n");
         FREE(prop);
@@ -114,22 +114,22 @@ void window_update_name_legacy(i3Window *win, xcb_get_property_reply_t *prop) {
         return;
     }
 
-    i3string_free(win->name);
+    mwmstring_free(win->name);
     const int len = xcb_get_property_value_length(prop);
     char *name = sstrndup(xcb_get_property_value(prop), len);
-    win->name = i3string_from_utf8(name);
+    win->name = mwmstring_from_utf8(name);
     free(name);
 
     Con *con = con_by_window_id(win->id);
     if (con != NULL && con->title_format != NULL) {
-        i3String *name = con_parse_title_format(con);
-        ewmh_update_visible_name(win->id, i3string_as_utf8(name));
-        I3STRING_FREE(name);
+        mwmString *name = con_parse_title_format(con);
+        ewmh_update_visible_name(win->id, mwmstring_as_utf8(name));
+        MWMSTRING_FREE(name);
     }
 
-    LOG("WM_NAME changed to \"%s\"\n", i3string_as_utf8(win->name));
+    LOG("WM_NAME changed to \"%s\"\n", mwmstring_as_utf8(win->name));
     LOG("Using legacy window title. Note that in order to get Unicode window "
-        "titles in i3, the application has to set _NET_WM_NAME (UTF-8)\n");
+        "titles in mwm, the application has to set _NET_WM_NAME (UTF-8)\n");
 
     win->name_x_changed = true;
 
@@ -140,7 +140,7 @@ void window_update_name_legacy(i3Window *win, xcb_get_property_reply_t *prop) {
  * Updates the CLIENT_LEADER (logical parent window).
  *
  */
-void window_update_leader(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_leader(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("CLIENT_LEADER not set on window 0x%08x.\n", win->id);
         win->leader = XCB_NONE;
@@ -165,7 +165,7 @@ void window_update_leader(i3Window *win, xcb_get_property_reply_t *prop) {
  * Updates the TRANSIENT_FOR (logical parent window).
  *
  */
-void window_update_transient_for(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_transient_for(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("TRANSIENT_FOR not set on window 0x%08x.\n", win->id);
         win->transient_for = XCB_NONE;
@@ -190,7 +190,7 @@ void window_update_transient_for(i3Window *win, xcb_get_property_reply_t *prop) 
  * Updates the _NET_WM_STRUT_PARTIAL (reserved pixels at the screen edges)
  *
  */
-void window_update_strut_partial(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_strut_partial(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("_NET_WM_STRUT_PARTIAL not set.\n");
         FREE(prop);
@@ -215,7 +215,7 @@ void window_update_strut_partial(i3Window *win, xcb_get_property_reply_t *prop) 
  * Updates the WM_WINDOW_ROLE
  *
  */
-void window_update_role(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_role(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("WM_WINDOW_ROLE not set.\n");
         FREE(prop);
@@ -236,7 +236,7 @@ void window_update_role(i3Window *win, xcb_get_property_reply_t *prop) {
  * Updates the _NET_WM_WINDOW_TYPE property.
  *
  */
-void window_update_type(i3Window *window, xcb_get_property_reply_t *reply) {
+void window_update_type(mwmWindow *window, xcb_get_property_reply_t *reply) {
     xcb_atom_t new_type = xcb_get_preferred_window_type(reply);
     free(reply);
     if (new_type == XCB_NONE) {
@@ -254,7 +254,7 @@ void window_update_type(i3Window *window, xcb_get_property_reply_t *reply) {
  * Updates the WM_NORMAL_HINTS
  *
  */
-bool window_update_normal_hints(i3Window *win, xcb_get_property_reply_t *reply, xcb_get_geometry_reply_t *geom) {
+bool window_update_normal_hints(mwmWindow *win, xcb_get_property_reply_t *reply, xcb_get_geometry_reply_t *geom) {
     bool changed = false;
     xcb_size_hints_t size_hints;
 
@@ -375,7 +375,7 @@ bool window_update_normal_hints(i3Window *win, xcb_get_property_reply_t *reply, 
  * Updates the WM_HINTS (we only care about the input focus handling part).
  *
  */
-void window_update_hints(i3Window *win, xcb_get_property_reply_t *prop, bool *urgency_hint) {
+void window_update_hints(mwmWindow *win, xcb_get_property_reply_t *prop, bool *urgency_hint) {
     if (urgency_hint != NULL) {
         *urgency_hint = false;
     }
@@ -453,7 +453,7 @@ static border_style_t border_style_from_motif_value(uint32_t value) {
  * Updates the MOTIF_WM_HINTS. The container's border style should be set to
  * `motif_border_style' if border style is not BS_NORMAL.
  *
- * i3 only uses this hint when it specifies a window should have no
+ * mwm only uses this hint when it specifies a window should have no
  * title bar, or no decorations at all, which is how most window managers
  * handle it.
  *
@@ -461,7 +461,7 @@ static border_style_t border_style_from_motif_value(uint32_t value) {
  * it is still in use by popular widget toolkits such as GTK+ and Java AWT.
  *
  */
-bool window_update_motif_hints(i3Window *win, xcb_get_property_reply_t *prop, border_style_t *motif_border_style) {
+bool window_update_motif_hints(mwmWindow *win, xcb_get_property_reply_t *prop, border_style_t *motif_border_style) {
     if (prop == NULL) {
         return false;
     }
@@ -503,7 +503,7 @@ bool window_update_motif_hints(i3Window *win, xcb_get_property_reply_t *prop, bo
  * Updates the WM_CLIENT_MACHINE
  *
  */
-void window_update_machine(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_machine(mwmWindow *win, xcb_get_property_reply_t *prop) {
     if (prop == NULL || xcb_get_property_value_length(prop) == 0) {
         DLOG("WM_CLIENT_MACHINE not set.\n");
         FREE(prop);
@@ -517,7 +517,7 @@ void window_update_machine(i3Window *win, xcb_get_property_reply_t *prop) {
     free(prop);
 }
 
-void window_update_icon(i3Window *win, xcb_get_property_reply_t *prop) {
+void window_update_icon(mwmWindow *win, xcb_get_property_reply_t *prop) {
     uint32_t *data = NULL;
     uint32_t width = 0, height = 0;
     uint64_t len = 0;

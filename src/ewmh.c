@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * ewmh.c: Get/set certain EWMH properties easily.
@@ -9,7 +9,7 @@
  */
 #include "all.h"
 
-#include "i3-atoms_NET_SUPPORTED.xmacro.h"
+#include "mwm-atoms_NET_SUPPORTED.xmacro.h"
 
 xcb_window_t ewmh_window;
 
@@ -75,7 +75,7 @@ static void ewmh_update_desktop_names(void) {
     char desktop_names[msg_length];
     int current_position = 0;
 
-    /* fill the buffer with the names of the i3 workspaces */
+    /* fill the buffer with the names of the mwm workspaces */
     FOREACH_NONINTERNAL {
         for (size_t i = 0; i < strlen(ws->name) + 1; i++) {
             desktop_names[current_position++] = ws->name[i];
@@ -224,8 +224,8 @@ void ewmh_update_visible_name(xcb_window_t window, const char *name) {
 }
 
 /*
- * i3 currently does not support _NET_WORKAREA, because it does not correspond
- * to i3’s concept of workspaces. See also:
+ * mwm currently does not support _NET_WORKAREA, because it does not correspond
+ * to mwm’s concept of workspaces. See also:
  * https://bugs.i3wm.org/539
  * https://bugs.i3wm.org/301
  * https://bugs.i3wm.org/1038
@@ -309,7 +309,7 @@ void ewmh_update_focused(xcb_window_t window, bool is_focused) {
 void ewmh_setup_hints(void) {
     xcb_atom_t supported_atoms[] = {
 #define xmacro(atom) A_##atom,
-        I3_NET_SUPPORTED_ATOMS_XMACRO
+        MWM_NET_SUPPORTED_ATOMS_XMACRO
 #undef xmacro
     };
 
@@ -332,11 +332,11 @@ void ewmh_setup_hints(void) {
         XCB_CW_OVERRIDE_REDIRECT,
         (uint32_t[]){1});
     xcb_change_property(conn, XCB_PROP_MODE_REPLACE, ewmh_window, A__NET_SUPPORTING_WM_CHECK, XCB_ATOM_WINDOW, 32, 1, &ewmh_window);
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, ewmh_window, A__NET_WM_NAME, A_UTF8_STRING, 8, strlen("i3"), "i3");
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, ewmh_window, A__NET_WM_NAME, A_UTF8_STRING, 8, strlen("mwm"), "mwm");
     xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A__NET_SUPPORTING_WM_CHECK, XCB_ATOM_WINDOW, 32, 1, &ewmh_window);
 
     /* I’m not entirely sure if we need to keep _NET_WM_NAME on root. */
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A__NET_WM_NAME, A_UTF8_STRING, 8, strlen("i3"), "i3");
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A__NET_WM_NAME, A_UTF8_STRING, 8, strlen("mwm"), "mwm");
 
     xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A__NET_SUPPORTED, XCB_ATOM_ATOM, 32, /* number of atoms */ sizeof(supported_atoms) / sizeof(xcb_atom_t), supported_atoms);
 

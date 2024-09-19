@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * key_press.c: key press handler
@@ -19,7 +19,7 @@
 void handle_key_press(xcb_key_press_event_t *event);
 
 /**
- * Kills the commanderror i3-nagbar process, if any.
+ * Kills the commanderror mwm-nagbar process, if any.
  *
  * Called when reloading/restarting, since the user probably fixed their wrong
  * keybindings.

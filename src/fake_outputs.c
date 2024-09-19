@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * Faking outputs is useful in pathological situations (like network X servers
@@ -85,7 +85,7 @@ void fake_outputs_init(const char *output_spec) {
     }
 
     if (num_screens == 0) {
-        ELOG("No screens found. Please fix your setup. i3 will exit now.\n");
+        ELOG("No screens found. Please fix your setup. mwm will exit now.\n");
         exit(EXIT_FAILURE);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an improved tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * tree.c: Everything that primarily modifies the layout tree data structure.
@@ -30,7 +30,7 @@ void tree_init(xcb_get_geometry_reply_t *geometry);
  * Opens an empty container in the current container
  *
  */
-Con *tree_open_con(Con *con, i3Window *window);
+Con *tree_open_con(Con *con, mwmWindow *window);
 
 /**
  * Splits (horizontally or vertically) the given container by creating a new
@@ -82,7 +82,7 @@ Con *get_tree_next_sibling(Con *con, position_t direction);
 bool tree_close_internal(Con *con, kill_window_t kill_window, bool dont_kill_parent);
 
 /**
- * Loads tree from ~/.i3/_restart.json (used for in-place restarts).
+ * Loads tree from ~/.mwm/_restart.json (used for in-place restarts).
  *
  */
 bool tree_restore(const char *path, xcb_get_geometry_reply_t *geometry);
@@ -95,7 +95,7 @@ bool tree_restore(const char *path, xcb_get_geometry_reply_t *geometry);
  * [child1] [child2]
  * In this example, the v-split and h-split container are redundant.
  * Such a situation can be created by moving containers in a direction which is
- * not the orientation of their parent container. i3 needs to create a new
+ * not the orientation of their parent container. mwm needs to create a new
  * split container then and if you move containers this way multiple times,
  * redundant chains of split-containers can be the result.
  *

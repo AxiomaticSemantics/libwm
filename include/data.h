@@ -1,13 +1,15 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
- * include/data.h: This file defines all data structures used by i3
+ * include/data.h: This file defines all data structures used by mwm
  *
  */
 #pragma once
+
+#include <stdbool.h>
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 
@@ -46,7 +48,7 @@ typedef struct xoutput Output;
 typedef struct Con Con;
 typedef struct Match Match;
 typedef struct Assignment Assignment;
-typedef struct Window i3Window;
+typedef struct Window mwmWindow;
 typedef struct gaps_t gaps_t;
 typedef struct mark_t mark_t;
 
@@ -120,20 +122,20 @@ typedef enum {
  * Bitmask for matching XCB_XKB_GROUP_1 to XCB_XKB_GROUP_4.
  */
 typedef enum {
-    I3_XKB_GROUP_MASK_ANY = 0,
-    I3_XKB_GROUP_MASK_1 = (1 << 0),
-    I3_XKB_GROUP_MASK_2 = (1 << 1),
-    I3_XKB_GROUP_MASK_3 = (1 << 2),
-    I3_XKB_GROUP_MASK_4 = (1 << 3)
-} i3_xkb_group_mask_t;
+    MWM_XKB_GROUP_MASK_ANY = 0,
+    MWM_XKB_GROUP_MASK_1 = (1 << 0),
+    MWM_XKB_GROUP_MASK_2 = (1 << 1),
+    MWM_XKB_GROUP_MASK_3 = (1 << 2),
+    MWM_XKB_GROUP_MASK_4 = (1 << 3)
+} mwm_xkb_group_mask_t;
 
 /**
  * The lower 16 bits contain a xcb_key_but_mask_t, the higher 16 bits contain
- * an i3_xkb_group_mask_t. This type is necessary for the fallback logic to
+ * an mwm_xkb_group_mask_t. This type is necessary for the fallback logic to
  * work when handling XKB groups (see ticket #1775) and makes the code which
  * locates keybindings upon KeyPress/KeyRelease events simpler.
  */
-typedef uint32_t i3_event_state_mask_t;
+typedef uint32_t mwm_event_state_mask_t;
 
 /**
  * Mouse pointer warping modes.
@@ -289,7 +291,7 @@ struct regex {
  */
 struct Binding_Keycode {
     xcb_keycode_t keycode;
-    i3_event_state_mask_t modifiers;
+    mwm_event_state_mask_t modifiers;
     TAILQ_ENTRY(Binding_Keycode) keycodes;
 };
 
@@ -341,7 +343,7 @@ struct Binding {
     /** Bitmask which is applied against event->state for KeyPress and
      * KeyRelease events to determine whether this binding applies to the
      * current state. */
-    i3_event_state_mask_t event_state_mask;
+    mwm_event_state_mask_t event_state_mask;
 
     /** Symbol the user specified in configfile, if any. This needs to be
      * stored with the binding to be able to re-convert it into a keycode
@@ -438,7 +440,7 @@ struct Window {
     char *class_instance;
 
     /** The name of the window. */
-    i3String *name;
+    mwmString *name;
 
     /** The WM_WINDOW_ROLE of this window (for example, the pidgin buddy window
      * sets "buddy list"). Useful to match specific windows in assignments or
@@ -522,7 +524,7 @@ struct Window {
  * A "match" is a data structure which acts like a mask or expression to match
  * certain windows or not. For example, when using commands, you can specify a
  * command like this: [title="*Firefox*"] kill. The title member of the match
- * data structure will then be filled and i3 will check each window using
+ * data structure will then be filled and mwm will check each window using
  * match_matches_window() to find the windows affected by this command.
  *
  */
@@ -577,7 +579,7 @@ struct Match {
 
     TAILQ_ENTRY(Match) matches;
 
-    /* Whether this match was generated when restarting i3 inplace.
+    /* Whether this match was generated when restarting mwm inplace.
      * Leads to not setting focus when managing a new window, because the old
      * focus stack should be restored. */
     bool restart_mode;
@@ -649,7 +651,7 @@ struct Con {
 
     /** This counter contains the number of UnmapNotify events for this
      * container (or, more precisely, for its ->frame) which should be ignored.
-     * UnmapNotify events need to be ignored when they are caused by i3 itself,
+     * UnmapNotify events need to be ignored when they are caused by mwm itself,
      * for example when reparenting or when unmapping the window on a workspace
      * change. */
     uint8_t ignore_unmap;
@@ -747,7 +749,7 @@ struct Con {
      * splith" explicitly.
      *
      * workspace_layout is only for type == CT_WORKSPACE cons. When you change
-     * the layout of a workspace without any children, i3 cannot just set the
+     * the layout of a workspace without any children, mwm cannot just set the
      * layout (because workspaces need to be splitv/splith to allow focus
      * parent and opening new containers). Instead, it stores the requested
      * layout in workspace_layout and creates a new split container with that

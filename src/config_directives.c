@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * config_directives.c: all config storing functions (see config_parser.c)
@@ -125,10 +125,10 @@ CFGFUN(criteria_add, const char *ctype, const char *cvalue) {
  * A utility function to convert a string containing the group and modifiers to
  * the corresponding bit mask.
  */
-i3_event_state_mask_t event_state_from_str(const char *str) {
+mwm_event_state_mask_t event_state_from_str(const char *str) {
     /* It might be better to use strtok() here, but the simpler strstr() should
      * do for now. */
-    i3_event_state_mask_t result = 0;
+    mwm_event_state_mask_t result = 0;
     if (str == NULL) {
         return result;
     }
@@ -156,17 +156,17 @@ i3_event_state_mask_t event_state_from_str(const char *str) {
     }
 
     if (strstr(str, "Group1") != NULL) {
-        result |= (I3_XKB_GROUP_MASK_1 << 16);
+        result |= (MWM_XKB_GROUP_MASK_1 << 16);
     }
     if (strstr(str, "Group2") != NULL ||
         strstr(str, "Mode_switch") != NULL) {
-        result |= (I3_XKB_GROUP_MASK_2 << 16);
+        result |= (MWM_XKB_GROUP_MASK_2 << 16);
     }
     if (strstr(str, "Group3") != NULL) {
-        result |= (I3_XKB_GROUP_MASK_3 << 16);
+        result |= (MWM_XKB_GROUP_MASK_3 << 16);
     }
     if (strstr(str, "Group4") != NULL) {
-        result |= (I3_XKB_GROUP_MASK_4 << 16);
+        result |= (MWM_XKB_GROUP_MASK_4 << 16);
     }
     return result;
 }
@@ -450,10 +450,6 @@ CFGFUN(mouse_warping, const char *value) {
     }
 }
 
-CFGFUN(force_xinerama, const char *value) {
-    config.force_xinerama = boolstr(value);
-}
-
 CFGFUN(disable_randr15, const char *value) {
     config.disable_randr15 = boolstr(value);
 }
@@ -717,7 +713,7 @@ CFGFUN(tiling_drag, const char *value) {
 }
 
 /*******************************************************************************
- * Bar configuration (i3bar)
+ * Bar configuration (mwm=bar)
  ******************************************************************************/
 
 static Barconfig *current_bar;
@@ -849,9 +845,9 @@ CFGFUN(bar_position, const char *position) {
     current_bar->position = (strcmp(position, "top") == 0 ? P_TOP : P_BOTTOM);
 }
 
-CFGFUN(bar_i3bar_command, const char *i3bar_command) {
-    FREE(current_bar->i3bar_command);
-    current_bar->i3bar_command = sstrdup(i3bar_command);
+CFGFUN(bar_mwm_bar_command, const char *mwm_bar_command) {
+    FREE(current_bar->mwm_bar_command);
+    current_bar->mwm_bar_command = sstrdup(mwm_bar_command);
 }
 
 CFGFUN(bar_color, const char *colorclass, const char *border, const char *background, const char *text) {

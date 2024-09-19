@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * scratchpad.c: Moving windows to the scratchpad and making them visible again.
@@ -10,7 +10,7 @@
 #include "all.h"
 
 /*
- * Moves the specified window to the __i3_scratch workspace, making it floating
+ * Moves the specified window to the __mwm_scratch workspace, making it floating
  * and setting the appropriate scratchpad_state.
  *
  * Gets called upon the command 'move scratchpad'.
@@ -30,11 +30,11 @@ void scratchpad_move(Con *con) {
         }
         return;
     }
-    DLOG("should move con %p to __i3_scratch\n", con);
+    DLOG("should move con %p to __mwm_scratch\n", con);
 
-    Con *__i3_scratch = workspace_get("__i3_scratch");
-    if (con_get_workspace(con) == __i3_scratch) {
-        DLOG("This window is already on __i3_scratch.\n");
+    Con *__mwm_scratch = workspace_get("__mwm_scratch");
+    if (con_get_workspace(con) == __mwm_scratch) {
+        DLOG("This window is already on __mwm_scratch.\n");
         return;
     }
 
@@ -54,9 +54,9 @@ void scratchpad_move(Con *con) {
         con = maybe_floating_con;
     }
 
-    /* 2: Send the window to the __i3_scratch workspace, mainting its
+    /* 2: Send the window to the __mwm_scratch workspace, mainting its
      * coordinates and not warping the pointer. */
-    con_move_to_workspace(con, __i3_scratch, true, true, false);
+    con_move_to_workspace(con, __mwm_scratch, true, true, false);
 
     /* 3: If this is the first time this window is used as a scratchpad, we set
      * the scratchpad_state to SCRATCHPAD_FRESH. The window will then be
@@ -84,7 +84,7 @@ void scratchpad_move(Con *con) {
  */
 bool scratchpad_show(Con *con) {
     DLOG("should show scratchpad window %p\n", con);
-    Con *__i3_scratch = workspace_get("__i3_scratch");
+    Con *__mwm_scratch = workspace_get("__mwm_scratch");
     Con *floating;
 
     /* If this was 'scratchpad show' without criteria, we check if the
@@ -159,7 +159,7 @@ bool scratchpad_show(Con *con) {
     if (con &&
         (floating = con_inside_floating(con)) &&
         floating->scratchpad_state != SCRATCHPAD_NONE &&
-        current != __i3_scratch) {
+        current != __mwm_scratch) {
         /* If scratchpad window is on the active workspace, then we should hide
          * it, otherwise we should move it to the active workspace. */
         if (current == active) {
@@ -170,10 +170,10 @@ bool scratchpad_show(Con *con) {
     }
 
     if (con == NULL) {
-        /* Use the container on __i3_scratch which is highest in the focus
-         * stack. When moving windows to __i3_scratch, they get inserted at the
+        /* Use the container on __mwm_scratch which is highest in the focus
+         * stack. When moving windows to __mwm_scratch, they get inserted at the
          * bottom of the stack. */
-        con = TAILQ_FIRST(&(__i3_scratch->floating_head));
+        con = TAILQ_FIRST(&(__mwm_scratch->floating_head));
 
         if (!con) {
             LOG("You don't have any scratchpad windows yet.\n");
@@ -186,7 +186,7 @@ bool scratchpad_show(Con *con) {
         con = con_inside_floating(con);
     }
 
-    /* 1: Move the window from __i3_scratch to the current workspace. */
+    /* 1: Move the window from __mwm_scratch to the current workspace. */
     con_move_to_workspace(con, active, true, false, false);
 
     /* 2: Adjust the size if this window was not adjusted yet. */
@@ -224,7 +224,7 @@ static int _gcd(const int m, const int n) {
 
 /*
  * Least common multiple. We use it to determine the (ideally not too large)
- * resolution for the __i3 pseudo-output on which the scratchpad is on (see
+ * resolution for the __mwm pseudo-output on which the scratchpad is on (see
  * below). We could just multiply the resolutions, but for some pathetic cases
  * (many outputs), using the LCM will achieve better results.
  *
@@ -239,24 +239,24 @@ static int _lcm(const int m, const int n) {
 }
 
 /*
- * When starting i3 initially (and after each change to the connected outputs),
- * this function fixes the resolution of the __i3 pseudo-output. When that
+ * When starting mwm initially (and after each change to the connected outputs),
+ * this function fixes the resolution of the __mwm pseudo-output. When that
  * resolution is not set to a function which shares a common divisor with every
  * active output’s resolution, floating point calculation errors will lead to
  * the scratchpad window moving when shown repeatedly.
  *
  */
 void scratchpad_fix_resolution(void) {
-    Con *__i3_scratch = workspace_get("__i3_scratch");
-    Con *__i3_output = con_get_output(__i3_scratch);
+    Con *__mwm_scratch = workspace_get("__mwm_scratch");
+    Con *__mwm_output = con_get_output(__mwm_scratch);
     DLOG("Current resolution: (%d, %d) %d x %d\n",
-         __i3_output->rect.x, __i3_output->rect.y,
-         __i3_output->rect.width, __i3_output->rect.height);
+         __mwm_output->rect.x, __mwm_output->rect.y,
+         __mwm_output->rect.width, __mwm_output->rect.height);
     Con *output;
     int new_width = -1,
         new_height = -1;
     TAILQ_FOREACH (output, &(croot->nodes_head), nodes) {
-        if (output == __i3_output) {
+        if (output == __mwm_output) {
             continue;
         }
         DLOG("output %s's resolution: (%d, %d) %d x %d\n",
@@ -271,14 +271,14 @@ void scratchpad_fix_resolution(void) {
         }
     }
 
-    Rect old_rect = __i3_output->rect;
+    Rect old_rect = __mwm_output->rect;
 
     DLOG("new width = %d, new height = %d\n",
          new_width, new_height);
-    __i3_output->rect.width = new_width;
-    __i3_output->rect.height = new_height;
+    __mwm_output->rect.width = new_width;
+    __mwm_output->rect.height = new_height;
 
-    Rect new_rect = __i3_output->rect;
+    Rect new_rect = __mwm_output->rect;
 
     if (rect_equals(new_rect, old_rect)) {
         DLOG("Scratchpad size unchanged.\n");
@@ -287,7 +287,7 @@ void scratchpad_fix_resolution(void) {
 
     DLOG("Fixing coordinates of scratchpad windows\n");
     Con *con;
-    TAILQ_FOREACH (con, &(__i3_scratch->floating_head), floating_windows) {
+    TAILQ_FOREACH (con, &(__mwm_scratch->floating_head), floating_windows) {
         floating_fix_coordinates(con, &old_rect, &new_rect);
     }
 }

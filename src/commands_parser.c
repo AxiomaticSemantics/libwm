@@ -1,11 +1,11 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * commands_parser.c: hand-written parser to parse commands (commands are what
- * you bind on keys and what you can send to i3 using the IPC interface, like
+ * you bind on keys and what you can send to mwm using the IPC interface, like
  * 'move left' or 'workspace 4').
  *
  * We use a hand-written parser instead of lex/yacc because our commands are
@@ -428,7 +428,7 @@ CommandResult *parse_command(const char *input, yajl_gen gen, ipc_client *client
             ystr("success");
             y(bool, false);
             /* We set parse_error to true to distinguish this from other
-             * errors. i3-nagbar is spawned upon keypresses only for parser
+             * errors. mwm-nagbar is spawned upon keypresses only for parser
              * errors. */
             ystr("parse_error");
             y(bool, true);

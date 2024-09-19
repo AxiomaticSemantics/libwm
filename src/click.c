@@ -1,7 +1,7 @@
 /*
  * vim:ts=4:sw=4:expandtab
  *
- * i3 - an improved tiling window manager
+ * mwm - an i3 derived tiling window manager
  * © 2009 Michael Stapelberg and contributors (see also: LICENSE)
  *
  * click.c: Button press (mouse click) events.
@@ -204,7 +204,7 @@ static void route_click(Con *con, xcb_button_press_event_t *event, const click_d
 
     /* Any click in a workspace should focus that workspace. If the
      * workspace is on another output we need to do a workspace_show in
-     * order for i3bar (and others) to notice the change in workspace. */
+     * order for mwm-bar (and others) to notice the change in workspace. */
     Con *ws = con_get_workspace(con);
     Con *focused_workspace = con_get_workspace(focused);
 
@@ -346,7 +346,7 @@ static void route_click(Con *con, xcb_button_press_event_t *event, const click_d
             return;
         }
         /* Avoid propagating events to clients, since the user expects
-         * $mod+click to be handled by i3. */
+         * $mod+click to be handled by mwm. */
         xcb_allow_events(conn, XCB_ALLOW_ASYNC_POINTER, event->time);
         xcb_flush(conn);
         return;
