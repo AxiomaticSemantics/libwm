@@ -1,12 +1,9 @@
 # -*- mode: meson -*-
 
-# Style objective: be consistent with what mesonbuild.com documents/uses, and/or
-# the meson book: https://meson-manual.com/
-
 project(
   'mwm',
   'c',
-  version: '4.23',
+  version: '0.0.1',
   default_options: [
     'c_std=c2x',
     'warning_level=1',  # enable all warnings (-Wall)
@@ -16,18 +13,13 @@ project(
   # Ubuntu 20.04 (supported until 2025) has meson 0.53.
   # We can revisit our minimum supported meson version
   # if it turns out to be too hard to maintain.
-  meson_version: '>=0.47.0',
+  meson_version: '>=0.53.0',
 )
 
 cc = meson.get_compiler('c')
 add_project_arguments(cc.get_supported_arguments(['-Wunused-value']), language: 'c')
 
-if meson.version().version_compare('>=0.48.0')
-  # https://github.com/mesonbuild/meson/issues/2166#issuecomment-629696911
-  meson.add_dist_script('meson/meson-dist-script')
-else
-  message('meson <0.48.0 detected, dist tarballs will not be filtered')
-endif
+meson.add_dist_script('meson/meson-dist-script')
 
 ################################################################################
 # Version handling
@@ -47,7 +39,7 @@ cdata.set_quoted('MWM_VERSION', '@VCS_TAG@')
 cdata.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
 
 if get_option('b_sanitize').split(',').contains('address')
-  cdata.set('I3_ASAN_ENABLED', 1)
+  cdata.set('MWM_ASAN_ENABLED', 1)
 endif
 
 cdata.set('HAVE_STRNDUP', cc.has_function('strndup'))
@@ -497,82 +489,94 @@ meson.add_install_script(
   get_option('bindir'),
 )
 
-executable(
-  'mwm-bar',
-  [
-    'mwm-bar/src/child.c',
-    'mwm-bar/src/config.c',
-    'mwm-bar/src/ipc.c',
-    'mwm-bar/src/main.c',
-    'mwm-bar/src/mode.c',
-    'mwm-bar/src/outputs.c',
-    'mwm-bar/src/parse_json_header.c',
-    'mwm-bar/src/workspaces.c',
-    'mwm-bar/src/xcb.c',
-  ],
-  install: true,
-  include_directories: include_directories('include', 'mwm-bar/include'),
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_bar')
+  executable(
+    'mwm-bar',
+    [
+      'mwm-bar/src/child.c',
+      'mwm-bar/src/config.c',
+      'mwm-bar/src/ipc.c',
+      'mwm-bar/src/main.c',
+      'mwm-bar/src/mode.c',
+      'mwm-bar/src/outputs.c',
+      'mwm-bar/src/parse_json_header.c',
+      'mwm-bar/src/workspaces.c',
+      'mwm-bar/src/xcb.c',
+    ],
+    install: true,
+    include_directories: include_directories('include', 'mwm-bar/include'),
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
-executable(
-  'mwm-config-wizard',
-  [
-    'mwm-config-wizard/mwm-config-wizard-atoms.xmacro.h',
-    'mwm-config-wizard/main.c',
-    'mwm-config-wizard/xcb.h',
-    config_parser,
-  ],
-  install: true,
-  include_directories: include_directories('include', 'mwm-config-wizard'),
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_config_wizard')
+  executable(
+    'mwm-config-wizard',
+    [
+      'mwm-config-wizard/mwm-config-wizard-atoms.xmacro.h',
+      'mwm-config-wizard/main.c',
+      'mwm-config-wizard/xcb.h',
+      config_parser,
+    ],
+    install: true,
+    include_directories: include_directories('include', 'mwm-config-wizard'),
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
-executable(
-  'mwm-dump-log',
-  'mwm-dump-log/main.c',
-  install: true,
-  include_directories: inc,
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_dump_log')
+  executable(
+    'mwm-dump-log',
+    'mwm-dump-log/main.c',
+    install: true,
+    include_directories: inc,
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
-executable(
-  'mwm-input',
-  [
-    'mwm-input/mwm-input.h',
-    'mwm-input/keysym2ucs.h',
-    'mwm-input/keysym2ucs.c',
-    'mwm-input/main.c',
-  ],
-  install: true,
-  include_directories: inc,
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_input')
+  executable(
+    'mwm-input',
+    [
+      'mwm-input/mwm-input.h',
+      'mwm-input/keysym2ucs.h',
+      'mwm-input/keysym2ucs.c',
+      'mwm-input/main.c',
+    ],
+    install: true,
+    include_directories: inc,
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
-executable(
-  'mwm-msg',
-  'mwm-msg/main.c',
-  install: true,
-  include_directories: inc,
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_msg')
+  executable(
+    'mwm-msg',
+    'mwm-msg/main.c',
+    install: true,
+    include_directories: inc,
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
-executable(
-  'mwm-nagbar',
-  [
-    'mwm-nagbar/mwm-nagbar-atoms.xmacro.h',
-    'mwm-nagbar/main.c',
-  ],
-  install: true,
-  include_directories: include_directories('include', 'mwm-nagbar'),
-  dependencies: common_deps,
-  link_with: libmwm,
-)
+if get_option('build_nagbar')
+  executable(
+    'mwm-nagbar',
+    [
+      'mwm-nagbar/mwm-nagbar-atoms.xmacro.h',
+      'mwm-nagbar/main.c',
+    ],
+    install: true,
+    include_directories: include_directories('include', 'mwm-nagbar'),
+    dependencies: common_deps,
+    link_with: libmwm,
+  )
+endif
 
 install_data(
   [

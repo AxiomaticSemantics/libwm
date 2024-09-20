@@ -1,5 +1,23 @@
 # -*- mode: meson -*-
 
+option('build_bar', type: 'boolean', value: true,
+       description: 'Enable building mwm-bar')
+
+option('build_config_wizard', type: 'boolean', value: true,
+       description: 'Enable building mwm-config-wizard')
+
+option('build_dump_log', type: 'boolean', value: true,
+       description: 'Enable building mwm-dump-log')
+
+option('build_input', type: 'boolean', value: true,
+       description: 'Enable building mwm-input')
+
+option('build_msg', type: 'boolean', value: true,
+       description: 'Enable building mwm-msg')
+
+option('build_nagbar', type: 'boolean', value: true,
+       description: 'Enable building mwm-nagbar')
+
 option('docs', type: 'boolean', value: false,
        description: 'Build documentation from source (release tarballs contain a generated copy)')
 
