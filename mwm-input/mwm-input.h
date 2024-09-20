@@ -5,6 +5,7 @@
 #include <err.h>
 
 #define die(...) errx(EXIT_FAILURE, __VA_ARGS__);
+
 #define FREE(pointer)   \
     do {                \
         free(pointer);  \
