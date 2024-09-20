@@ -275,11 +275,11 @@ int main(int argc, char *argv[]) {
             yajl_free(handle);
 
             switch (state) {
-                case yajl_status_ok:
-                    break;
-                case yajl_status_client_canceled:
-                case yajl_status_error:
-                    errx(EXIT_FAILURE, "IPC: Could not parse JSON reply.");
+            case yajl_status_ok:
+                break;
+            case yajl_status_client_canceled:
+            case yajl_status_error:
+                errx(EXIT_FAILURE, "IPC: Could not parse JSON reply.");
             }
         }
 
@@ -295,11 +295,11 @@ int main(int argc, char *argv[]) {
             yajl_free(handle);
 
             switch (state) {
-                case yajl_status_ok:
-                    break;
-                case yajl_status_client_canceled:
-                case yajl_status_error:
-                    errx(EXIT_FAILURE, "IPC: Could not parse JSON reply.");
+            case yajl_status_ok:
+                break;
+            case yajl_status_client_canceled:
+            case yajl_status_error:
+                errx(EXIT_FAILURE, "IPC: Could not parse JSON reply.");
             }
         }
     } else if (reply_type == MWM_IPC_REPLY_TYPE_SUBSCRIBE) {

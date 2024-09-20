@@ -401,35 +401,35 @@ int main(int argc, char *argv[]) {
 
     while ((o = getopt_long(argc, argv, options_string, long_options, &option_index)) != -1) {
         switch (o) {
-            case 's':
-                FREE(socket_path);
-                socket_path = sstrdup(optarg);
-                break;
-            case 'v':
-                printf("mwm-input " MWM_VERSION "\n");
-                return EXIT_OK;
-            case 'l':
-                limit = atoi(optarg);
-                break;
-            case 'P':
-                mwmstring_free(prompt);
-                prompt = mwmstring_from_utf8(optarg);
-                break;
-            case 'f':
-                FREE(pattern);
-                pattern = sstrdup(optarg);
-                break;
-            case 'F':
-                FREE(format);
-                format = sstrdup(optarg);
-                break;
-            case 'h':
-                printf("mwm-input " MWM_VERSION "\n");
-                printf("mwm-input [-s <socket>] [-F <format>] [-l <limit>] [-P <prompt>] [-f <font>] [-v]\n");
-                printf("\n");
-                printf("Example:\n");
-                printf("    mwm-input -F 'workspace \"%%s\"' -P 'Switch to workspace: '\n");
-                return EXIT_OK;
+        case 's':
+            FREE(socket_path);
+            socket_path = sstrdup(optarg);
+            break;
+        case 'v':
+            printf("mwm-input " MWM_VERSION "\n");
+            return EXIT_OK;
+        case 'l':
+            limit = atoi(optarg);
+            break;
+        case 'P':
+            mwmstring_free(prompt);
+            prompt = mwmstring_from_utf8(optarg);
+            break;
+        case 'f':
+            FREE(pattern);
+            pattern = sstrdup(optarg);
+            break;
+        case 'F':
+            FREE(format);
+            format = sstrdup(optarg);
+            break;
+        case 'h':
+            printf("mwm-input " MWM_VERSION "\n");
+            printf("mwm-input [-s <socket>] [-F <format>] [-l <limit>] [-P <prompt>] [-f <font>] [-v]\n");
+            printf("\n");
+            printf("Example:\n");
+            printf("    mwm-input -F 'workspace \"%%s\"' -P 'Switch to workspace: '\n");
+            return EXIT_OK;
         }
     }
     if (!format) {
@@ -518,20 +518,20 @@ int main(int argc, char *argv[]) {
         int type = (event->response_type & 0x7F);
 
         switch (type) {
-            case XCB_KEY_PRESS:
-                handle_key_press(NULL, conn, (xcb_key_press_event_t *)event);
-                break;
+        case XCB_KEY_PRESS:
+            handle_key_press(NULL, conn, (xcb_key_press_event_t *)event);
+            break;
 
-            case XCB_KEY_RELEASE:
-                handle_key_release(NULL, conn, (xcb_key_release_event_t *)event);
-                break;
+        case XCB_KEY_RELEASE:
+            handle_key_release(NULL, conn, (xcb_key_release_event_t *)event);
+            break;
 
-            case XCB_EXPOSE:
-                if (((xcb_expose_event_t *)event)->count == 0) {
-                    handle_expose(NULL, conn, (xcb_expose_event_t *)event);
-                }
+        case XCB_EXPOSE:
+            if (((xcb_expose_event_t *)event)->count == 0) {
+                handle_expose(NULL, conn, (xcb_expose_event_t *)event);
+            }
 
-                break;
+            break;
         }
 
         free(event);

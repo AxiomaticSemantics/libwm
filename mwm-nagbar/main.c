@@ -430,44 +430,44 @@ int main(int argc, char *argv[]) {
 
     while ((o = getopt_long(argc, argv, options_string, long_options, &option_index)) != -1) {
         switch (o) {
-            case 'v':
-                free(pattern);
-                printf("mwm-nagbar " MWM_VERSION "\n");
-                return 0;
-            case 'f':
-                free(pattern);
-                pattern = sstrdup(optarg);
-                break;
-            case 'm':
-                mwmstring_free(prompt);
-                prompt = mwmstring_from_utf8(optarg);
-                break;
-            case 't':
-                bar_type = (strcasecmp(optarg, "warning") == 0 ? TYPE_WARNING : TYPE_ERROR);
-                break;
-            case 'h':
-                free(pattern);
-                printf("mwm-nagbar " MWM_VERSION "\n");
-                printf("mwm-nagbar [-m <message>] [-b <button> <action>] [-B <button> <action>] [-t warning|error] [-f <font>] [-v] [-p]\n");
-                return 0;
-            case 'p':
-                position_on_primary = true;
-                break;
-            case 'b':
-            case 'B':
-                buttons = srealloc(buttons, sizeof(button_t) * (buttoncnt + 1));
-                buttons[buttoncnt].label = mwmstring_from_utf8(optarg);
-                buttons[buttoncnt].action = argv[optind];
-                buttons[buttoncnt].terminal = (o == 'b');
-                printf("button with label *%s* and action *%s*\n",
-                       mwmstring_as_utf8(buttons[buttoncnt].label),
-                       buttons[buttoncnt].action);
-                buttoncnt++;
-                printf("now %d buttons\n", buttoncnt);
-                if (optind < argc) {
-                    optind++;
-                }
-                break;
+        case 'v':
+            free(pattern);
+            printf("mwm-nagbar " MWM_VERSION "\n");
+            return 0;
+        case 'f':
+            free(pattern);
+            pattern = sstrdup(optarg);
+            break;
+        case 'm':
+            mwmstring_free(prompt);
+            prompt = mwmstring_from_utf8(optarg);
+            break;
+        case 't':
+            bar_type = (strcasecmp(optarg, "warning") == 0 ? TYPE_WARNING : TYPE_ERROR);
+            break;
+        case 'h':
+            free(pattern);
+            printf("mwm-nagbar " MWM_VERSION "\n");
+            printf("mwm-nagbar [-m <message>] [-b <button> <action>] [-B <button> <action>] [-t warning|error] [-f <font>] [-v] [-p]\n");
+            return 0;
+        case 'p':
+            position_on_primary = true;
+            break;
+        case 'b':
+        case 'B':
+            buttons = srealloc(buttons, sizeof(button_t) * (buttoncnt + 1));
+            buttons[buttoncnt].label = mwmstring_from_utf8(optarg);
+            buttons[buttoncnt].action = argv[optind];
+            buttons[buttoncnt].terminal = (o == 'b');
+            printf("button with label *%s* and action *%s*\n",
+                   mwmstring_as_utf8(buttons[buttoncnt].label),
+                   buttons[buttoncnt].action);
+            buttoncnt++;
+            printf("now %d buttons\n", buttoncnt);
+            if (optind < argc) {
+                optind++;
+            }
+            break;
         }
     }
 
@@ -631,28 +631,28 @@ int main(int argc, char *argv[]) {
         int type = (event->response_type & 0x7F);
 
         switch (type) {
-            case XCB_EXPOSE:
-                if (((xcb_expose_event_t *)event)->count == 0) {
-                    handle_expose(conn, (xcb_expose_event_t *)event);
-                }
-
-                break;
-
-            case XCB_BUTTON_PRESS:
-                handle_button_press(conn, (xcb_button_press_event_t *)event);
-                break;
-
-            case XCB_BUTTON_RELEASE:
-                handle_button_release(conn, (xcb_button_release_event_t *)event);
-                break;
-
-            case XCB_CONFIGURE_NOTIFY: {
-                xcb_configure_notify_event_t *configure_notify = (xcb_configure_notify_event_t *)event;
-                if (configure_notify->width > 0 && configure_notify->height > 0) {
-                    draw_util_surface_set_size(&bar, configure_notify->width, configure_notify->height);
-                }
-                break;
+        case XCB_EXPOSE:
+            if (((xcb_expose_event_t *)event)->count == 0) {
+                handle_expose(conn, (xcb_expose_event_t *)event);
             }
+
+            break;
+
+        case XCB_BUTTON_PRESS:
+            handle_button_press(conn, (xcb_button_press_event_t *)event);
+            break;
+
+        case XCB_BUTTON_RELEASE:
+            handle_button_release(conn, (xcb_button_release_event_t *)event);
+            break;
+
+        case XCB_CONFIGURE_NOTIFY: {
+            xcb_configure_notify_event_t *configure_notify = (xcb_configure_notify_event_t *)event;
+            if (configure_notify->width > 0 && configure_notify->height > 0) {
+                draw_util_surface_set_size(&bar, configure_notify->width, configure_notify->height);
+            }
+            break;
+        }
         }
 
         free(event);

@@ -64,43 +64,43 @@ static bool drain_drag_events(EV_P, struct drag_x11_cb *dragloop) {
         int type = (event->response_type & 0x7F);
 
         switch (type) {
-            case XCB_BUTTON_RELEASE:
-                dragloop->result = DRAG_SUCCESS;
-                break;
+        case XCB_BUTTON_RELEASE:
+            dragloop->result = DRAG_SUCCESS;
+            break;
 
-            case XCB_KEY_PRESS:
-                DLOG("A key was pressed during drag, reverting changes.\n");
-                dragloop->result = DRAG_REVERT;
-                handle_event(type, event);
-                break;
+        case XCB_KEY_PRESS:
+            DLOG("A key was pressed during drag, reverting changes.\n");
+            dragloop->result = DRAG_REVERT;
+            handle_event(type, event);
+            break;
 
-            case XCB_UNMAP_NOTIFY: {
-                xcb_unmap_notify_event_t *unmap_event = (xcb_unmap_notify_event_t *)event;
-                Con *con = con_by_window_id(unmap_event->window);
+        case XCB_UNMAP_NOTIFY: {
+            xcb_unmap_notify_event_t *unmap_event = (xcb_unmap_notify_event_t *)event;
+            Con *con = con_by_window_id(unmap_event->window);
 
-                if (con != NULL) {
-                    DLOG("UnmapNotify for window 0x%08x (container %p)\n", unmap_event->window, con);
+            if (con != NULL) {
+                DLOG("UnmapNotify for window 0x%08x (container %p)\n", unmap_event->window, con);
 
-                    if (con_get_workspace(con) == con_get_workspace(focused)) {
-                        DLOG("UnmapNotify for a managed window on the current workspace, aborting\n");
-                        dragloop->result = DRAG_ABORT;
-                    }
+                if (con_get_workspace(con) == con_get_workspace(focused)) {
+                    DLOG("UnmapNotify for a managed window on the current workspace, aborting\n");
+                    dragloop->result = DRAG_ABORT;
                 }
-
-                handle_event(type, event);
-                break;
             }
 
-            case XCB_MOTION_NOTIFY:
-                /* motion_notify events are saved for later */
-                FREE(last_motion_notify);
-                last_motion_notify = (xcb_motion_notify_event_t *)event;
-                break;
+            handle_event(type, event);
+            break;
+        }
 
-            default:
-                DLOG("Passing to original handler\n");
-                handle_event(type, event);
-                break;
+        case XCB_MOTION_NOTIFY:
+            /* motion_notify events are saved for later */
+            FREE(last_motion_notify);
+            last_motion_notify = (xcb_motion_notify_event_t *)event;
+            break;
+
+        default:
+            DLOG("Passing to original handler\n");
+            handle_event(type, event);
+            break;
         }
 
         if (last_motion_notify != (xcb_motion_notify_event_t *)event) {

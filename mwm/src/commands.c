@@ -1602,18 +1602,18 @@ void cmd_move_direction(MWM_CMD, const char *direction_str, long amount, const c
             Con *output = con_get_output(current->con);
 
             switch (direction) {
-                case D_LEFT:
-                    newrect.x -= is_ppt ? output->rect.width * ((double)amount / 100.0) : amount;
-                    break;
-                case D_RIGHT:
-                    newrect.x += is_ppt ? output->rect.width * ((double)amount / 100.0) : amount;
-                    break;
-                case D_UP:
-                    newrect.y -= is_ppt ? output->rect.height * ((double)amount / 100.0) : amount;
-                    break;
-                case D_DOWN:
-                    newrect.y += is_ppt ? output->rect.height * ((double)amount / 100.0) : amount;
-                    break;
+            case D_LEFT:
+                newrect.x -= is_ppt ? output->rect.width * ((double)amount / 100.0) : amount;
+                break;
+            case D_RIGHT:
+                newrect.x += is_ppt ? output->rect.width * ((double)amount / 100.0) : amount;
+                break;
+            case D_UP:
+                newrect.y -= is_ppt ? output->rect.height * ((double)amount / 100.0) : amount;
+                break;
+            case D_DOWN:
+                newrect.y += is_ppt ? output->rect.height * ((double)amount / 100.0) : amount;
+                break;
             }
 
             cmd_output->needs_tree_render = floating_reposition(current->con->parent, newrect);

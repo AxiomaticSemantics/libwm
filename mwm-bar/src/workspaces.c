@@ -247,22 +247,22 @@ void parse_workspaces_json(const unsigned char *json, size_t size) {
 
     /* FIXME: Proper error handling for JSON parsing */
     switch (state) {
-        case yajl_status_ok:
-            break;
-        case yajl_status_client_canceled:
-        case yajl_status_error: {
-            unsigned char *err = yajl_get_error(handle, 1, json, size);
-            ELOG("Could not parse workspaces reply, error:\n%s\njson:---%s---\n", err, json);
-            yajl_free_error(handle, err);
+    case yajl_status_ok:
+        break;
+    case yajl_status_client_canceled:
+    case yajl_status_error: {
+        unsigned char *err = yajl_get_error(handle, 1, json, size);
+        ELOG("Could not parse workspaces reply, error:\n%s\njson:---%s---\n", err, json);
+        yajl_free_error(handle, err);
 
-            if (config.workspace_command) {
-                kill_ws_child();
-                set_workspace_button_error("Could not parse workspace_command's JSON");
-            } else {
-                exit(EXIT_FAILURE);
-            }
-            break;
+        if (config.workspace_command) {
+            kill_ws_child();
+            set_workspace_button_error("Could not parse workspace_command's JSON");
+        } else {
+            exit(EXIT_FAILURE);
         }
+        break;
+    }
     }
 
     yajl_free(handle);

@@ -109,13 +109,13 @@ void parse_mode_json(const unsigned char *json, size_t size) {
 
     /* FIXME: Proper error handling for JSON parsing */
     switch (state) {
-        case yajl_status_ok:
-            break;
-        case yajl_status_client_canceled:
-        case yajl_status_error:
-            ELOG("Could not parse mode event!\n");
-            exit(EXIT_FAILURE);
-            break;
+    case yajl_status_ok:
+        break;
+    case yajl_status_client_canceled:
+    case yajl_status_error:
+        ELOG("Could not parse mode event!\n");
+        exit(EXIT_FAILURE);
+        break;
     }
 
     /* We don't want to indicate default binding mode */

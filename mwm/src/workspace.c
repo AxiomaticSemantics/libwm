@@ -442,7 +442,7 @@ void workspace_show(Con *workspace) {
     }
 
     Con *current, *old = NULL;
-    
+
     /* disable fullscreen for the other workspaces and get the workspace we are
      * currently on. */
     TAILQ_FOREACH (current, &(workspace->parent->nodes_head), nodes) {

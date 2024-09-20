@@ -8,6 +8,7 @@ ColumnLimit: 0
 ForEachMacros: [ TAILQ_FOREACH, TAILQ_FOREACH_REVERSE, SLIST_FOREACH, CIRCLEQ_FOREACH, CIRCLEQ_FOREACH_REVERSE, NODES_FOREACH, NODES_FOREACH_REVERSE, FOREACH_NONINTERNAL]
 IndentWidth: 4
 InsertBraces: true
+IndentCaseLabels: false
 PointerBindsToType: false
 SortIncludes: false
 SpaceBeforeParens: ControlStatements

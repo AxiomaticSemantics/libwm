@@ -275,13 +275,13 @@ void parse_outputs_json(const unsigned char *json, size_t size) {
 
     /* FIXME: Proper errorhandling for JSON-parsing */
     switch (state) {
-        case yajl_status_ok:
-            break;
-        case yajl_status_client_canceled:
-        case yajl_status_error:
-            ELOG("Could not parse outputs reply!\n");
-            exit(EXIT_FAILURE);
-            break;
+    case yajl_status_ok:
+        break;
+    case yajl_status_client_canceled:
+    case yajl_status_error:
+        ELOG("Could not parse outputs reply!\n");
+        exit(EXIT_FAILURE);
+        break;
     }
 
     yajl_free(handle);

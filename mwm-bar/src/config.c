@@ -141,18 +141,18 @@ static int config_string_cb(void *params_, const unsigned char *val, size_t _len
         }
         if (len == strlen("Mod") + 1 && !strncmp((const char *)val, "Mod", strlen("Mod"))) {
             switch (val[3]) {
-                case '1':
-                    config.modifier = XCB_MOD_MASK_1;
-                    return 1;
-                case '2':
-                    config.modifier = XCB_MOD_MASK_2;
-                    return 1;
-                case '3':
-                    config.modifier = XCB_MOD_MASK_3;
-                    return 1;
-                case '5':
-                    config.modifier = XCB_MOD_MASK_5;
-                    return 1;
+            case '1':
+                config.modifier = XCB_MOD_MASK_1;
+                return 1;
+            case '2':
+                config.modifier = XCB_MOD_MASK_2;
+                return 1;
+            case '3':
+                config.modifier = XCB_MOD_MASK_3;
+                return 1;
+            case '5':
+                config.modifier = XCB_MOD_MASK_5;
+                return 1;
             }
         }
 
@@ -415,13 +415,13 @@ void parse_config_json(const unsigned char *json, size_t size) {
 
     /* FIXME: Proper error handling for JSON parsing */
     switch (state) {
-        case yajl_status_ok:
-            break;
-        case yajl_status_client_canceled:
-        case yajl_status_error:
-            ELOG("Could not parse config reply!\n");
-            exit(EXIT_FAILURE);
-            break;
+    case yajl_status_ok:
+        break;
+    case yajl_status_client_canceled:
+    case yajl_status_error:
+        ELOG("Could not parse config reply!\n");
+        exit(EXIT_FAILURE);
+        break;
     }
 
     if (config.disable_ws && config.workspace_command) {

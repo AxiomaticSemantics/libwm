@@ -312,51 +312,52 @@ gobject_dep = dependency('gobject-2.0', method: 'pkg-config')
 
 ev_dep = cc.find_library('ev')
 
-inc = include_directories('include')
+libmwm_inc = include_directories('libmwm/include')
+mwm_inc = include_directories('mwm/include')
 
 libmwmsrcs = [
-  'libmwm/boolstr.c',
-  'libmwm/create_socket.c',
-  'libmwm/dpi.c',
-  'libmwm/draw_util.c',
-  'libmwm/fake_configure_notify.c',
-  'libmwm/font.c',
-  'libmwm/format_placeholders.c',
-  'libmwm/get_colorpixel.c',
-  'libmwm/get_config_path.c',
-  'libmwm/get_exe_path.c',
-  'libmwm/get_mod_mask.c',
-  'libmwm/get_process_filename.c',
-  'libmwm/get_visualtype.c',
-  'libmwm/g_utf8_make_valid.c',
-  'libmwm/ipc_connect.c',
-  'libmwm/ipc_recv_message.c',
-  'libmwm/ipc_send_message.c',
-  'libmwm/is_debug_build.c',
-  'libmwm/path_exists.c',
-  'libmwm/resolve_tilde.c',
-  'libmwm/root_atom_contents.c',
-  'libmwm/safewrappers.c',
-  'libmwm/string.c',
-  'libmwm/ucs2_conversion.c',
-  'libmwm/nonblock.c',
-  'libmwm/screenshot_wallpaper.c',
-  'libmwm/is_background_set.c',
+  'libmwm/src/boolstr.c',
+  'libmwm/src/create_socket.c',
+  'libmwm/src/dpi.c',
+  'libmwm/src/draw_util.c',
+  'libmwm/src/fake_configure_notify.c',
+  'libmwm/src/font.c',
+  'libmwm/src/format_placeholders.c',
+  'libmwm/src/get_colorpixel.c',
+  'libmwm/src/get_config_path.c',
+  'libmwm/src/get_exe_path.c',
+  'libmwm/src/get_mod_mask.c',
+  'libmwm/src/get_process_filename.c',
+  'libmwm/src/get_visualtype.c',
+  'libmwm/src/g_utf8_make_valid.c',
+  'libmwm/src/ipc_connect.c',
+  'libmwm/src/ipc_recv_message.c',
+  'libmwm/src/ipc_send_message.c',
+  'libmwm/src/is_debug_build.c',
+  'libmwm/src/path_exists.c',
+  'libmwm/src/resolve_tilde.c',
+  'libmwm/src/root_atom_contents.c',
+  'libmwm/src/safewrappers.c',
+  'libmwm/src/string.c',
+  'libmwm/src/ucs2_conversion.c',
+  'libmwm/src/nonblock.c',
+  'libmwm/src/screenshot_wallpaper.c',
+  'libmwm/src/is_background_set.c',
 ]
 
 if not cdata.get('HAVE_STRNDUP')
-  libmwmsrcs += 'libmwm/strndup.c'
+  libmwmsrcs += 'libmwm/src/strndup.c'
 endif
 
 if not cdata.get('HAVE_MKDIRP')
-  libmwmsrcs += 'libmwm/mkdirp.c'
+  libmwmsrcs += 'libmwm/src/mkdirp.c'
 endif
 
 if get_option('build_libmwm_static')
   libmwm = static_library(
     'mwm',
     libmwmsrcs,
-    include_directories: inc,
+    include_directories: libmwm_inc,
     dependencies: [
       pangocairo_dep,
       config_h,
@@ -367,50 +368,50 @@ else
 endif
 
 mwmsrcs = [
-  'src/assignments.c',
-  'src/bindings.c',
-  'src/click.c',
-  'src/commands.c',
-  'src/commands_parser.c',
-  'src/con.c',
-  'src/config.c',
-  'src/config_directives.c',
-  'src/config_parser.c',
-  'src/display_version.c',
-  'src/drag.c',
-  'src/ewmh.c',
-  'src/fake_outputs.c',
-  'src/floating.c',
-  'src/gaps.c',
-  'src/handlers.c',
-  'src/ipc.c',
-  'src/key_press.c',
-  'src/load_layout.c',
-  'src/log.c',
-  'src/main.c',
-  'src/manage.c',
-  'src/match.c',
-  'src/move.c',
-  'src/output.c',
-  'src/randr.c',
-  'src/regex.c',
-  'src/render.c',
-  'src/resize.c',
-  'src/restore_layout.c',
-  'src/scratchpad.c',
-  'src/sd-daemon.c',
-  'src/sighandler.c',
-  'src/startup.c',
-  'src/sync.c',
-  'src/tiling_drag.c',
-  'src/tree.c',
-  'src/util.c',
-  'src/version.c',
-  'src/window.c',
-  'src/workspace.c',
-  'src/x.c',
-  'src/xcb.c',
-  'src/xcursor.c',
+  'mwm/src/assignments.c',
+  'mwm/src/bindings.c',
+  'mwm/src/click.c',
+  'mwm/src/commands.c',
+  'mwm/src/commands_parser.c',
+  'mwm/src/con.c',
+  'mwm/src/config.c',
+  'mwm/src/config_directives.c',
+  'mwm/src/config_parser.c',
+  'mwm/src/display_version.c',
+  'mwm/src/drag.c',
+  'mwm/src/ewmh.c',
+  'mwm/src/fake_outputs.c',
+  'mwm/src/floating.c',
+  'mwm/src/gaps.c',
+  'mwm/src/handlers.c',
+  'mwm/src/ipc.c',
+  'mwm/src/key_press.c',
+  'mwm/src/load_layout.c',
+  'mwm/src/log.c',
+  'mwm/src/main.c',
+  'mwm/src/manage.c',
+  'mwm/src/match.c',
+  'mwm/src/move.c',
+  'mwm/src/output.c',
+  'mwm/src/randr.c',
+  'mwm/src/regex.c',
+  'mwm/src/render.c',
+  'mwm/src/resize.c',
+  'mwm/src/restore_layout.c',
+  'mwm/src/scratchpad.c',
+  'mwm/src/sd-daemon.c',
+  'mwm/src/sighandler.c',
+  'mwm/src/startup.c',
+  'mwm/src/sync.c',
+  'mwm/src/tiling_drag.c',
+  'mwm/src/tree.c',
+  'mwm/src/util.c',
+  'mwm/src/version.c',
+  'mwm/src/window.c',
+  'mwm/src/workspace.c',
+  'mwm/src/x.c',
+  'mwm/src/xcb.c',
+  'mwm/src/xcursor.c',
 ]
 
 # Verify the perl interpreter is present for running parser_gen,
@@ -447,12 +448,6 @@ mwmsrcs += config_parser
 # src/log.c uses threading primitives for synchronization
 thread_dep = dependency('threads')
 
-#if get_option('build_libmwm_static')
-#   libmwm_dep = declare_dependency(link_args: [], dependencies: [libmwm])
-#else
-#   libmwm_dep = disabler()
-#endif
-
 common_deps = [
   thread_dep,
   m_dep,
@@ -484,7 +479,7 @@ executable(
   'mwm',
   mwmsrcs,
   install: true,
-  include_directories: inc,
+  include_directories: [libmwm_inc, mwm_inc],
   dependencies: common_deps,
   link_with: libmwm,
 )
@@ -510,7 +505,7 @@ if get_option('build_bar')
       'mwm-bar/src/xcb.c',
     ],
     install: true,
-    include_directories: include_directories('include', 'mwm-bar/include'),
+    include_directories: include_directories('libmwm/include', 'mwm-bar/include'),
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -526,7 +521,7 @@ if get_option('build_config_wizard')
       config_parser,
     ],
     install: true,
-    include_directories: include_directories('include', 'mwm-config-wizard'),
+    include_directories: include_directories('libmwm/include', 'mwm-config-wizard'),
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -537,7 +532,7 @@ if get_option('build_dump_log')
     'mwm-dump-log',
     'mwm-dump-log/main.c',
     install: true,
-    include_directories: inc,
+    include_directories: libmwm_inc,
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -553,7 +548,7 @@ if get_option('build_input')
       'mwm-input/main.c',
     ],
     install: true,
-    include_directories: inc,
+    include_directories: libmwm_inc,
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -564,7 +559,7 @@ if get_option('build_msg')
     'mwm-msg',
     'mwm-msg/main.c',
     install: true,
-    include_directories: inc,
+    include_directories: libmwm_inc,
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -578,7 +573,7 @@ if get_option('build_nagbar')
       'mwm-nagbar/main.c',
     ],
     install: true,
-    include_directories: include_directories('include', 'mwm-nagbar'),
+    include_directories: include_directories('libmwm/include', 'mwm-nagbar'),
     dependencies: common_deps,
     link_with: libmwm,
   )
@@ -608,7 +603,7 @@ install_subdir(
 )
 
 install_headers(
-  'include/mwm/ipc.h',
+  'libmwm/include/mwm/ipc.h',
   subdir: 'mwm',
 )
 
@@ -632,10 +627,10 @@ replace_dirs = [
 executable(
   'test.commands_parser',
   [
-    'src/commands_parser.c',
+    'mwm/src/commands_parser.c',
     command_parser,
   ],
-  include_directories: inc,
+  include_directories: [libmwm_inc, mwm_inc],
   c_args: '-DTEST_PARSER',
   dependencies: common_deps,
   link_with: libmwm,
@@ -644,10 +639,10 @@ executable(
 executable(
   'test.config_parser',
   [
-    'src/config_parser.c',
+    'mwm/src/config_parser.c',
     config_parser,
   ],
-  include_directories: inc,
+  include_directories: [libmwm_inc, mwm_inc],
   c_args: '-DTEST_PARSER',
   dependencies: common_deps,
   link_with: libmwm,

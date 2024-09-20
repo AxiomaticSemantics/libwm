@@ -79,14 +79,14 @@ static void print_usage(char *elf_name) {
  */
 static void sig_cb(struct ev_loop *loop, ev_signal *watcher, int revents) {
     switch (watcher->signum) {
-        case SIGTERM:
-            DLOG("Got a SIGTERM, stopping\n");
-            break;
-        case SIGINT:
-            DLOG("Got a SIGINT, stopping\n");
-            break;
-        case SIGHUP:
-            DLOG("Got a SIGHUP, stopping\n");
+    case SIGTERM:
+        DLOG("Got a SIGTERM, stopping\n");
+        break;
+    case SIGINT:
+        DLOG("Got a SIGINT, stopping\n");
+        break;
+    case SIGHUP:
+        DLOG("Got a SIGHUP, stopping\n");
     }
     ev_unloop(main_loop, EVUNLOOP_ALL);
 }
@@ -110,26 +110,26 @@ int main(int argc, char **argv) {
     int option_index = 0;
     while ((opt = getopt_long(argc, argv, "b:s:thvV", long_opt, &option_index)) != -1) {
         switch (opt) {
-            case 's':
-                socket_path = expand_path(optarg);
-                break;
-            case 'v':
-                printf("mwm-bar version " MWM_VERSION " © 2010 Axel Wagner and contributors\n");
-                exit(EXIT_SUCCESS);
-                break;
-            case 'b':
-                config.bar_id = sstrdup(optarg);
-                break;
-            case 't':
-                config.transparency = true;
-                break;
-            case 'V':
-                config.verbose = true;
-                break;
-            default:
-                print_usage(argv[0]);
-                exit(EXIT_FAILURE);
-                break;
+        case 's':
+            socket_path = expand_path(optarg);
+            break;
+        case 'v':
+            printf("mwm-bar version " MWM_VERSION " © 2010 Axel Wagner and contributors\n");
+            exit(EXIT_SUCCESS);
+            break;
+        case 'b':
+            config.bar_id = sstrdup(optarg);
+            break;
+        case 't':
+            config.transparency = true;
+            break;
+        case 'V':
+            config.verbose = true;
+            break;
+        default:
+            print_usage(argv[0]);
+            exit(EXIT_FAILURE);
+            break;
         }
     }
 

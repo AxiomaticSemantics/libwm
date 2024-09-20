@@ -216,16 +216,16 @@ static void predict_block_length(struct status_block *block) {
     } else {
         uint32_t padding_width = block->min_width - render->width;
         switch (block->align) {
-            case ALIGN_LEFT:
-                render->x_append = padding_width;
-                break;
-            case ALIGN_RIGHT:
-                render->x_offset = padding_width;
-                break;
-            case ALIGN_CENTER:
-                render->x_offset = padding_width / 2;
-                render->x_append = padding_width / 2 + padding_width % 2;
-                break;
+        case ALIGN_LEFT:
+            render->x_append = padding_width;
+            break;
+        case ALIGN_RIGHT:
+            render->x_offset = padding_width;
+            break;
+        case ALIGN_CENTER:
+            render->x_offset = padding_width / 2;
+            render->x_append = padding_width / 2 + padding_width % 2;
+            break;
         }
     }
 
@@ -693,51 +693,51 @@ static void handle_button(xcb_button_press_event_t *event) {
         return;
     }
     switch (event->detail) {
-        case XCB_BUTTON_SCROLL_UP:
-        case XCB_BUTTON_SCROLL_LEFT:
-            /* Mouse wheel up. We select the previous ws, if any.
-             * If there is no more workspace, don’t even send the workspace
-             * command, otherwise (with workspace auto_back_and_forth) we’d end
-             * up on the wrong workspace. */
-            if (cur_ws == TAILQ_FIRST(walk->workspaces)) {
-                return;
-            }
+    case XCB_BUTTON_SCROLL_UP:
+    case XCB_BUTTON_SCROLL_LEFT:
+        /* Mouse wheel up. We select the previous ws, if any.
+         * If there is no more workspace, don’t even send the workspace
+         * command, otherwise (with workspace auto_back_and_forth) we’d end
+         * up on the wrong workspace. */
+        if (cur_ws == TAILQ_FIRST(walk->workspaces)) {
+            return;
+        }
 
-            cur_ws = TAILQ_PREV(cur_ws, ws_head, tailq);
-            break;
-        case XCB_BUTTON_SCROLL_DOWN:
-        case XCB_BUTTON_SCROLL_RIGHT:
-            /* Mouse wheel down. We select the next ws, if any.
-             * If there is no more workspace, don’t even send the workspace
-             * command, otherwise (with workspace auto_back_and_forth) we’d end
-             * up on the wrong workspace. */
-            if (cur_ws == TAILQ_LAST(walk->workspaces, ws_head)) {
-                return;
-            }
+        cur_ws = TAILQ_PREV(cur_ws, ws_head, tailq);
+        break;
+    case XCB_BUTTON_SCROLL_DOWN:
+    case XCB_BUTTON_SCROLL_RIGHT:
+        /* Mouse wheel down. We select the next ws, if any.
+         * If there is no more workspace, don’t even send the workspace
+         * command, otherwise (with workspace auto_back_and_forth) we’d end
+         * up on the wrong workspace. */
+        if (cur_ws == TAILQ_LAST(walk->workspaces, ws_head)) {
+            return;
+        }
 
-            cur_ws = TAILQ_NEXT(cur_ws, tailq);
-            break;
-        case 1:
-            cur_ws = clicked_ws;
+        cur_ws = TAILQ_NEXT(cur_ws, tailq);
+        break;
+    case 1:
+        cur_ws = clicked_ws;
 
-            /* if no workspace was clicked, focus our currently visible
-             * workspace if it is not already focused */
-            if (cur_ws == NULL) {
-                TAILQ_FOREACH (cur_ws, walk->workspaces, tailq) {
-                    if (cur_ws->visible && !cur_ws->focused) {
-                        break;
-                    }
+        /* if no workspace was clicked, focus our currently visible
+         * workspace if it is not already focused */
+        if (cur_ws == NULL) {
+            TAILQ_FOREACH (cur_ws, walk->workspaces, tailq) {
+                if (cur_ws->visible && !cur_ws->focused) {
+                    break;
                 }
             }
+        }
 
-            /* if there is nothing to focus, we are done */
-            if (cur_ws == NULL) {
-                return;
-            }
-
-            break;
-        default:
+        /* if there is nothing to focus, we are done */
+        if (cur_ws == NULL) {
             return;
+        }
+
+        break;
+    default:
+        return;
     }
 
     focus_workspace(cur_ws);
@@ -1272,50 +1272,50 @@ static void xcb_prep_cb(struct ev_loop *loop, ev_prepare *watcher, int revents) 
         }
 
         switch (type) {
-            case XCB_VISIBILITY_NOTIFY:
-                /* Visibility change: a bar is [un]obscured by other window */
-                handle_visibility_notify((xcb_visibility_notify_event_t *)event);
-                break;
-            case XCB_EXPOSE:
-                if (((xcb_expose_event_t *)event)->count == 0) {
-                    /* Expose-events happen, when the window needs to be redrawn */
-                    redraw_bars();
-                }
+        case XCB_VISIBILITY_NOTIFY:
+            /* Visibility change: a bar is [un]obscured by other window */
+            handle_visibility_notify((xcb_visibility_notify_event_t *)event);
+            break;
+        case XCB_EXPOSE:
+            if (((xcb_expose_event_t *)event)->count == 0) {
+                /* Expose-events happen, when the window needs to be redrawn */
+                redraw_bars();
+            }
 
-                break;
-            case XCB_BUTTON_RELEASE:
-            case XCB_BUTTON_PRESS:
-                /* Button press events are mouse buttons clicked on one of our bars */
-                handle_button((xcb_button_press_event_t *)event);
-                break;
-            case XCB_CLIENT_MESSAGE:
-                /* Client messages are used for client-to-client communication, for
-                 * example system tray widgets talk to us directly via client messages. */
-                handle_client_message((xcb_client_message_event_t *)event);
-                break;
-            case XCB_DESTROY_NOTIFY:
-                /* DestroyNotify signifies the end of the XEmbed protocol */
-                handle_destroy_notify((xcb_destroy_notify_event_t *)event);
-                break;
-            case XCB_UNMAP_NOTIFY:
-                /* UnmapNotify is received when a tray client hides its window. */
-                handle_unmap_notify((xcb_unmap_notify_event_t *)event);
-                break;
-            case XCB_MAP_NOTIFY:
-                handle_map_notify((xcb_map_notify_event_t *)event);
-                break;
-            case XCB_PROPERTY_NOTIFY:
-                /* PropertyNotify */
-                handle_property_notify((xcb_property_notify_event_t *)event);
-                break;
-            case XCB_CONFIGURE_REQUEST:
-                /* ConfigureRequest, sent by a tray child */
-                handle_configure_request((xcb_configure_request_event_t *)event);
-                break;
-            case XCB_RESIZE_REQUEST:
-                /* ResizeRequest sent by a tray child using override_redirect. */
-                handle_resize_request((xcb_resize_request_event_t *)event);
-                break;
+            break;
+        case XCB_BUTTON_RELEASE:
+        case XCB_BUTTON_PRESS:
+            /* Button press events are mouse buttons clicked on one of our bars */
+            handle_button((xcb_button_press_event_t *)event);
+            break;
+        case XCB_CLIENT_MESSAGE:
+            /* Client messages are used for client-to-client communication, for
+             * example system tray widgets talk to us directly via client messages. */
+            handle_client_message((xcb_client_message_event_t *)event);
+            break;
+        case XCB_DESTROY_NOTIFY:
+            /* DestroyNotify signifies the end of the XEmbed protocol */
+            handle_destroy_notify((xcb_destroy_notify_event_t *)event);
+            break;
+        case XCB_UNMAP_NOTIFY:
+            /* UnmapNotify is received when a tray client hides its window. */
+            handle_unmap_notify((xcb_unmap_notify_event_t *)event);
+            break;
+        case XCB_MAP_NOTIFY:
+            handle_map_notify((xcb_map_notify_event_t *)event);
+            break;
+        case XCB_PROPERTY_NOTIFY:
+            /* PropertyNotify */
+            handle_property_notify((xcb_property_notify_event_t *)event);
+            break;
+        case XCB_CONFIGURE_REQUEST:
+            /* ConfigureRequest, sent by a tray child */
+            handle_configure_request((xcb_configure_request_event_t *)event);
+            break;
+        case XCB_RESIZE_REQUEST:
+            /* ResizeRequest sent by a tray child using override_redirect. */
+            handle_resize_request((xcb_resize_request_event_t *)event);
+            break;
         }
         free(event);
     }
@@ -1769,18 +1769,18 @@ static xcb_void_cookie_t config_strut_partial(mwm_output *output) {
     memset(&strut_partial, 0, sizeof(strut_partial));
 
     switch (config.position) {
-        case POS_NONE:
-            break;
-        case POS_TOP:
-            strut_partial.top = bar_height;
-            strut_partial.top_start_x = output->rect.x;
-            strut_partial.top_end_x = output->rect.x + output->rect.w;
-            break;
-        case POS_BOT:
-            strut_partial.bottom = bar_height;
-            strut_partial.bottom_start_x = output->rect.x;
-            strut_partial.bottom_end_x = output->rect.x + output->rect.w;
-            break;
+    case POS_NONE:
+        break;
+    case POS_TOP:
+        strut_partial.top = bar_height;
+        strut_partial.top_start_x = output->rect.x;
+        strut_partial.top_end_x = output->rect.x + output->rect.w;
+        break;
+    case POS_BOT:
+        strut_partial.bottom = bar_height;
+        strut_partial.bottom_start_x = output->rect.x;
+        strut_partial.bottom_end_x = output->rect.x + output->rect.w;
+        break;
     }
     return xcb_change_property(xcb_connection,
                                XCB_PROP_MODE_REPLACE,

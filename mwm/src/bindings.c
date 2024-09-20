@@ -116,17 +116,17 @@ static bool binding_in_current_group(const Binding *bind) {
         return true;
     }
     switch (xkb_current_group) {
-        case XCB_XKB_GROUP_1:
-            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_1);
-        case XCB_XKB_GROUP_2:
-            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_2);
-        case XCB_XKB_GROUP_3:
-            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_3);
-        case XCB_XKB_GROUP_4:
-            return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_4);
-        default:
-            ELOG("BUG: xkb_current_group (= %d) outside of [XCB_XKB_GROUP_1..XCB_XKB_GROUP_4]\n", xkb_current_group);
-            return false;
+    case XCB_XKB_GROUP_1:
+        return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_1);
+    case XCB_XKB_GROUP_2:
+        return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_2);
+    case XCB_XKB_GROUP_3:
+        return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_3);
+    case XCB_XKB_GROUP_4:
+        return ((bind->event_state_mask >> 16) & MWM_XKB_GROUP_MASK_4);
+    default:
+        ELOG("BUG: xkb_current_group (= %d) outside of [XCB_XKB_GROUP_1..XCB_XKB_GROUP_4]\n", xkb_current_group);
+        return false;
     }
 }
 
@@ -337,18 +337,18 @@ Binding *get_binding_from_xcb_event(xcb_generic_event_t *event) {
      * section 2.2.2:
      * https://www.x.org/releases/X11R7.7/doc/kbproto/xkbproto.html#Computing_A_State_Field_from_an_XKB_State */
     switch ((event_state & 0x6000) >> 13) {
-        case XCB_XKB_GROUP_1:
-            state_filtered |= (MWM_XKB_GROUP_MASK_1 << 16);
-            break;
-        case XCB_XKB_GROUP_2:
-            state_filtered |= (MWM_XKB_GROUP_MASK_2 << 16);
-            break;
-        case XCB_XKB_GROUP_3:
-            state_filtered |= (MWM_XKB_GROUP_MASK_3 << 16);
-            break;
-        case XCB_XKB_GROUP_4:
-            state_filtered |= (MWM_XKB_GROUP_MASK_4 << 16);
-            break;
+    case XCB_XKB_GROUP_1:
+        state_filtered |= (MWM_XKB_GROUP_MASK_1 << 16);
+        break;
+    case XCB_XKB_GROUP_2:
+        state_filtered |= (MWM_XKB_GROUP_MASK_2 << 16);
+        break;
+    case XCB_XKB_GROUP_3:
+        state_filtered |= (MWM_XKB_GROUP_MASK_3 << 16);
+        break;
+    case XCB_XKB_GROUP_4:
+        state_filtered |= (MWM_XKB_GROUP_MASK_4 << 16);
+        break;
     }
     state_filtered &= ~0x6000;
     DLOG("(transformed keyboard group, state = 0x%x)\n", state_filtered);
@@ -950,21 +950,21 @@ static int fill_rmlvo_from_root(struct xkb_rule_names *xkb_names) {
     for (int i = 0; i < 5 && remaining > 0; i++) {
         const int len = strnlen(walk, remaining);
         switch (i) {
-            case 0:
-                sasprintf((char **)&(xkb_names->rules), "%.*s", len, walk);
-                break;
-            case 1:
-                sasprintf((char **)&(xkb_names->model), "%.*s", len, walk);
-                break;
-            case 2:
-                sasprintf((char **)&(xkb_names->layout), "%.*s", len, walk);
-                break;
-            case 3:
-                sasprintf((char **)&(xkb_names->variant), "%.*s", len, walk);
-                break;
-            case 4:
-                sasprintf((char **)&(xkb_names->options), "%.*s", len, walk);
-                break;
+        case 0:
+            sasprintf((char **)&(xkb_names->rules), "%.*s", len, walk);
+            break;
+        case 1:
+            sasprintf((char **)&(xkb_names->model), "%.*s", len, walk);
+            break;
+        case 2:
+            sasprintf((char **)&(xkb_names->layout), "%.*s", len, walk);
+            break;
+        case 3:
+            sasprintf((char **)&(xkb_names->variant), "%.*s", len, walk);
+            break;
+        case 4:
+            sasprintf((char **)&(xkb_names->options), "%.*s", len, walk);
+            break;
         }
         DLOG("component %d of _XKB_RULES_NAMES is \"%.*s\"\n", i, len, walk);
         walk += (len + 1);

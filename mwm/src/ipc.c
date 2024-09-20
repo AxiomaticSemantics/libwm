@@ -273,57 +273,57 @@ static void dump_event_state_mask(yajl_gen gen, Binding *bind) {
     for (int i = 0; i < 20; i++) {
         if (bind->event_state_mask & (1 << i)) {
             switch (1 << i) {
-                case XCB_KEY_BUT_MASK_SHIFT:
-                    ystr("shift");
-                    break;
-                case XCB_KEY_BUT_MASK_LOCK:
-                    ystr("lock");
-                    break;
-                case XCB_KEY_BUT_MASK_CONTROL:
-                    ystr("ctrl");
-                    break;
-                case XCB_KEY_BUT_MASK_MOD_1:
-                    ystr("Mod1");
-                    break;
-                case XCB_KEY_BUT_MASK_MOD_2:
-                    ystr("Mod2");
-                    break;
-                case XCB_KEY_BUT_MASK_MOD_3:
-                    ystr("Mod3");
-                    break;
-                case XCB_KEY_BUT_MASK_MOD_4:
-                    ystr("Mod4");
-                    break;
-                case XCB_KEY_BUT_MASK_MOD_5:
-                    ystr("Mod5");
-                    break;
-                case XCB_KEY_BUT_MASK_BUTTON_1:
-                    ystr("Button1");
-                    break;
-                case XCB_KEY_BUT_MASK_BUTTON_2:
-                    ystr("Button2");
-                    break;
-                case XCB_KEY_BUT_MASK_BUTTON_3:
-                    ystr("Button3");
-                    break;
-                case XCB_KEY_BUT_MASK_BUTTON_4:
-                    ystr("Button4");
-                    break;
-                case XCB_KEY_BUT_MASK_BUTTON_5:
-                    ystr("Button5");
-                    break;
-                case (MWM_XKB_GROUP_MASK_1 << 16):
-                    ystr("Group1");
-                    break;
-                case (MWM_XKB_GROUP_MASK_2 << 16):
-                    ystr("Group2");
-                    break;
-                case (MWM_XKB_GROUP_MASK_3 << 16):
-                    ystr("Group3");
-                    break;
-                case (MWM_XKB_GROUP_MASK_4 << 16):
-                    ystr("Group4");
-                    break;
+            case XCB_KEY_BUT_MASK_SHIFT:
+                ystr("shift");
+                break;
+            case XCB_KEY_BUT_MASK_LOCK:
+                ystr("lock");
+                break;
+            case XCB_KEY_BUT_MASK_CONTROL:
+                ystr("ctrl");
+                break;
+            case XCB_KEY_BUT_MASK_MOD_1:
+                ystr("Mod1");
+                break;
+            case XCB_KEY_BUT_MASK_MOD_2:
+                ystr("Mod2");
+                break;
+            case XCB_KEY_BUT_MASK_MOD_3:
+                ystr("Mod3");
+                break;
+            case XCB_KEY_BUT_MASK_MOD_4:
+                ystr("Mod4");
+                break;
+            case XCB_KEY_BUT_MASK_MOD_5:
+                ystr("Mod5");
+                break;
+            case XCB_KEY_BUT_MASK_BUTTON_1:
+                ystr("Button1");
+                break;
+            case XCB_KEY_BUT_MASK_BUTTON_2:
+                ystr("Button2");
+                break;
+            case XCB_KEY_BUT_MASK_BUTTON_3:
+                ystr("Button3");
+                break;
+            case XCB_KEY_BUT_MASK_BUTTON_4:
+                ystr("Button4");
+                break;
+            case XCB_KEY_BUT_MASK_BUTTON_5:
+                ystr("Button5");
+                break;
+            case (MWM_XKB_GROUP_MASK_1 << 16):
+                ystr("Group1");
+                break;
+            case (MWM_XKB_GROUP_MASK_2 << 16):
+                ystr("Group2");
+                break;
+            case (MWM_XKB_GROUP_MASK_3 << 16):
+                ystr("Group3");
+                break;
+            case (MWM_XKB_GROUP_MASK_4 << 16):
+                ystr("Group4");
+                break;
             }
         }
     }
@@ -366,24 +366,24 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     ystr("type");
     switch (con->type) {
-        case CT_ROOT:
-            ystr("root");
-            break;
-        case CT_OUTPUT:
-            ystr("output");
-            break;
-        case CT_CON:
-            ystr("con");
-            break;
-        case CT_FLOATING_CON:
-            ystr("floating_con");
-            break;
-        case CT_WORKSPACE:
-            ystr("workspace");
-            break;
-        case CT_DOCKAREA:
-            ystr("dockarea");
-            break;
+    case CT_ROOT:
+        ystr("root");
+        break;
+    case CT_OUTPUT:
+        ystr("output");
+        break;
+    case CT_CON:
+        ystr("con");
+        break;
+    case CT_FLOATING_CON:
+        ystr("floating_con");
+        break;
+    case CT_WORKSPACE:
+        ystr("workspace");
+        break;
+    case CT_DOCKAREA:
+        ystr("dockarea");
+        break;
     }
 
     /* provided for backwards compatibility only. */
@@ -400,15 +400,15 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     ystr("scratchpad_state");
     switch (con->scratchpad_state) {
-        case SCRATCHPAD_NONE:
-            ystr("none");
-            break;
-        case SCRATCHPAD_FRESH:
-            ystr("fresh");
-            break;
-        case SCRATCHPAD_CHANGED:
-            ystr("changed");
-            break;
+    case SCRATCHPAD_NONE:
+        ystr("none");
+        break;
+    case SCRATCHPAD_FRESH:
+        ystr("fresh");
+        break;
+    case SCRATCHPAD_CHANGED:
+        ystr("changed");
+        break;
     }
 
     ystr("percent");
@@ -439,68 +439,68 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     ystr("layout");
     switch (con->layout) {
-        case L_DEFAULT:
-            DLOG("About to dump layout=default, this is a bug in the code.\n");
-            assert(false);
-            break;
-        case L_SPLITV:
-            ystr("splitv");
-            break;
-        case L_SPLITH:
-            ystr("splith");
-            break;
-        case L_STACKED:
-            ystr("stacked");
-            break;
-        case L_TABBED:
-            ystr("tabbed");
-            break;
-        case L_DOCKAREA:
-            ystr("dockarea");
-            break;
-        case L_OUTPUT:
-            ystr("output");
-            break;
+    case L_DEFAULT:
+        DLOG("About to dump layout=default, this is a bug in the code.\n");
+        assert(false);
+        break;
+    case L_SPLITV:
+        ystr("splitv");
+        break;
+    case L_SPLITH:
+        ystr("splith");
+        break;
+    case L_STACKED:
+        ystr("stacked");
+        break;
+    case L_TABBED:
+        ystr("tabbed");
+        break;
+    case L_DOCKAREA:
+        ystr("dockarea");
+        break;
+    case L_OUTPUT:
+        ystr("output");
+        break;
     }
 
     ystr("workspace_layout");
     switch (con->workspace_layout) {
-        case L_DEFAULT:
-            ystr("default");
-            break;
-        case L_STACKED:
-            ystr("stacked");
-            break;
-        case L_TABBED:
-            ystr("tabbed");
-            break;
-        default:
-            DLOG("About to dump workspace_layout=%d (none of default/stacked/tabbed), this is a bug.\n", con->workspace_layout);
-            assert(false);
-            break;
+    case L_DEFAULT:
+        ystr("default");
+        break;
+    case L_STACKED:
+        ystr("stacked");
+        break;
+    case L_TABBED:
+        ystr("tabbed");
+        break;
+    default:
+        DLOG("About to dump workspace_layout=%d (none of default/stacked/tabbed), this is a bug.\n", con->workspace_layout);
+        assert(false);
+        break;
     }
 
     ystr("last_split_layout");
     switch (con->layout) {
-        case L_SPLITV:
-            ystr("splitv");
-            break;
-        default:
-            ystr("splith");
-            break;
+    case L_SPLITV:
+        ystr("splitv");
+        break;
+    default:
+        ystr("splith");
+        break;
     }
 
     ystr("border");
     switch (con->border_style) {
-        case BS_NORMAL:
-            ystr("normal");
-            break;
-        case BS_NONE:
-            ystr("none");
-            break;
-        case BS_PIXEL:
-            ystr("pixel");
-            break;
+    case BS_NORMAL:
+        ystr("normal");
+        break;
+    case BS_NONE:
+        ystr("none");
+        break;
+    case BS_PIXEL:
+        ystr("pixel");
+        break;
     }
 
     ystr("current_border_width");
@@ -648,18 +648,18 @@ void dump_node(yajl_gen gen, struct Con *con, bool inplace_restart) {
 
     ystr("floating");
     switch (con->floating) {
-        case FLOATING_AUTO_OFF:
-            ystr("auto_off");
-            break;
-        case FLOATING_AUTO_ON:
-            ystr("auto_on");
-            break;
-        case FLOATING_USER_OFF:
-            ystr("user_off");
-            break;
-        case FLOATING_USER_ON:
-            ystr("user_on");
-            break;
+    case FLOATING_AUTO_OFF:
+        ystr("auto_off");
+        break;
+    case FLOATING_AUTO_ON:
+        ystr("auto_on");
+        break;
+    case FLOATING_USER_OFF:
+        ystr("user_off");
+        break;
+    case FLOATING_USER_ON:
+        ystr("user_on");
+        break;
     }
 
     ystr("swallows");
@@ -802,27 +802,27 @@ static void dump_bar_config(yajl_gen gen, Barconfig *config) {
 
     ystr("mode");
     switch (config->mode) {
-        case M_HIDE:
-            ystr("hide");
-            break;
-        case M_INVISIBLE:
-            ystr("invisible");
-            break;
-        case M_DOCK:
-        default:
-            ystr("dock");
-            break;
+    case M_HIDE:
+        ystr("hide");
+        break;
+    case M_INVISIBLE:
+        ystr("invisible");
+        break;
+    case M_DOCK:
+    default:
+        ystr("dock");
+        break;
     }
 
     ystr("hidden_state");
     switch (config->hidden_state) {
-        case S_SHOW:
-            ystr("show");
-            break;
-        case S_HIDE:
-        default:
-            ystr("hide");
-            break;
+    case S_SHOW:
+        ystr("show");
+        break;
+    case S_HIDE:
+    default:
+        ystr("hide");
+        break;
     }
 
     ystr("modifier");

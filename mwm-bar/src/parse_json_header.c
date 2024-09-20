@@ -27,17 +27,17 @@ static int header_integer(void *ctx, long long val) {
     mwm_bar_child *child = ctx;
 
     switch (current_key) {
-        case KEY_VERSION:
-            child->version = val;
-            break;
-        case KEY_STOP_SIGNAL:
-            child->stop_signal = val;
-            break;
-        case KEY_CONT_SIGNAL:
-            child->cont_signal = val;
-            break;
-        default:
-            break;
+    case KEY_VERSION:
+        child->version = val;
+        break;
+    case KEY_STOP_SIGNAL:
+        child->stop_signal = val;
+        break;
+    case KEY_CONT_SIGNAL:
+        child->cont_signal = val;
+        break;
+    default:
+        break;
     }
 
     return 1;
@@ -47,11 +47,11 @@ static int header_boolean(void *ctx, int val) {
     mwm_bar_child *child = ctx;
 
     switch (current_key) {
-        case KEY_CLICK_EVENTS:
-            child->click_events = val;
-            break;
-        default:
-            break;
+    case KEY_CLICK_EVENTS:
+        child->click_events = val;
+        break;
+    default:
+        break;
     }
 
     return 1;

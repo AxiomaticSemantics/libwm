@@ -60,26 +60,26 @@ CFGFUN(include, const char *pattern) {
             .variables = result->ctx->variables,
         };
         switch (parse_file(&ctx, resolved_path, file)) {
-            case PARSE_FILE_SUCCESS:
-                break;
+        case PARSE_FILE_SUCCESS:
+            break;
 
-            case PARSE_FILE_FAILED:
-                ELOG("including config file %s: %s\n", resolved_path, strerror(errno));
-                /* fallthrough */
+        case PARSE_FILE_FAILED:
+            ELOG("including config file %s: %s\n", resolved_path, strerror(errno));
+            /* fallthrough */
 
-            case PARSE_FILE_CONFIG_ERRORS:
-                result->has_errors = true;
-                TAILQ_REMOVE(&included_files, file, files);
-                FREE(file->path);
-                FREE(file->raw_contents);
-                FREE(file->variable_replaced_contents);
-                FREE(file);
-                break;
+        case PARSE_FILE_CONFIG_ERRORS:
+            result->has_errors = true;
+            TAILQ_REMOVE(&included_files, file, files);
+            FREE(file->path);
+            FREE(file->raw_contents);
+            FREE(file->variable_replaced_contents);
+            FREE(file);
+            break;
 
-            default:
-                /* missing case statement */
-                assert(false);
-                break;
+        default:
+            /* missing case statement */
+            assert(false);
+            break;
         }
     }
     wordfree(&p);

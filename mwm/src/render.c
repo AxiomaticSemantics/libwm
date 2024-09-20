@@ -258,14 +258,14 @@ static bool fullscreen_blocks_floating_render(Con *fullscreen, Con *floating) {
      * workspace. Necessary to make floating fullscreen work correctly (ticket
      * #564). Exception to the above rule: popup_during_fullscreen smart|all. */
     switch (config.popup_during_fullscreen) {
-        case PDF_LEAVE_FULLSCREEN:
-        case PDF_IGNORE:
-            return true;
-        case PDF_SMART:
-            return fullscreen->window == NULL ||
-                   !con_find_transient_for_window(con_descend_focused(floating), fullscreen->window->id);
-        case PDF_ALL:
-            return con_has_parent(fullscreen, floating);
+    case PDF_LEAVE_FULLSCREEN:
+    case PDF_IGNORE:
+        return true;
+    case PDF_SMART:
+        return fullscreen->window == NULL ||
+               !con_find_transient_for_window(con_descend_focused(floating), fullscreen->window->id);
+    case PDF_ALL:
+        return con_has_parent(fullscreen, floating);
     }
     return false; /* not reachable */
 }

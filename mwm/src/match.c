@@ -228,38 +228,38 @@ bool match_matches_window(Match *match, mwmWindow *window) {
         }
 
         switch (match->window_mode) {
-            case WM_TILING_AUTO:
-                if (con->floating != FLOATING_AUTO_OFF) {
-                    return false;
-                }
-                break;
-            case WM_TILING_USER:
-                if (con->floating != FLOATING_USER_OFF) {
-                    return false;
-                }
-                break;
-            case WM_TILING:
-                if (con_inside_floating(con) != NULL) {
-                    return false;
-                }
-                break;
-            case WM_FLOATING_AUTO:
-                if (con->floating != FLOATING_AUTO_ON) {
-                    return false;
-                }
-                break;
-            case WM_FLOATING_USER:
-                if (con->floating != FLOATING_USER_ON) {
-                    return false;
-                }
-                break;
-            case WM_FLOATING:
-                if (con_inside_floating(con) == NULL) {
-                    return false;
-                }
-                break;
-            case WM_ANY:
-                assert(false);
+        case WM_TILING_AUTO:
+            if (con->floating != FLOATING_AUTO_OFF) {
+                return false;
+            }
+            break;
+        case WM_TILING_USER:
+            if (con->floating != FLOATING_USER_OFF) {
+                return false;
+            }
+            break;
+        case WM_TILING:
+            if (con_inside_floating(con) != NULL) {
+                return false;
+            }
+            break;
+        case WM_FLOATING_AUTO:
+            if (con->floating != FLOATING_AUTO_ON) {
+                return false;
+            }
+            break;
+        case WM_FLOATING_USER:
+            if (con->floating != FLOATING_USER_ON) {
+                return false;
+            }
+            break;
+        case WM_FLOATING:
+            if (con_inside_floating(con) == NULL) {
+                return false;
+            }
+            break;
+        case WM_ANY:
+            assert(false);
         }
 
         LOG("window_mode matches\n");

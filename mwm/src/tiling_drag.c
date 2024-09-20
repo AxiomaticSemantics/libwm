@@ -19,7 +19,7 @@ static bool is_tiling_drop_target(Con *con) {
     Con *ws = con_get_workspace(con);
     if (con_is_internal(ws)) {
         /* Skip containers on mwm-internal containers like the scratchpad, which are
-	 * technically visible on their pseudo-output. */
+         * technically visible on their pseudo-output. */
         return false;
     }
     if (!workspace_is_visible(ws)) {
@@ -107,20 +107,20 @@ struct callback_params {
 
 static Rect adjust_rect(Rect rect, direction_t direction, uint32_t threshold) {
     switch (direction) {
-        case D_LEFT:
-            rect.width = threshold;
-            break;
-        case D_UP:
-            rect.height = threshold;
-            break;
-        case D_RIGHT:
-            rect.x += (rect.width - threshold);
-            rect.width = threshold;
-            break;
-        case D_DOWN:
-            rect.y += (rect.height - threshold);
-            rect.height = threshold;
-            break;
+    case D_LEFT:
+        rect.width = threshold;
+        break;
+    case D_UP:
+        rect.height = threshold;
+        break;
+    case D_RIGHT:
+        rect.x += (rect.width - threshold);
+        rect.width = threshold;
+        break;
+    case D_DOWN:
+        rect.y += (rect.height - threshold);
+        rect.height = threshold;
+        break;
     }
     return rect;
 }
@@ -129,18 +129,18 @@ static bool con_on_side_of_parent(Con *con, direction_t direction) {
     const orientation_t orientation = orientation_from_direction(direction);
     direction_t reverse_direction;
     switch (direction) {
-        case D_LEFT:
-            reverse_direction = D_RIGHT;
-            break;
-        case D_RIGHT:
-            reverse_direction = D_LEFT;
-            break;
-        case D_UP:
-            reverse_direction = D_DOWN;
-            break;
-        case D_DOWN:
-            reverse_direction = D_UP;
-            break;
+    case D_LEFT:
+        reverse_direction = D_RIGHT;
+        break;
+    case D_RIGHT:
+        reverse_direction = D_LEFT;
+        break;
+    case D_UP:
+        reverse_direction = D_DOWN;
+        break;
+    case D_DOWN:
+        reverse_direction = D_UP;
+        break;
     }
     return (con_orientation(con->parent) != orientation ||
             con->parent->layout == L_STACKED || con->parent->layout == L_TABBED ||
@@ -225,22 +225,22 @@ DRAGGING_CB(drag_callback) {
     }
 
     switch (drop_type) {
-        case DT_PARENT:
-            while (target->parent->type != CT_WORKSPACE && con_on_side_of_parent(target->parent, direction)) {
-                target = target->parent;
-            }
-            rect = adjust_rect(target->parent->rect, direction, parent_indicator_size);
-            break;
-        case DT_CENTER:
-            rect = target->rect;
-            rect.x += sibling_indicator_size;
-            rect.y += sibling_indicator_size;
-            rect.width -= sibling_indicator_size * 2;
-            rect.height -= sibling_indicator_size * 2;
-            break;
-        case DT_SIBLING:
-            rect = adjust_rect(target->rect, direction, sibling_indicator_size);
-            break;
+    case DT_PARENT:
+        while (target->parent->type != CT_WORKSPACE && con_on_side_of_parent(target->parent, direction)) {
+            target = target->parent;
+        }
+        rect = adjust_rect(target->parent->rect, direction, parent_indicator_size);
+        break;
+    case DT_CENTER:
+        rect = target->rect;
+        rect.x += sibling_indicator_size;
+        rect.y += sibling_indicator_size;
+        rect.width -= sibling_indicator_size * 2;
+        rect.height -= sibling_indicator_size * 2;
+        break;
+    case DT_SIBLING:
+        rect = adjust_rect(target->rect, direction, sibling_indicator_size);
+        break;
     }
 
 create_indicator:
@@ -335,65 +335,65 @@ void tiling_drag(Con *con, xcb_button_press_event_t *event, bool use_threshold) 
     const layout_t layout = orientation == VERT ? L_SPLITV : L_SPLITH;
     con_disable_fullscreen(con);
     switch (drop_type) {
-        case DT_CENTER:
-            /* Also handles workspaces.*/
-            DLOG("drop to center of %p\n", target);
-            const uint32_t mod = (config.swap_modifier & 0xFFFF);
-            const bool swap_pressed = (mod != 0 && (event->state & mod) == mod);
-            if (swap_pressed) {
-                if (!con_swap(con, target)) {
-                    return;
-                }
-            } else {
-                con_move_to_target(con, target);
+    case DT_CENTER:
+        /* Also handles workspaces.*/
+        DLOG("drop to center of %p\n", target);
+        const uint32_t mod = (config.swap_modifier & 0xFFFF);
+        const bool swap_pressed = (mod != 0 && (event->state & mod) == mod);
+        if (swap_pressed) {
+            if (!con_swap(con, target)) {
+                return;
             }
-            break;
-        case DT_SIBLING:
-            DLOG("drop %s %p\n", position_to_string(position), target);
-            if (con_orientation(target->parent) != orientation) {
-                /* If con and target are the only children of the same parent, we can just change
-                 * the parent's layout manually and then move con to the correct position.
-                 * tree_split checks for a parent with only one child so it would create a new
-                 * parent with the new layout. */
-                if (con->parent == target->parent && con_num_children(target->parent) == 2) {
-                    target->parent->layout = layout;
-                } else {
-                    tree_split(target, orientation);
-                }
-            }
-
-            insert_con_into(con, target, position);
-
-            ipc_send_window_event("move", con);
-            break;
-        case DT_PARENT: {
-            const bool parent_tabbed_or_stacked = (target->parent->layout == L_TABBED || target->parent->layout == L_STACKED);
-            DLOG("drop %s (%s) of %s%p\n",
-                 direction_to_string(direction),
-                 position_to_string(position),
-                 parent_tabbed_or_stacked ? "tabbed/stacked " : "",
-                 target);
-            if (parent_tabbed_or_stacked) {
-                /* When dealing with tabbed/stacked the target can be in the
-                 * middle of the container. Thus, after a directional move, con
-                 * will still be bound to the tabbed/stacked parent. */
-                if (position == BEFORE) {
-                    target = TAILQ_FIRST(&(target->parent->nodes_head));
-                } else {
-                    target = TAILQ_LAST(&(target->parent->nodes_head), nodes_head);
-                }
-            }
-            if (con != target) {
-                insert_con_into(con, target, position);
-            }
-            /* tree_move can change the focus */
-            Con *old_focus = focused;
-            tree_move(con, direction);
-            if (focused != old_focus) {
-                con_activate(old_focus);
-            }
-            break;
+        } else {
+            con_move_to_target(con, target);
         }
+        break;
+    case DT_SIBLING:
+        DLOG("drop %s %p\n", position_to_string(position), target);
+        if (con_orientation(target->parent) != orientation) {
+            /* If con and target are the only children of the same parent, we can just change
+             * the parent's layout manually and then move con to the correct position.
+             * tree_split checks for a parent with only one child so it would create a new
+             * parent with the new layout. */
+            if (con->parent == target->parent && con_num_children(target->parent) == 2) {
+                target->parent->layout = layout;
+            } else {
+                tree_split(target, orientation);
+            }
+        }
+
+        insert_con_into(con, target, position);
+
+        ipc_send_window_event("move", con);
+        break;
+    case DT_PARENT: {
+        const bool parent_tabbed_or_stacked = (target->parent->layout == L_TABBED || target->parent->layout == L_STACKED);
+        DLOG("drop %s (%s) of %s%p\n",
+             direction_to_string(direction),
+             position_to_string(position),
+             parent_tabbed_or_stacked ? "tabbed/stacked " : "",
+             target);
+        if (parent_tabbed_or_stacked) {
+            /* When dealing with tabbed/stacked the target can be in the
+             * middle of the container. Thus, after a directional move, con
+             * will still be bound to the tabbed/stacked parent. */
+            if (position == BEFORE) {
+                target = TAILQ_FIRST(&(target->parent->nodes_head));
+            } else {
+                target = TAILQ_LAST(&(target->parent->nodes_head), nodes_head);
+            }
+        }
+        if (con != target) {
+            insert_con_into(con, target, position);
+        }
+        /* tree_move can change the focus */
+        Con *old_focus = focused;
+        tree_move(con, direction);
+        if (focused != old_focus) {
+            con_activate(old_focus);
+        }
+        break;
+    }
     }
     /* Warning: target might not exist anymore */
     target = NULL;

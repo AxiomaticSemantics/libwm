@@ -333,122 +333,122 @@ int main(int argc, char *argv[]) {
 
     while ((opt = getopt_long(argc, argv, "c:CvmaL:hld:Vr", long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'a':
-                LOG("Autostart disabled using -a\n");
-                autostart = false;
+        case 'a':
+            LOG("Autostart disabled using -a\n");
+            autostart = false;
+            break;
+        case 'L':
+            FREE(layout_path);
+            layout_path = sstrdup(optarg);
+            delete_layout_path = false;
+            break;
+        case 'c':
+            FREE(override_configpath);
+            override_configpath = sstrdup(optarg);
+            break;
+        case 'C':
+            LOG("Checking configuration file only (-C)\n");
+            only_check_config = true;
+            break;
+        case 'v':
+            printf("mwm version %s\n", mwm_version);
+            exit(EXIT_SUCCESS);
+            break;
+        case 'm':
+            printf("Binary mwm version:  %s\n", mwm_version);
+            display_running_version();
+            exit(EXIT_SUCCESS);
+            break;
+        case 'V':
+            set_verbosity(true);
+            break;
+        case 'd':
+            LOG("Enabling debug logging\n");
+            set_debug_logging(true);
+            break;
+        case 'l':
+            /* DEPRECATED, ignored for the next 3 versions (3.e, 3.f, 3.g) */
+            break;
+        case 'r':
+            replace_wm = true;
+            break;
+        case 0:
+            if (strcmp(long_options[option_index].name, "disable-randr15") == 0 ||
+                strcmp(long_options[option_index].name, "disable_randr15") == 0) {
+                disable_randr15 = true;
                 break;
-            case 'L':
+            } else if (strcmp(long_options[option_index].name, "disable-signalhandler") == 0) {
+                disable_signalhandler = true;
+                break;
+            } else if (strcmp(long_options[option_index].name, "get-socketpath") == 0 ||
+                       strcmp(long_options[option_index].name, "get_socketpath") == 0) {
+                char *socket_path = root_atom_contents("MWM_SOCKET_PATH", NULL, 0);
+                if (socket_path) {
+                    printf("%s\n", socket_path);
+                    /* With -O2 (i.e. the buildtype=debugoptimized meson
+                     * option, which we set by default), gcc 9.2.1 optimizes
+                     * away socket_path at this point, resulting in a Leak
+                     * Sanitizer report. An explicit free helps: */
+                    free(socket_path);
+                    exit(EXIT_SUCCESS);
+                }
+
+                exit(EXIT_FAILURE);
+            } else if (strcmp(long_options[option_index].name, "shmlog-size") == 0 ||
+                       strcmp(long_options[option_index].name, "shmlog_size") == 0) {
+                shmlog_size = atoi(optarg);
+                /* Re-initialize logging immediately to get as many
+                 * logmessages as possible into the SHM log. */
+                init_logging();
+                LOG("Limiting SHM log size to %d bytes\n", shmlog_size);
+                break;
+            } else if (strcmp(long_options[option_index].name, "restart") == 0) {
                 FREE(layout_path);
                 layout_path = sstrdup(optarg);
-                delete_layout_path = false;
+                delete_layout_path = true;
                 break;
-            case 'c':
-                FREE(override_configpath);
-                override_configpath = sstrdup(optarg);
+            } else if (strcmp(long_options[option_index].name, "fake-outputs") == 0 ||
+                       strcmp(long_options[option_index].name, "fake_outputs") == 0) {
+                LOG("Initializing fake outputs: %s\n", optarg);
+                fake_outputs = sstrdup(optarg);
                 break;
-            case 'C':
-                LOG("Checking configuration file only (-C)\n");
-                only_check_config = true;
+            } else if (strcmp(long_options[option_index].name, "force-old-config-parser-v4.4-only") == 0) {
+                ELOG("You are passing --force-old-config-parser-v4.4-only, but that flag was removed by now.\n");
                 break;
-            case 'v':
-                printf("mwm version %s\n", mwm_version);
-                exit(EXIT_SUCCESS);
-                break;
-            case 'm':
-                printf("Binary mwm version:  %s\n", mwm_version);
-                display_running_version();
-                exit(EXIT_SUCCESS);
-                break;
-            case 'V':
-                set_verbosity(true);
-                break;
-            case 'd':
-                LOG("Enabling debug logging\n");
-                set_debug_logging(true);
-                break;
-            case 'l':
-                /* DEPRECATED, ignored for the next 3 versions (3.e, 3.f, 3.g) */
-                break;
-            case 'r':
-                replace_wm = true;
-                break;
-            case 0:
-                if (strcmp(long_options[option_index].name, "disable-randr15") == 0 ||
-                           strcmp(long_options[option_index].name, "disable_randr15") == 0) {
-                    disable_randr15 = true;
-                    break;
-                } else if (strcmp(long_options[option_index].name, "disable-signalhandler") == 0) {
-                    disable_signalhandler = true;
-                    break;
-                } else if (strcmp(long_options[option_index].name, "get-socketpath") == 0 ||
-                           strcmp(long_options[option_index].name, "get_socketpath") == 0) {
-                    char *socket_path = root_atom_contents("MWM_SOCKET_PATH", NULL, 0);
-                    if (socket_path) {
-                        printf("%s\n", socket_path);
-                        /* With -O2 (i.e. the buildtype=debugoptimized meson
-                         * option, which we set by default), gcc 9.2.1 optimizes
-                         * away socket_path at this point, resulting in a Leak
-                         * Sanitizer report. An explicit free helps: */
-                        free(socket_path);
-                        exit(EXIT_SUCCESS);
-                    }
-
-                    exit(EXIT_FAILURE);
-                } else if (strcmp(long_options[option_index].name, "shmlog-size") == 0 ||
-                           strcmp(long_options[option_index].name, "shmlog_size") == 0) {
-                    shmlog_size = atoi(optarg);
-                    /* Re-initialize logging immediately to get as many
-                     * logmessages as possible into the SHM log. */
-                    init_logging();
-                    LOG("Limiting SHM log size to %d bytes\n", shmlog_size);
-                    break;
-                } else if (strcmp(long_options[option_index].name, "restart") == 0) {
-                    FREE(layout_path);
-                    layout_path = sstrdup(optarg);
-                    delete_layout_path = true;
-                    break;
-                } else if (strcmp(long_options[option_index].name, "fake-outputs") == 0 ||
-                           strcmp(long_options[option_index].name, "fake_outputs") == 0) {
-                    LOG("Initializing fake outputs: %s\n", optarg);
-                    fake_outputs = sstrdup(optarg);
-                    break;
-                } else if (strcmp(long_options[option_index].name, "force-old-config-parser-v4.4-only") == 0) {
-                    ELOG("You are passing --force-old-config-parser-v4.4-only, but that flag was removed by now.\n");
-                    break;
-                }
-            /* fall-through */
-            default:
-                fprintf(stderr, "Usage: %s [-c configfile] [-d all] [-a] [-v] [-V] [-C]\n", argv[0]);
-                fprintf(stderr, "\n");
-                fprintf(stderr, "\t-a          disable autostart ('exec' lines in config)\n");
-                fprintf(stderr, "\t-c <file>   use the provided configfile instead\n");
-                fprintf(stderr, "\t-C          validate configuration file and exit\n");
-                fprintf(stderr, "\t-d all      enable debug output\n");
-                fprintf(stderr, "\t-L <file>   path to the serialized layout during restarts\n");
-                fprintf(stderr, "\t-v          display version and exit\n");
-                fprintf(stderr, "\t-V          enable verbose mode\n");
-                fprintf(stderr, "\n");
-                fprintf(stderr, "\t--get-socketpath\n"
-                                "\tRetrieve the mwm IPC socket path from X11, print it, then exit.\n");
-                fprintf(stderr, "\n");
-                fprintf(stderr, "\t--shmlog-size <limit>\n"
-                                "\tLimits the size of the mwm SHM log to <limit> bytes. Setting this\n"
-                                "\tto 0 disables SHM logging entirely.\n"
-                                "\tThe default is %d bytes.\n",
-                        shmlog_size);
-                fprintf(stderr, "\n");
-                fprintf(stderr, "\t--replace\n"
-                                "\tReplace an existing window manager.\n");
-                fprintf(stderr, "\n");
-                fprintf(stderr, "If you pass plain text arguments, mwm will interpret them as a command\n"
-                                "to send to a currently running mwm (like mwm-msg). This allows you to\n"
-                                "use nice and logical commands, such as:\n"
-                                "\n"
-                                "\tmwm border none\n"
-                                "\tmwm floating toggle\n"
-                                "\tmwm kill window\n"
-                                "\n");
-                exit(opt == 'h' ? EXIT_SUCCESS : EXIT_FAILURE);
+            }
+        /* fall-through */
+        default:
+            fprintf(stderr, "Usage: %s [-c configfile] [-d all] [-a] [-v] [-V] [-C]\n", argv[0]);
+            fprintf(stderr, "\n");
+            fprintf(stderr, "\t-a          disable autostart ('exec' lines in config)\n");
+            fprintf(stderr, "\t-c <file>   use the provided configfile instead\n");
+            fprintf(stderr, "\t-C          validate configuration file and exit\n");
+            fprintf(stderr, "\t-d all      enable debug output\n");
+            fprintf(stderr, "\t-L <file>   path to the serialized layout during restarts\n");
+            fprintf(stderr, "\t-v          display version and exit\n");
+            fprintf(stderr, "\t-V          enable verbose mode\n");
+            fprintf(stderr, "\n");
+            fprintf(stderr, "\t--get-socketpath\n"
+                            "\tRetrieve the mwm IPC socket path from X11, print it, then exit.\n");
+            fprintf(stderr, "\n");
+            fprintf(stderr, "\t--shmlog-size <limit>\n"
+                            "\tLimits the size of the mwm SHM log to <limit> bytes. Setting this\n"
+                            "\tto 0 disables SHM logging entirely.\n"
+                            "\tThe default is %d bytes.\n",
+                    shmlog_size);
+            fprintf(stderr, "\n");
+            fprintf(stderr, "\t--replace\n"
+                            "\tReplace an existing window manager.\n");
+            fprintf(stderr, "\n");
+            fprintf(stderr, "If you pass plain text arguments, mwm will interpret them as a command\n"
+                            "to send to a currently running mwm (like mwm-msg). This allows you to\n"
+                            "use nice and logical commands, such as:\n"
+                            "\n"
+                            "\tmwm border none\n"
+                            "\tmwm floating toggle\n"
+                            "\tmwm kill window\n"
+                            "\n");
+            exit(opt == 'h' ? EXIT_SUCCESS : EXIT_FAILURE);
         }
     }
 

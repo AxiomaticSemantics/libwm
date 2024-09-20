@@ -8,12 +8,14 @@
 #include "libmwm.h"
 
 #include <assert.h>
-#include <cairo/cairo-xcb.h>
 #include <err.h>
-#include <pango/pangocairo.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <cairo/cairo-xcb.h>
+#include <pango/pangocairo.h>
 
 static const mwmFont *savedFont = NULL;
 
@@ -159,9 +161,7 @@ mwmFont load_font(const char *pattern, const bool fallback) {
     /* if any font was previously loaded, free it now */
     free_font();
 
-    mwmFont font;
-    font.type = FONT_TYPE_NONE;
-    font.pattern = NULL;
+    mwmFont font = {.type = FONT_TYPE_NONE};
 
     /* No XCB connection, return early because we're just validating the
      * configuration file. */
@@ -269,19 +269,19 @@ void free_font(void) {
 
     free(savedFont->pattern);
     switch (savedFont->type) {
-        case FONT_TYPE_NONE:
-            /* Nothing to do */
-            break;
-        case FONT_TYPE_XCB: {
-            /* Close the font and free the info */
-            xcb_close_font(conn, savedFont->specific.xcb.id);
-            free(savedFont->specific.xcb.info);
-            break;
-        }
-        case FONT_TYPE_PANGO:
-            /* Free the font description */
-            pango_font_description_free(savedFont->specific.pango_desc);
-            break;
+    case FONT_TYPE_NONE:
+        /* Nothing to do */
+        break;
+    case FONT_TYPE_XCB: {
+        /* Close the font and free the info */
+        xcb_close_font(conn, savedFont->specific.xcb.id);
+        free(savedFont->specific.xcb.info);
+        break;
+    }
+    case FONT_TYPE_PANGO:
+        /* Free the font description */
+        pango_font_description_free(savedFont->specific.pango_desc);
+        break;
     }
 
     savedFont = NULL;
@@ -295,23 +295,23 @@ void set_font_colors(xcb_gcontext_t gc, color_t foreground, color_t background) 
     assert(savedFont != NULL);
 
     switch (savedFont->type) {
-        case FONT_TYPE_NONE:
-            /* Nothing to do */
-            break;
-        case FONT_TYPE_XCB: {
-            /* Change the font and colors in the GC */
-            uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_FONT;
-            uint32_t values[] = {foreground.colorpixel, background.colorpixel, savedFont->specific.xcb.id};
-            xcb_change_gc(conn, gc, mask, values);
-            break;
-        }
-        case FONT_TYPE_PANGO:
-            /* Save the foreground font */
-            pango_font_red = foreground.red;
-            pango_font_green = foreground.green;
-            pango_font_blue = foreground.blue;
-            pango_font_alpha = foreground.alpha;
-            break;
+    case FONT_TYPE_NONE:
+        /* Nothing to do */
+        break;
+    case FONT_TYPE_XCB: {
+        /* Change the font and colors in the GC */
+        uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_FONT;
+        uint32_t values[] = {foreground.colorpixel, background.colorpixel, savedFont->specific.xcb.id};
+        xcb_change_gc(conn, gc, mask, values);
+        break;
+    }
+    case FONT_TYPE_PANGO:
+        /* Save the foreground font */
+        pango_font_red = foreground.red;
+        pango_font_green = foreground.green;
+        pango_font_blue = foreground.blue;
+        pango_font_alpha = foreground.alpha;
+        break;
     }
 }
 
@@ -368,18 +368,18 @@ void draw_text(mwmString *text, xcb_drawable_t drawable, xcb_gcontext_t gc,
     assert(savedFont != NULL);
 
     switch (savedFont->type) {
-        case FONT_TYPE_NONE:
-            /* Nothing to do */
-            return;
-        case FONT_TYPE_XCB:
-            draw_text_xcb(mwmstring_as_ucs2(text), mwmstring_get_num_glyphs(text),
-                          drawable, gc, x, y);
-            break;
-        case FONT_TYPE_PANGO:
-            /* Render the text using Pango */
-            draw_text_pango(mwmstring_as_utf8(text), mwmstring_get_num_bytes(text),
-                            drawable, surface, x, y, max_width, mwmstring_is_markup(text));
-            return;
+    case FONT_TYPE_NONE:
+        /* Nothing to do */
+        return;
+    case FONT_TYPE_XCB:
+        draw_text_xcb(mwmstring_as_ucs2(text), mwmstring_get_num_glyphs(text),
+                      drawable, gc, x, y);
+        break;
+    case FONT_TYPE_PANGO:
+        /* Render the text using Pango */
+        draw_text_pango(mwmstring_as_utf8(text), mwmstring_get_num_bytes(text),
+                        drawable, surface, x, y, max_width, mwmstring_is_markup(text));
+        return;
     }
 }
 
@@ -466,15 +466,15 @@ int predict_text_width(mwmString *text) {
     assert(savedFont != NULL);
 
     switch (savedFont->type) {
-        case FONT_TYPE_NONE:
-            /* Nothing to do */
-            return 0;
-        case FONT_TYPE_XCB:
-            return predict_text_width_xcb(mwmstring_as_ucs2(text), mwmstring_get_num_glyphs(text));
-        case FONT_TYPE_PANGO:
-            /* Calculate extents using Pango */
-            return predict_text_width_pango(mwmstring_as_utf8(text), mwmstring_get_num_bytes(text),
-                                            mwmstring_is_markup(text));
+    case FONT_TYPE_NONE:
+        /* Nothing to do */
+        return 0;
+    case FONT_TYPE_XCB:
+        return predict_text_width_xcb(mwmstring_as_ucs2(text), mwmstring_get_num_glyphs(text));
+    case FONT_TYPE_PANGO:
+        /* Calculate extents using Pango */
+        return predict_text_width_pango(mwmstring_as_utf8(text), mwmstring_get_num_bytes(text),
+                                        mwmstring_is_markup(text));
     }
     assert(false);
 }

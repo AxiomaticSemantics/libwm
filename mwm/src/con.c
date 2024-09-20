@@ -393,12 +393,12 @@ bool con_is_split(Con *con) {
     }
 
     switch (con->layout) {
-        case L_DOCKAREA:
-        case L_OUTPUT:
-            return false;
+    case L_DOCKAREA:
+    case L_OUTPUT:
+        return false;
 
-        default:
-            return true;
+    default:
+        return true;
     }
 }
 
@@ -449,14 +449,14 @@ bool con_is_maximized(Con *con, orientation_t orientation) {
      * orientation. */
     layout_t layout;
     switch (orientation) {
-        case HORIZ:
-            layout = L_SPLITH;
-            break;
-        case VERT:
-            layout = L_SPLITV;
-            break;
-        default:
-            assert(false);
+    case HORIZ:
+        layout = L_SPLITH;
+        break;
+    case VERT:
+        layout = L_SPLITV;
+        break;
+    default:
+        assert(false);
     }
 
     /* Go through all parents, stopping once we reach the workspace node. */
@@ -1624,24 +1624,24 @@ bool con_move_to_output_name(Con *con, const char *name, bool fix_coordinates) {
  */
 orientation_t con_orientation(Con *con) {
     switch (con->layout) {
-        case L_SPLITV:
-        /* stacking containers behave like they are in vertical orientation */
-        case L_STACKED:
-            return VERT;
+    case L_SPLITV:
+    /* stacking containers behave like they are in vertical orientation */
+    case L_STACKED:
+        return VERT;
 
-        case L_SPLITH:
-        /* tabbed containers behave like they are in vertical orientation */
-        case L_TABBED:
-            return HORIZ;
+    case L_SPLITH:
+    /* tabbed containers behave like they are in vertical orientation */
+    case L_TABBED:
+        return HORIZ;
 
-        case L_DEFAULT:
-            ELOG("Someone called con_orientation() on a con with L_DEFAULT, this is a bug in the code.\n");
-            assert(false);
+    case L_DEFAULT:
+        ELOG("Someone called con_orientation() on a con with L_DEFAULT, this is a bug in the code.\n");
+        assert(false);
 
-        case L_DOCKAREA:
-        case L_OUTPUT:
-            ELOG("con_orientation() called on dockarea/output (%d) container %p\n", con->layout, con);
-            assert(false);
+    case L_DOCKAREA:
+    case L_OUTPUT:
+        ELOG("con_orientation() called on dockarea/output (%d) container %p\n", con->layout, con);
+        assert(false);
     }
     /* should not be reached */
     assert(false);

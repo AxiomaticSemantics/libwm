@@ -232,24 +232,24 @@ void startup_monitor_event(SnMonitorEvent *event, void *userdata) {
     }
 
     switch (sn_monitor_event_get_type(event)) {
-        case SN_MONITOR_EVENT_COMPLETED:
-            DLOG("startup sequence %s completed\n", sn_startup_sequence_get_id(snsequence));
+    case SN_MONITOR_EVENT_COMPLETED:
+        DLOG("startup sequence %s completed\n", sn_startup_sequence_get_id(snsequence));
 
-            /* Mark the given sequence for deletion in 30 seconds. */
-            time_t current_time = time(NULL);
-            sequence->delete_at = current_time + 30;
-            DLOG("Will delete startup sequence %s at timestamp %lld\n",
-                 sequence->id, (long long)sequence->delete_at);
+        /* Mark the given sequence for deletion in 30 seconds. */
+        time_t current_time = time(NULL);
+        sequence->delete_at = current_time + 30;
+        DLOG("Will delete startup sequence %s at timestamp %lld\n",
+             sequence->id, (long long)sequence->delete_at);
 
-            if (_prune_startup_sequences() == 0) {
-                DLOG("No more startup sequences running, changing root window cursor to default pointer.\n");
-                /* Change the pointer of the root window to indicate progress */
-                xcursor_set_root_cursor(XCURSOR_CURSOR_POINTER);
-            }
-            break;
-        default:
-            /* ignore */
-            break;
+        if (_prune_startup_sequences() == 0) {
+            DLOG("No more startup sequences running, changing root window cursor to default pointer.\n");
+            /* Change the pointer of the root window to indicate progress */
+            xcursor_set_root_cursor(XCURSOR_CURSOR_POINTER);
+        }
+        break;
+    default:
+        /* ignore */
+        break;
     }
 }
 

@@ -240,11 +240,11 @@ void mwmstring_free(mwmString *str);
  *
  */
 #define MWMSTRING_FREE(str)      \
-    do {                        \
-        if (str != NULL) {      \
+    do {                         \
+        if (str != NULL) {       \
             mwmstring_free(str); \
-            str = NULL;         \
-        }                       \
+            str = NULL;          \
+        }                        \
     } while (0)
 
 /**

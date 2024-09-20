@@ -75,9 +75,9 @@ xcb_visualtype_t *visual_type = NULL;
 #define WIN_HEIGHT (15 * font.height + TEXT_PADDING)
 
 #define col_x(col) \
-    (((col)-1) * char_width + TEXT_PADDING)
+    (((col) - 1) * char_width + TEXT_PADDING)
 #define row_y(row) \
-    (((row)-1) * font.height + TEXT_PADDING)
+    (((row) - 1) * font.height + TEXT_PADDING)
 
 enum { STEP_WELCOME,
        STEP_GENERATE } current_step = STEP_WELCOME;
@@ -800,27 +800,27 @@ int main(int argc, char *argv[]) {
 
     while ((o = getopt_long(argc, argv, options_string, long_options, &option_index)) != -1) {
         switch (o) {
-            case 's':
-                FREE(socket_path);
-                socket_path = sstrdup(optarg);
-                break;
-            case 'v':
-                printf("mwm-config-wizard " MWM_VERSION "\n");
-                return 0;
-            case 'm':
-                headless_run = true;
-                if (strcmp(optarg, "alt") == 0) {
-                    modifier = MOD_Mod1;
-                } else if (strcmp(optarg, "win") == 0) {
-                    modifier = MOD_Mod4;
-                } else {
-                    err(EXIT_FAILURE, "Invalid modifier key %s", optarg);
-                }
-                break;
-            case 'h':
-                printf("mwm-config-wizard " MWM_VERSION "\n");
-                printf("mwm-config-wizard [-s <socket>] [-m win|alt] [-v] [-h]\n");
-                return 0;
+        case 's':
+            FREE(socket_path);
+            socket_path = sstrdup(optarg);
+            break;
+        case 'v':
+            printf("mwm-config-wizard " MWM_VERSION "\n");
+            return 0;
+        case 'm':
+            headless_run = true;
+            if (strcmp(optarg, "alt") == 0) {
+                modifier = MOD_Mod1;
+            } else if (strcmp(optarg, "win") == 0) {
+                modifier = MOD_Mod4;
+            } else {
+                err(EXIT_FAILURE, "Invalid modifier key %s", optarg);
+            }
+            break;
+        case 'h':
+            printf("mwm-config-wizard " MWM_VERSION "\n");
+            printf("mwm-config-wizard [-s <socket>] [-m win|alt] [-v] [-h]\n");
+            return 0;
         }
     }
 
@@ -1014,20 +1014,20 @@ int main(int argc, char *argv[]) {
 
         /* TODO: handle mappingnotify */
         switch (type) {
-            case XCB_KEY_PRESS:
-                handle_key_press(NULL, conn, (xcb_key_press_event_t *)event);
-                break;
+        case XCB_KEY_PRESS:
+            handle_key_press(NULL, conn, (xcb_key_press_event_t *)event);
+            break;
 
-            case XCB_BUTTON_PRESS:
-                handle_button_press((xcb_button_press_event_t *)event);
-                break;
+        case XCB_BUTTON_PRESS:
+            handle_button_press((xcb_button_press_event_t *)event);
+            break;
 
-            case XCB_EXPOSE:
-                if (((xcb_expose_event_t *)event)->count == 0) {
-                    handle_expose();
-                }
+        case XCB_EXPOSE:
+            if (((xcb_expose_event_t *)event)->count == 0) {
+                handle_expose();
+            }
 
-                break;
+            break;
         }
 
         free(event);

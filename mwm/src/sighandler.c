@@ -312,15 +312,15 @@ static void handle_signal(int sig, siginfo_t *info, void *data) {
         /* Strip off the highest bit (set if the event is generated) */
         int type = (event->response_type & 0x7F);
         switch (type) {
-            case XCB_KEY_PRESS:
-                sighandler_handle_key_press((xcb_key_press_event_t *)event);
-                break;
-            case XCB_EXPOSE:
-                if (((xcb_expose_event_t *)event)->count == 0) {
-                    sighandler_handle_expose();
-                }
+        case XCB_KEY_PRESS:
+            sighandler_handle_key_press((xcb_key_press_event_t *)event);
+            break;
+        case XCB_EXPOSE:
+            if (((xcb_expose_event_t *)event)->count == 0) {
+                sighandler_handle_expose();
+            }
 
-                break;
+            break;
         }
 
         free(event);

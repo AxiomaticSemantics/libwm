@@ -948,15 +948,15 @@ static void handle_client_message(xcb_client_message_event_t *event) {
             .event_x = x_root - (con->rect.x),
             .event_y = y_root - (con->rect.y)};
         switch (direction) {
-            case _NET_WM_MOVERESIZE_MOVE:
-                floating_drag_window(con->parent, &fake, false);
-                break;
-            case _NET_WM_MOVERESIZE_SIZE_TOPLEFT ... _NET_WM_MOVERESIZE_SIZE_LEFT:
-                floating_resize_window(con->parent, false, &fake);
-                break;
-            default:
-                DLOG("_NET_WM_MOVERESIZE direction %d not implemented\n", direction);
-                break;
+        case _NET_WM_MOVERESIZE_MOVE:
+            floating_drag_window(con->parent, &fake, false);
+            break;
+        case _NET_WM_MOVERESIZE_SIZE_TOPLEFT ... _NET_WM_MOVERESIZE_SIZE_LEFT:
+            floating_resize_window(con->parent, false, &fake);
+            break;
+        default:
+            DLOG("_NET_WM_MOVERESIZE direction %d not implemented\n", direction);
+            break;
         }
     } else if (event->type == A__NET_MOVERESIZE_WINDOW) {
         DLOG("Received _NET_MOVE_RESIZE_WINDOW. Handling by faking a configure request.\n");
@@ -1129,51 +1129,51 @@ static void handle_focus_out(xcb_focus_in_event_t *event) {
     }
 
     switch (event->mode) {
-        case XCB_NOTIFY_MODE_NORMAL:
-            mode = "Normal";
-            break;
-        case XCB_NOTIFY_MODE_GRAB:
-            mode = "Grab";
-            break;
-        case XCB_NOTIFY_MODE_UNGRAB:
-            mode = "Ungrab";
-            break;
-        case XCB_NOTIFY_MODE_WHILE_GRABBED:
-            mode = "WhileGrabbed";
-            break;
-        default:
-            mode = "<unknown>";
-            break;
+    case XCB_NOTIFY_MODE_NORMAL:
+        mode = "Normal";
+        break;
+    case XCB_NOTIFY_MODE_GRAB:
+        mode = "Grab";
+        break;
+    case XCB_NOTIFY_MODE_UNGRAB:
+        mode = "Ungrab";
+        break;
+    case XCB_NOTIFY_MODE_WHILE_GRABBED:
+        mode = "WhileGrabbed";
+        break;
+    default:
+        mode = "<unknown>";
+        break;
     }
 
     switch (event->detail) {
-        case XCB_NOTIFY_DETAIL_ANCESTOR:
-            detail = "Ancestor";
-            break;
-        case XCB_NOTIFY_DETAIL_VIRTUAL:
-            detail = "Virtual";
-            break;
-        case XCB_NOTIFY_DETAIL_INFERIOR:
-            detail = "Inferior";
-            break;
-        case XCB_NOTIFY_DETAIL_NONLINEAR:
-            detail = "Nonlinear";
-            break;
-        case XCB_NOTIFY_DETAIL_NONLINEAR_VIRTUAL:
-            detail = "NonlinearVirtual";
-            break;
-        case XCB_NOTIFY_DETAIL_POINTER:
-            detail = "Pointer";
-            break;
-        case XCB_NOTIFY_DETAIL_POINTER_ROOT:
-            detail = "PointerRoot";
-            break;
-        case XCB_NOTIFY_DETAIL_NONE:
-            detail = "NONE";
-            break;
-        default:
-            detail = "unknown";
-            break;
+    case XCB_NOTIFY_DETAIL_ANCESTOR:
+        detail = "Ancestor";
+        break;
+    case XCB_NOTIFY_DETAIL_VIRTUAL:
+        detail = "Virtual";
+        break;
+    case XCB_NOTIFY_DETAIL_INFERIOR:
+        detail = "Inferior";
+        break;
+    case XCB_NOTIFY_DETAIL_NONLINEAR:
+        detail = "Nonlinear";
+        break;
+    case XCB_NOTIFY_DETAIL_NONLINEAR_VIRTUAL:
+        detail = "NonlinearVirtual";
+        break;
+    case XCB_NOTIFY_DETAIL_POINTER:
+        detail = "Pointer";
+        break;
+    case XCB_NOTIFY_DETAIL_POINTER_ROOT:
+        detail = "PointerRoot";
+        break;
+    case XCB_NOTIFY_DETAIL_NONE:
+        detail = "NONE";
+        break;
+    default:
+        detail = "unknown";
+        break;
     }
 
     DLOG("focus change out: window 0x%08x (con %p, %s) lost focus with detail=%s, mode=%s\n", event->event, con, window_name, detail, mode);
@@ -1498,86 +1498,86 @@ void handle_event(int type, xcb_generic_event_t *event) {
     }
 
     switch (type) {
-        case XCB_KEY_PRESS:
-        case XCB_KEY_RELEASE:
-            handle_key_press((xcb_key_press_event_t *)event);
-            break;
+    case XCB_KEY_PRESS:
+    case XCB_KEY_RELEASE:
+        handle_key_press((xcb_key_press_event_t *)event);
+        break;
 
-        case XCB_BUTTON_PRESS:
-        case XCB_BUTTON_RELEASE:
-            handle_button_press((xcb_button_press_event_t *)event);
-            break;
+    case XCB_BUTTON_PRESS:
+    case XCB_BUTTON_RELEASE:
+        handle_button_press((xcb_button_press_event_t *)event);
+        break;
 
-        case XCB_MAP_REQUEST:
-            handle_map_request((xcb_map_request_event_t *)event);
-            break;
+    case XCB_MAP_REQUEST:
+        handle_map_request((xcb_map_request_event_t *)event);
+        break;
 
-        case XCB_UNMAP_NOTIFY:
-            handle_unmap_notify_event((xcb_unmap_notify_event_t *)event);
-            break;
+    case XCB_UNMAP_NOTIFY:
+        handle_unmap_notify_event((xcb_unmap_notify_event_t *)event);
+        break;
 
-        case XCB_DESTROY_NOTIFY:
-            handle_destroy_notify_event((xcb_destroy_notify_event_t *)event);
-            break;
+    case XCB_DESTROY_NOTIFY:
+        handle_destroy_notify_event((xcb_destroy_notify_event_t *)event);
+        break;
 
-        case XCB_EXPOSE:
-            if (((xcb_expose_event_t *)event)->count == 0) {
-                handle_expose_event((xcb_expose_event_t *)event);
-            }
-
-            break;
-
-        case XCB_MOTION_NOTIFY:
-            handle_motion_notify((xcb_motion_notify_event_t *)event);
-            break;
-
-        /* Enter window = user moved their mouse over the window */
-        case XCB_ENTER_NOTIFY:
-            handle_enter_notify((xcb_enter_notify_event_t *)event);
-            break;
-
-        /* Client message are sent to the root window. The only interesting
-         * client message for us is _NET_WM_STATE, we honour
-         * _NET_WM_STATE_FULLSCREEN and _NET_WM_STATE_DEMANDS_ATTENTION */
-        case XCB_CLIENT_MESSAGE:
-            handle_client_message((xcb_client_message_event_t *)event);
-            break;
-
-        /* Configure request = window tried to change size on its own */
-        case XCB_CONFIGURE_REQUEST:
-            handle_configure_request((xcb_configure_request_event_t *)event);
-            break;
-
-        /* Mapping notify = keyboard mapping changed (Xmodmap), re-grab bindings */
-        case XCB_MAPPING_NOTIFY:
-            handle_mapping_notify((xcb_mapping_notify_event_t *)event);
-            break;
-
-        case XCB_FOCUS_IN:
-            handle_focus_in((xcb_focus_in_event_t *)event);
-            break;
-
-        case XCB_FOCUS_OUT:
-            handle_focus_out((xcb_focus_out_event_t *)event);
-            break;
-
-        case XCB_PROPERTY_NOTIFY: {
-            xcb_property_notify_event_t *e = (xcb_property_notify_event_t *)event;
-            last_timestamp = e->time;
-            property_notify(e->state, e->window, e->atom);
-            break;
+    case XCB_EXPOSE:
+        if (((xcb_expose_event_t *)event)->count == 0) {
+            handle_expose_event((xcb_expose_event_t *)event);
         }
 
-        case XCB_CONFIGURE_NOTIFY:
-            handle_configure_notify((xcb_configure_notify_event_t *)event);
-            break;
+        break;
 
-        case XCB_SELECTION_CLEAR:
-            handle_selection_clear((xcb_selection_clear_event_t *)event);
-            break;
+    case XCB_MOTION_NOTIFY:
+        handle_motion_notify((xcb_motion_notify_event_t *)event);
+        break;
 
-        default:
-            /* DLOG("Unhandled event of type %d\n", type); */
-            break;
+    /* Enter window = user moved their mouse over the window */
+    case XCB_ENTER_NOTIFY:
+        handle_enter_notify((xcb_enter_notify_event_t *)event);
+        break;
+
+    /* Client message are sent to the root window. The only interesting
+     * client message for us is _NET_WM_STATE, we honour
+     * _NET_WM_STATE_FULLSCREEN and _NET_WM_STATE_DEMANDS_ATTENTION */
+    case XCB_CLIENT_MESSAGE:
+        handle_client_message((xcb_client_message_event_t *)event);
+        break;
+
+    /* Configure request = window tried to change size on its own */
+    case XCB_CONFIGURE_REQUEST:
+        handle_configure_request((xcb_configure_request_event_t *)event);
+        break;
+
+    /* Mapping notify = keyboard mapping changed (Xmodmap), re-grab bindings */
+    case XCB_MAPPING_NOTIFY:
+        handle_mapping_notify((xcb_mapping_notify_event_t *)event);
+        break;
+
+    case XCB_FOCUS_IN:
+        handle_focus_in((xcb_focus_in_event_t *)event);
+        break;
+
+    case XCB_FOCUS_OUT:
+        handle_focus_out((xcb_focus_out_event_t *)event);
+        break;
+
+    case XCB_PROPERTY_NOTIFY: {
+        xcb_property_notify_event_t *e = (xcb_property_notify_event_t *)event;
+        last_timestamp = e->time;
+        property_notify(e->state, e->window, e->atom);
+        break;
+    }
+
+    case XCB_CONFIGURE_NOTIFY:
+        handle_configure_notify((xcb_configure_notify_event_t *)event);
+        break;
+
+    case XCB_SELECTION_CLEAR:
+        handle_selection_clear((xcb_selection_clear_event_t *)event);
+        break;
+
+    default:
+        /* DLOG("Unhandled event of type %d\n", type); */
+        break;
     }
 }

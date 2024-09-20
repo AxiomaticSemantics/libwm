@@ -27,21 +27,21 @@ static bool tiling_resize_for_border(Con *con, border_t border, xcb_button_press
     Con *first = con;
     direction_t search_direction;
     switch (border) {
-        case BORDER_LEFT:
-            search_direction = D_LEFT;
-            break;
-        case BORDER_RIGHT:
-            search_direction = D_RIGHT;
-            break;
-        case BORDER_TOP:
-            search_direction = D_UP;
-            break;
-        case BORDER_BOTTOM:
-            search_direction = D_DOWN;
-            break;
-        default:
-            ELOG("BUG: invalid border value %d\n", border);
-            return false;
+    case BORDER_LEFT:
+        search_direction = D_LEFT;
+        break;
+    case BORDER_RIGHT:
+        search_direction = D_RIGHT;
+        break;
+    case BORDER_TOP:
+        search_direction = D_UP;
+        break;
+    case BORDER_BOTTOM:
+        search_direction = D_DOWN;
+        break;
+    default:
+        ELOG("BUG: invalid border value %d\n", border);
+        return false;
     }
 
     bool res = resize_find_tiling_participants(&first, &second, search_direction, false);

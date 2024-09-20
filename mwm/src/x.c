@@ -180,8 +180,8 @@ void x_con_init(Con *con) {
                         "mwm-frame\0mwm-frame\0");
 
     struct con_state *state = scalloc(1, sizeof(struct con_state));
-    *state = (struct con_state) { .id=con->frame.id, .initial=true };
-    
+    *state = (struct con_state){.id = con->frame.id, .initial = true};
+
     DLOG("Adding window 0x%08x to lists\n", state->id);
     CIRCLEQ_INSERT_HEAD(&state_head, state, state);
     CIRCLEQ_INSERT_HEAD(&old_state_head, state, old_state);
@@ -715,36 +715,36 @@ void x_draw_decoration(Con *con) {
     int icon_offset_x;
     int title_offset_x;
     switch (config.title_align) {
-        case ALIGN_LEFT:
-            /* (pad)[(pad)(icon)(pad)][text    ](pad)[mark + its pad)
-             *             ^           ^--- title_offset_x
-             *             ^--- icon_offset_x */
-            icon_offset_x = icon_padding;
-            title_offset_x = title_padding + total_icon_space;
-            break;
-        case ALIGN_CENTER:
-            /* (pad)[  ][(pad)(icon)(pad)][text  ](pad)[mark + its pad)
-             *                 ^           ^--- title_offset_x
-             *                 ^--- icon_offset_x
-             * Text should come right after the icon (+padding). We calculate
-             * the offset for the icon (white space in the title) by dividing
-             * by two the total available area. That's the decoration width
-             * minus the elements that come after icon_offset_x (icon, its
-             * padding, text, marks). */
-            icon_offset_x = max(icon_padding, (deco_width - icon_padding - icon_size - predict_text_width(title) - title_padding - mark_width) / 2);
-            title_offset_x = max(title_padding, icon_offset_x + icon_padding + icon_size);
-            break;
-        case ALIGN_RIGHT:
-            /* [mark + its pad](pad)[    text][(pad)(icon)(pad)](pad)
-             *                           ^           ^--- icon_offset_x
-             *                           ^--- title_offset_x */
-            title_offset_x = max(title_padding + mark_width, deco_width - title_padding - predict_text_width(title) - total_icon_space);
-            /* Make sure the icon does not escape title boundaries */
-            icon_offset_x = min(deco_width - icon_size - icon_padding - title_padding, title_offset_x + predict_text_width(title) + icon_padding);
-            break;
-        default:
-            ELOG("BUG: invalid config.title_align value %d\n", config.title_align);
-            return;
+    case ALIGN_LEFT:
+        /* (pad)[(pad)(icon)(pad)][text    ](pad)[mark + its pad)
+         *             ^           ^--- title_offset_x
+         *             ^--- icon_offset_x */
+        icon_offset_x = icon_padding;
+        title_offset_x = title_padding + total_icon_space;
+        break;
+    case ALIGN_CENTER:
+        /* (pad)[  ][(pad)(icon)(pad)][text  ](pad)[mark + its pad)
+         *                 ^           ^--- title_offset_x
+         *                 ^--- icon_offset_x
+         * Text should come right after the icon (+padding). We calculate
+         * the offset for the icon (white space in the title) by dividing
+         * by two the total available area. That's the decoration width
+         * minus the elements that come after icon_offset_x (icon, its
+         * padding, text, marks). */
+        icon_offset_x = max(icon_padding, (deco_width - icon_padding - icon_size - predict_text_width(title) - title_padding - mark_width) / 2);
+        title_offset_x = max(title_padding, icon_offset_x + icon_padding + icon_size);
+        break;
+    case ALIGN_RIGHT:
+        /* [mark + its pad](pad)[    text][(pad)(icon)(pad)](pad)
+         *                           ^           ^--- icon_offset_x
+         *                           ^--- title_offset_x */
+        title_offset_x = max(title_padding + mark_width, deco_width - title_padding - predict_text_width(title) - total_icon_space);
+        /* Make sure the icon does not escape title boundaries */
+        icon_offset_x = min(deco_width - icon_size - icon_padding - title_padding, title_offset_x + predict_text_width(title) + icon_padding);
+        break;
+    default:
+        ELOG("BUG: invalid config.title_align value %d\n", config.title_align);
+        return;
     }
 
     draw_util_text(title, dest_surface,
@@ -1575,16 +1575,16 @@ void x_set_shape(Con *con, xcb_shape_sk_t kind, bool enable) {
     }
 
     switch (kind) {
-        case XCB_SHAPE_SK_BOUNDING:
-            con->window->shaped = enable;
-            break;
-        case XCB_SHAPE_SK_INPUT:
-            con->window->input_shaped = enable;
-            break;
-        default:
-            ELOG("Received unknown shape event kind for con %p. This is a bug.\n",
-                 con);
-            return;
+    case XCB_SHAPE_SK_BOUNDING:
+        con->window->shaped = enable;
+        break;
+    case XCB_SHAPE_SK_INPUT:
+        con->window->input_shaped = enable;
+        break;
+    default:
+        ELOG("Received unknown shape event kind for con %p. This is a bug.\n",
+             con);
+        return;
     }
 
     if (con_is_floating(con)) {

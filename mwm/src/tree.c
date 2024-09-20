@@ -558,21 +558,21 @@ static Con *get_tree_next(Con *con, direction_t direction) {
             Con *const wrap = previous ? TAILQ_LAST(&(parent->nodes_head), nodes_head)
                                        : TAILQ_FIRST(&(parent->nodes_head));
             switch (config.focus_wrapping) {
-                case FOCUS_WRAPPING_OFF:
-                    break;
-                case FOCUS_WRAPPING_WORKSPACE:
-                case FOCUS_WRAPPING_ON:
-                    if (!first_wrap && con_fullscreen_permits_focusing(wrap)) {
-                        first_wrap = wrap;
-                    }
-                    break;
-                case FOCUS_WRAPPING_FORCE:
-                    /* 'force' should always return to ensure focus doesn't
-                     * leave the parent. */
-                    if (next) {
-                        return NULL; /* blocked by fullscreen */
-                    }
-                    return con_fullscreen_permits_focusing(wrap) ? wrap : NULL;
+            case FOCUS_WRAPPING_OFF:
+                break;
+            case FOCUS_WRAPPING_WORKSPACE:
+            case FOCUS_WRAPPING_ON:
+                if (!first_wrap && con_fullscreen_permits_focusing(wrap)) {
+                    first_wrap = wrap;
+                }
+                break;
+            case FOCUS_WRAPPING_FORCE:
+                /* 'force' should always return to ensure focus doesn't
+                 * leave the parent. */
+                if (next) {
+                    return NULL; /* blocked by fullscreen */
+                }
+                return con_fullscreen_permits_focusing(wrap) ? wrap : NULL;
             }
         }
 
