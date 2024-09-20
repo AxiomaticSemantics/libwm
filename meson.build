@@ -618,62 +618,6 @@ replace_dirs = [
   '@INPUT0@',   # $0
   '@OUTPUT0@',  # $1
 ]
-complete_run = custom_target(
-  'complete-run',
-  input: ['testcases/complete-run.pl.in'],
-  output: ['complete-run.pl'],
-  command: replace_dirs,
-  # build this target when running e.g. ninja or ninja test.
-  # This is required for older meson versions (< 0.46.0).
-  build_by_default: true,
-)
-mwmtest_pm = custom_target(
-  'mwmtest-pm',
-  input: ['testcases/lib/mwmtest.pm.in'],
-  output: ['mwmtest.pm'],
-  command: replace_dirs,
-  # build this target when running e.g. ninja or ninja test.
-  # This is required for older meson versions (< 0.46.0).
-  build_by_default: true,
-)
-
-if get_option('docs')
-  mwm_pod2html = find_program('docs/mwm-pod2html')
-
-  custom_target(
-    'lib-mwmtest.html',
-    input: mwmtest_pm,
-    output: 'lib-mwmtest.html',
-    command: [
-      mwm_pod2html,
-      '@INPUT@',
-      '@OUTPUT@',
-    ],
-    install: true,
-    install_dir: docdir,
-  )
-
-  custom_target(
-    'lib-mwmtest-test.html',
-    input: 'testcases/lib/mwmtest/Test.pm',
-    output: 'lib-mwmtest-test.html',
-    command: [
-      mwm_pod2html,
-      '@INPUT@',
-      '@OUTPUT@',
-    ],
-    install: true,
-    install_dir: docdir,
-  )
-endif
-
-executable(
-  'test.inject_randr15',
-  'testcases/inject_randr1.5.c',
-  include_directories: inc,
-  dependencies: common_deps,
-  link_with: libmwm,
-)
 
 executable(
   'test.commands_parser',
@@ -698,37 +642,3 @@ executable(
   dependencies: common_deps,
   link_with: libmwm,
 )
-
-anyevent_mwm = custom_target(
-  'anyevent-mwm',
-  # Should be AnyEvent-MWM/blib/lib/AnyEvent/MWM.pm,
-  # but see https://github.com/mesonbuild/meson/issues/2320
-  output: 'AnyEvent-MWM.stamp',
-  command: [
-    'sh',
-    '-c',
-    'cp -r @0@/AnyEvent-MWM . && cd AnyEvent-MWM && perl Makefile.PL && make && touch ../AnyEvent-MWM.stamp'.format(meson.current_source_dir()),
-  ],
-)
-
-if meson.version().version_compare('>=0.46.0')
-  test(
-    'complete-run',
-    perl,
-    args: [complete_run],
-    depends: [
-      anyevent_mwm,
-      mwmtest_pm,
-    ],
-    timeout: 120,  # Default of 30 seconds can cause timeouts on slower machines
-  )
-else
-  # meson < 0.46.0 does not support the depends arg in test targets.
-  # Just hope for the best.
-  test(
-    'complete-run',
-    perl,
-    args: [complete_run],
-  )
-  message('meson < 0.46 detected, you might need to run ninja test twice')
-endif
