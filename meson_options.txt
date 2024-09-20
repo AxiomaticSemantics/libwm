@@ -1,5 +1,8 @@
 # -*- mode: meson -*-
 
+option('build_libmwm_static', type: 'boolean', value: false,
+       description: 'Enable building libmwm statically')
+
 option('build_bar', type: 'boolean', value: true,
        description: 'Enable building mwm-bar')
 

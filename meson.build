@@ -76,7 +76,6 @@ if get_option('docs')
     'docs/ipc',
     'docs/multi-monitor',
     'docs/wsbar',
-    'docs/testsuite',
     'docs/mwm-bar-protocol',
     'docs/mwm-bar-workspace-protocol',
     'docs/layout-saving',
@@ -126,7 +125,6 @@ else
 	'docs/ipc.html',
 	'docs/multi-monitor.html',
 	'docs/wsbar.html',
-	'docs/testsuite.html',
 	'docs/mwm-bar-protocol.html',
 	'docs/mwm-bar-workspace-protocol.html',
 	'docs/layout-saving.html',
@@ -283,9 +281,7 @@ else
   endif
 endif
 
-if meson.version().version_compare('>=0.53')
-  summary('build manpages (-Dmans)', get_option('mans'))
-endif
+summary('build manpages (-Dmans)', get_option('mans'))
 
 # Required for e.g. struct ucred to be defined as per unix(7).
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
@@ -356,15 +352,19 @@ if not cdata.get('HAVE_MKDIRP')
   libmwmsrcs += 'libmwm/mkdirp.c'
 endif
 
-libmwm = static_library(
-  'mwm',
-  libmwmsrcs,
-  include_directories: inc,
-  dependencies: [
-    pangocairo_dep,
-    config_h,
-  ],
-)
+if get_option('build_libmwm_static')
+  libmwm = static_library(
+    'mwm',
+    libmwmsrcs,
+    include_directories: inc,
+    dependencies: [
+      pangocairo_dep,
+      config_h,
+    ],
+  )
+else
+  libmwm = disabler()
+endif
 
 mwmsrcs = [
   'src/assignments.c',
@@ -446,6 +446,12 @@ mwmsrcs += config_parser
 
 # src/log.c uses threading primitives for synchronization
 thread_dep = dependency('threads')
+
+#if get_option('build_libmwm_static')
+#   libmwm_dep = declare_dependency(link_args: [], dependencies: [libmwm])
+#else
+#   libmwm_dep = disabler()
+#endif
 
 common_deps = [
   thread_dep,
