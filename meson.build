@@ -163,9 +163,7 @@ install_data(
   install_dir: docdir,
 )
 
-if meson.version().version_compare('>=0.53')
-  summary('build docs (-Ddocs)', get_option('docs'))
-endif
+summary('build docs (-Ddocs)', get_option('docs'))
 
 ################################################################################
 # manpages
