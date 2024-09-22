@@ -33,7 +33,4 @@
  mwm-bar, mwm-msg, mwm-input, mwm-nagbar and mwm-config-wizard do not introduce any
  new dependencies.
 
- mwm-dmenu-desktop is implemented in Perl, but has no dependencies besides 
- Perl 5.10.
-
  mwm-save-tree is currently not functional 

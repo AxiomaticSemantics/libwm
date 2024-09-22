@@ -235,7 +235,6 @@ if get_option('mans')
   endforeach
 
   pod2man_inputs = [
-    'mwm-dmenu-desktop',
     'mwm-save-tree',
   ]
   foreach m : pod2man_inputs
@@ -271,7 +270,6 @@ else
 	'man/mwm-sensible-pager.1',
 	'man/mwm-sensible-terminal.1',
 	'man/mwm-dump-log.1',
-	'man/mwm-dmenu-desktop.1',
 	'man/mwm-save-tree.1',
       ],
       install_dir: man1,
@@ -584,7 +582,6 @@ endif
 
 install_data(
   [
-    'mwm-dmenu-desktop',
     'mwm-save-tree',
     'mwm-sensible-editor',
     'mwm-sensible-pager',
