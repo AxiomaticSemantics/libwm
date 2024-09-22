@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 # vim:ts=4:sw=4:expandtab
 #
-# i3 - an improved tiling window manager
+# mwm - an i3 derived tiling window manager
 # © 2009 Michael Stapelberg and contributors (see also: LICENSE)
 #
 # generate-command-parser.pl: script to generate parts of the command parser
@@ -41,7 +41,7 @@ my @lines;
 # parser is in many ways not good — one obvious one is that it is hand-crafted
 # without a good reason, also it preprocesses lines and forgets about line
 # numbers. Luckily, this is just an implementation detail and the specification
-# for the i3 command parser is in-tree (not user input).
+# for the mwm command parser is in-tree (not user input).
 # -- michael, 2012-01-12
 
 # First step of preprocessing:

@@ -315,6 +315,7 @@ mwm_inc = include_directories('mwm/include')
 
 libmwmsrcs = [
   'libmwm/src/boolstr.c',
+  'libmwm/src/con.c',
   'libmwm/src/create_socket.c',
   'libmwm/src/dpi.c',
   'libmwm/src/draw_util.c',
@@ -341,6 +342,46 @@ libmwmsrcs = [
   'libmwm/src/nonblock.c',
   'libmwm/src/screenshot_wallpaper.c',
   'libmwm/src/is_background_set.c',
+  'libmwm/src/assignments.c',
+  'libmwm/src/atoms.c',
+  'libmwm/src/bindings.c',
+  'libmwm/src/click.c',
+  'libmwm/src/commands_parser.c',
+  'libmwm/src/config.c',
+  'libmwm/src/config_directives.c',
+  'libmwm/src/config_parser.c',
+  'libmwm/src/drag.c',
+  'libmwm/src/ewmh.c',
+  'libmwm/src/fake_outputs.c',
+  'libmwm/src/floating.c',
+  'libmwm/src/gaps.c',
+  'libmwm/src/handlers.c',
+  'libmwm/src/ipc.c',
+  'libmwm/src/key_press.c',
+  'libmwm/src/load_layout.c',
+  'libmwm/src/log.c',
+  'libmwm/src/manage.c',
+  'libmwm/src/match.c',
+  'libmwm/src/move.c',
+  'libmwm/src/output.c',
+  'libmwm/src/randr.c',
+  'libmwm/src/regex.c',
+  'libmwm/src/render.c',
+  'libmwm/src/resize.c',
+  'libmwm/src/restore_layout.c',
+  'libmwm/src/scratchpad.c',
+  'libmwm/src/sd-daemon.c',
+  'libmwm/src/startup.c',
+  'libmwm/src/state.c',
+  'libmwm/src/sync.c',
+  'libmwm/src/tree.c',
+  'libmwm/src/tiling_drag.c',
+  'libmwm/src/util.c',
+  'libmwm/src/window.c',
+  'libmwm/src/workspace.c',
+  'libmwm/src/x.c',
+  'libmwm/src/xcb.c',
+  'libmwm/src/xcursor.c',
 ]
 
 if not cdata.get('HAVE_STRNDUP')
@@ -350,67 +391,6 @@ endif
 if not cdata.get('HAVE_MKDIRP')
   libmwmsrcs += 'libmwm/src/mkdirp.c'
 endif
-
-if get_option('build_libmwm_static')
-  libmwm = static_library(
-    'mwm',
-    libmwmsrcs,
-    include_directories: libmwm_inc,
-    dependencies: [
-      pangocairo_dep,
-      config_h,
-    ],
-  )
-else
-  libmwm = disabler()
-endif
-
-mwmsrcs = [
-  'mwm/src/assignments.c',
-  'mwm/src/bindings.c',
-  'mwm/src/click.c',
-  'mwm/src/commands.c',
-  'mwm/src/commands_parser.c',
-  'mwm/src/con.c',
-  'mwm/src/config.c',
-  'mwm/src/config_directives.c',
-  'mwm/src/config_parser.c',
-  'mwm/src/display_version.c',
-  'mwm/src/drag.c',
-  'mwm/src/ewmh.c',
-  'mwm/src/fake_outputs.c',
-  'mwm/src/floating.c',
-  'mwm/src/gaps.c',
-  'mwm/src/handlers.c',
-  'mwm/src/ipc.c',
-  'mwm/src/key_press.c',
-  'mwm/src/load_layout.c',
-  'mwm/src/log.c',
-  'mwm/src/main.c',
-  'mwm/src/manage.c',
-  'mwm/src/match.c',
-  'mwm/src/move.c',
-  'mwm/src/output.c',
-  'mwm/src/randr.c',
-  'mwm/src/regex.c',
-  'mwm/src/render.c',
-  'mwm/src/resize.c',
-  'mwm/src/restore_layout.c',
-  'mwm/src/scratchpad.c',
-  'mwm/src/sd-daemon.c',
-  'mwm/src/sighandler.c',
-  'mwm/src/startup.c',
-  'mwm/src/sync.c',
-  'mwm/src/tiling_drag.c',
-  'mwm/src/tree.c',
-  'mwm/src/util.c',
-  'mwm/src/version.c',
-  'mwm/src/window.c',
-  'mwm/src/workspace.c',
-  'mwm/src/x.c',
-  'mwm/src/xcb.c',
-  'mwm/src/xcursor.c',
-]
 
 # Verify the perl interpreter is present for running parser_gen,
 # ensuring a good error message when it isn’t:
@@ -428,7 +408,32 @@ command_parser = custom_target(
   command: [perl, parser_gen, '--input=@INPUT@', '--prefix=command'],
 )
 
-mwmsrcs += command_parser
+libmwmsrcs += command_parser
+
+if get_option('build_libmwm_static')
+  libmwm = static_library(
+    'mwm',
+    libmwmsrcs,
+    include_directories: libmwm_inc,
+    dependencies: [
+      xcb_dep,
+      xcb_shape_dep,
+      libsn_dep,
+      pangocairo_dep,
+      config_h,
+    ],
+  )
+else
+  libmwm = disabler()
+endif
+
+mwmsrcs = [
+  'mwm/src/commands.c',
+  'mwm/src/display_version.c',
+  'mwm/src/main.c',
+  'mwm/src/sighandler.c',
+  'mwm/src/version.c',
+]
 
 config_parser = custom_target(
   'config_parser',
@@ -625,7 +630,7 @@ replace_dirs = [
 executable(
   'test.commands_parser',
   [
-    'mwm/src/commands_parser.c',
+    'libmwm/src/commands_parser.c',
     command_parser,
   ],
   include_directories: [libmwm_inc, mwm_inc],
@@ -637,7 +642,7 @@ executable(
 executable(
   'test.config_parser',
   [
-    'mwm/src/config_parser.c',
+    'libmwm/src/config_parser.c',
     config_parser,
   ],
   include_directories: [libmwm_inc, mwm_inc],

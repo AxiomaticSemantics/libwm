@@ -33,9 +33,6 @@
 
 #include "sd-daemon.h"
 
-#include "mwm-atoms_NET_SUPPORTED.xmacro.h"
-#include "mwm-atoms_rest.xmacro.h"
-
 /* The original value of RLIMIT_CORE when mwm was started. We need to restore
  * this before starting any other process, since we set RLIMIT_CORE to
  * RLIM_INFINITY for mwm debugging versions. */
@@ -43,10 +40,6 @@ struct rlimit original_rlimit_core;
 
 /* The number of file descriptors passed via socket activation. */
 int listen_fds;
-
-/* We keep the xcb_prepare watcher around to be able to enable and disable it
- * temporarily for drag_pointer(). */
-static struct ev_prepare *xcb_prepare;
 
 char **start_argv;
 
@@ -103,12 +96,6 @@ struct ws_assignments_head ws_assignments = TAILQ_HEAD_INITIALIZER(ws_assignment
 bool xkb_supported = true;
 bool shape_supported = true;
 
-/* Define all atoms as global variables */
-#define xmacro(atom) xcb_atom_t A_##atom;
-MWM_NET_SUPPORTED_ATOMS_XMACRO
-MWM_REST_ATOMS_XMACRO
-#undef xmacro
-
 /*
  * This callback is only a dummy, see xcb_prepare_cb.
  * See also man libev(3): "ev_prepare" and "ev_check" - customise your event loop
@@ -163,12 +150,12 @@ static void xcb_prepare_cb(EV_P_ ev_prepare *w, int revents) {
 void main_set_x11_cb(bool enable) {
     DLOG("Setting main X11 callback to enabled=%d\n", enable);
     if (enable) {
-        ev_prepare_start(main_loop, xcb_prepare);
+        ev_prepare_start(main_loop, xcb_prepare_main);
         /* Trigger the watcher explicitly to handle all remaining X11 events.
          * drag_pointer()’s event handler exits in the middle of the loop. */
-        ev_feed_event(main_loop, xcb_prepare, 0);
+        ev_feed_event(main_loop, xcb_prepare_main, 0);
     } else {
-        ev_prepare_stop(main_loop, xcb_prepare);
+        ev_prepare_stop(main_loop, xcb_prepare_main);
     }
 }
 
@@ -1044,13 +1031,13 @@ int main(int argc, char *argv[]) {
     ewmh_update_desktop_properties();
 
     struct ev_io *xcb_watcher = scalloc(1, sizeof(struct ev_io));
-    xcb_prepare = scalloc(1, sizeof(struct ev_prepare));
+    xcb_prepare_main = scalloc(1, sizeof(struct ev_prepare));
 
     ev_io_init(xcb_watcher, xcb_got_event, xcb_get_file_descriptor(conn), EV_READ);
     ev_io_start(main_loop, xcb_watcher);
 
-    ev_prepare_init(xcb_prepare, xcb_prepare_cb);
-    ev_prepare_start(main_loop, xcb_prepare);
+    ev_prepare_init(xcb_prepare_main, xcb_prepare_cb);
+    ev_prepare_start(main_loop, xcb_prepare_main);
 
     xcb_flush(conn);
 

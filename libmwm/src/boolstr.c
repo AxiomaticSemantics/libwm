@@ -12,12 +12,11 @@
 #include <unistd.h>
 
 /*
- * Reports whether str represents the enabled state (1, yes, true, …).
+ * Reports whether str represents the enabled state (1, true, …).
  *
  */
 bool boolstr(const char *str) {
     return (strcasecmp(str, "1") == 0 ||
-            strcasecmp(str, "yes") == 0 ||
             strcasecmp(str, "true") == 0 ||
             strcasecmp(str, "on") == 0 ||
             strcasecmp(str, "enable") == 0 ||
