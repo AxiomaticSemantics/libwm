@@ -142,24 +142,6 @@ static void xcb_prepare_cb(EV_P_ ev_prepare *w, int revents) {
 }
 
 /*
- * Enable or disable the main X11 event handling function.
- * This is used by drag_pointer() which has its own, modal event handler, which
- * takes precedence over the normal event handler.
- *
- */
-void main_set_x11_cb(bool enable) {
-    DLOG("Setting main X11 callback to enabled=%d\n", enable);
-    if (enable) {
-        ev_prepare_start(main_loop, xcb_prepare_main);
-        /* Trigger the watcher explicitly to handle all remaining X11 events.
-         * drag_pointer()’s event handler exits in the middle of the loop. */
-        ev_feed_event(main_loop, xcb_prepare_main, 0);
-    } else {
-        ev_prepare_stop(main_loop, xcb_prepare_main);
-    }
-}
-
-/*
  * Exit handler which destroys the main_loop. Will trigger cleanup handlers.
  *
  */
